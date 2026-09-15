@@ -1,0 +1,27 @@
+### If you install the "REST Client" extension in VS Code, 
+### you can click "Send Request" directly above these URLs!
+
+### ===============================
+### AUTHENTICATION
+### ===============================
+
+### 1. Register a new user
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "password123"
+}
+
+### 2. Login to get a JWT token
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "password123"
+}
+
+### 3. Logout
+POST http://localhost:3000/auth/logout
