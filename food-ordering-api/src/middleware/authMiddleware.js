@@ -29,4 +29,17 @@ const protect = (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+// Middleware to check if the user has the required roles
+const authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    // req.user comes from the `protect` middleware
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ 
+        message: `Forbidden: Your role (${req.user?.role || 'unknown'}) does not have access to this resource.` 
+      });
+    }
+    next();
+  };
+};
+
+module.exports = { protect, authorizeRoles };

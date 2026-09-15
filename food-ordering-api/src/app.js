@@ -5,13 +5,16 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 const authRoutes = require('./routes/authRoutes');
-
+const userRoutes = require('./routes/userRoutes');
 
 // Middleware to parse JSON requests
 app.use(express.json());
 
 // Public Auth Routes
 app.use('/auth', authRoutes);
+
+// Protected User Routes
+app.use('/users', userRoutes);
 
 
 

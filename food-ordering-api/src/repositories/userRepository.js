@@ -37,6 +37,22 @@ const userRepository = {
     });
     await newUser.save();
     return newUser;
+  },
+
+  update: async (id, updateData) => {
+    return await User.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+  },
+
+  updatePassword: async (id, hashedPassword) => {
+    return await User.findByIdAndUpdate(
+      id,
+      { $set: { password: hashedPassword } },
+      { new: true }
+    );
   }
 };
 
