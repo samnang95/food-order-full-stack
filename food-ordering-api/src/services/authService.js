@@ -1,16 +1,25 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 const userRepository = require('../repositories/userRepository');
 
 // Secret key for JWT
 const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_123';
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const authService = {
-  register: async (username, password) => {
+  register: async (username, password, email) => {
     // 1. Check if user already exists
-    const existingUser = userRepository.findByUsername(username);
+    const existingUser = await userRepository.findByUsername(username);
     if (existingUser) {
       throw new Error('Username already exists');
+    }
+    
+    if (email) {
+      const existingEmail = await userRepository.findByEmail(email);
+      if (existingEmail) {
+        throw new Error('Email already in use');
+      }
     }
     
     // 2. Hash the password securely
@@ -18,15 +27,15 @@ const authService = {
     const hashedPassword = await bcrypt.hash(password, salt);
     
     // 3. Save the new user
-    const newUser = userRepository.create(username, hashedPassword);
+    const newUser = await userRepository.create(username, hashedPassword, email);
     
     // Return user without password
-    return { id: newUser.id, username: newUser.username };
+    return { id: newUser._id, username: newUser.username, email: newUser.email, role: newUser.role };
   },
   
   login: async (username, password) => {
     // 1. Find the user
-    const user = userRepository.findByUsername(username);
+    const user = await userRepository.findByUsername(username);
     if (!user) {
       throw new Error('Invalid credentials');
     }
@@ -38,14 +47,60 @@ const authService = {
     }
     
     // 3. Generate JWT Token
-    // We include the user ID and username in the token payload
+    // We include the user ID, username and role in the token payload
     const token = jwt.sign(
-      { id: user.id, username: user.username },
+      { id: user._id, username: user.username, role: user.role },
       JWT_SECRET,
       { expiresIn: '1h' } // Token expires in 1 hour
     );
     
-    return { token, user: { id: user.id, username: user.username } };
+    return { token, user: { id: user._id, username: user.username, role: user.role } };
+  },
+
+  googleLogin: async (idToken) => {
+    // 1. Verify Google token
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+    
+    const payload = ticket.getPayload();
+    const googleId = payload['sub'];
+    const email = payload['email'];
+    const name = payload['name'];
+    
+    // 2. Check if user exists by googleId
+    let user = await userRepository.findByGoogleId(googleId);
+    
+    if (!user) {
+      // Check if a user with this email already exists
+      user = await userRepository.findByEmail(email);
+      
+      if (user) {
+        // Link google account
+        user.googleId = googleId;
+        await user.save();
+      } else {
+        // Create new Google user
+        let username = name || email.split('@')[0];
+        // Ensure username uniqueness
+        const existing = await userRepository.findByUsername(username);
+        if (existing) {
+          username = `${username}_${Date.now()}`;
+        }
+        
+        user = await userRepository.createGoogleUser(username, email, googleId);
+      }
+    }
+    
+    // 3. Generate JWT Token
+    const token = jwt.sign(
+      { id: user._id, username: user.username, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    
+    return { token, user: { id: user._id, username: user.username, email: user.email, role: user.role } };
   }
 };
 
