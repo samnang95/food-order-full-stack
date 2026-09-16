@@ -62,12 +62,32 @@ const userService = {
 
     // Hash new password
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    const newHashedPassword = await bcrypt.hash(newPassword, salt);
+    await userRepository.updatePassword(userId, newHashedPassword);
+  },
 
-    // Save new password
-    await userRepository.updatePassword(id, hashedPassword);
+  getAllUsers: async () => {
+    return await userRepository.findAll();
+  },
+
+  updateUserRole: async (userIdToUpdate, newRole) => {
+    const validRoles = ['customer', 'staff', 'admin'];
     
-    return true;
+    if (!validRoles.includes(newRole)) {
+      throw new Error('Invalid role specified. Role must be customer, staff, or admin.');
+    }
+
+    const user = await userRepository.findById(userIdToUpdate);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // You cannot demote yourself if you are the main admin
+    if (user.role === 'admin' && newRole === 'customer') {
+      throw new Error('You cannot demote an admin to a customer.');
+    }
+
+    return await userRepository.updateRole(userIdToUpdate, newRole);
   }
 };
 

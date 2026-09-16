@@ -47,12 +47,25 @@ const userRepository = {
     );
   },
 
-  updatePassword: async (id, hashedPassword) => {
+  updatePassword: async (id, newPassword) => {
     return await User.findByIdAndUpdate(
       id,
-      { $set: { password: hashedPassword } },
-      { new: true }
+      { $set: { password: newPassword } },
+      { new: true, runValidators: true }
     );
+  },
+
+  findAll: async () => {
+    // Return all users, excluding passwords
+    return await User.find().select('-password').sort({ createdAt: -1 });
+  },
+
+  updateRole: async (id, role) => {
+    return await User.findByIdAndUpdate(
+      id,
+      { $set: { role: role } },
+      { new: true, runValidators: true }
+    ).select('-password');
   }
 };
 

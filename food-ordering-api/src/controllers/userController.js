@@ -45,8 +45,29 @@ const changePassword = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await userService.getAllUsers();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const updateUserRole = async (req, res) => {
+  try {
+    const { role } = req.body;
+    const updatedUser = await userService.updateUserRole(req.params.id, role);
+    res.json({ message: 'User role updated successfully', user: updatedUser });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
-  changePassword
+  changePassword,
+  getAllUsers,
+  updateUserRole
 };

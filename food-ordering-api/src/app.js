@@ -6,6 +6,9 @@ const port = process.env.PORT || 3000;
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const foodRoutes = require('./routes/foodRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 
 // Middleware to parse JSON requests
 app.use(express.json());
@@ -15,6 +18,15 @@ app.use('/auth', authRoutes);
 
 // Protected User Routes
 app.use('/users', userRoutes);
+
+// Food/Product Routes
+app.use('/foods', foodRoutes);
+
+// Category Routes
+app.use('/categories', categoryRoutes);
+
+// Order Routes
+app.use('/orders', orderRoutes);
 
 
 
