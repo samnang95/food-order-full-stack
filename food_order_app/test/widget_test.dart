@@ -1,30 +1,39 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_localization/flutter_localization.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:food_order_app/main.dart';
+import 'package:food_order_app/core/food_order_app.dart';
+import 'package:food_order_app/features/login/login_view.dart';
+import 'package:food_order_app/core/db/local_db.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+    await LocalDB.init();
+    
+    final String enJson = await rootBundle.loadString('assets/translate/en.json');
+    final String kmJson = await rootBundle.loadString('assets/translate/km.json');
+    
+    final Map<String, dynamic> enMap = json.decode(enJson);
+    final Map<String, dynamic> kmMap = json.decode(kmJson);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await FlutterLocalization.instance.ensureInitialized();
+    FlutterLocalization.instance.init(
+      mapLocales: [
+        MapLocale('en', enMap),
+        MapLocale('km', kmMap),
+      ],
+      initLanguageCode: 'en',
+    );
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('Login route smoke test', (WidgetTester tester) async {
+    await tester.pumpWidget(const FoodOrderApp());
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.byType(LoginView), findsOneWidget);
   });
 }
