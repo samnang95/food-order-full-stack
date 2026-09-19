@@ -5,6 +5,7 @@ const userRepository = require('../repositories/userRepository');
 
 // Secret key for JWT
 const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_123';
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'my_refresh_secret_key_123';
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const authService = {
@@ -29,8 +30,20 @@ const authService = {
     // 3. Save the new user
     const newUser = await userRepository.create(username, hashedPassword, email);
     
-    // Return user without password
-    return { id: newUser._id, username: newUser.username, email: newUser.email, role: newUser.role };
+    // 4. Generate tokens for automatic login after register
+    const token = jwt.sign(
+      { id: newUser._id, username: newUser.username, role: newUser.role },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    const refreshToken = jwt.sign(
+      { id: newUser._id, username: newUser.username, role: newUser.role },
+      REFRESH_TOKEN_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // Return user and tokens
+    return { token, refreshToken, user: { id: newUser._id, username: newUser.username, email: newUser.email, role: newUser.role } };
   },
   
   login: async (username, password) => {
@@ -54,7 +67,13 @@ const authService = {
       { expiresIn: '1h' } // Token expires in 1 hour
     );
     
-    return { token, user: { id: user._id, username: user.username, role: user.role } };
+    const refreshToken = jwt.sign(
+      { id: user._id, username: user.username, role: user.role },
+      REFRESH_TOKEN_SECRET,
+      { expiresIn: '7d' } // Refresh token expires in 7 days
+    );
+    
+    return { token, refreshToken, user: { id: user._id, username: user.username, role: user.role } };
   },
 
   googleLogin: async (idToken) => {
@@ -100,7 +119,37 @@ const authService = {
       { expiresIn: '1h' }
     );
     
-    return { token, user: { id: user._id, username: user.username, email: user.email, role: user.role } };
+    const refreshToken = jwt.sign(
+      { id: user._id, username: user.username, role: user.role },
+      REFRESH_TOKEN_SECRET,
+      { expiresIn: '7d' }
+    );
+    
+    return { token, refreshToken, user: { id: user._id, username: user.username, email: user.email, role: user.role } };
+  },
+  
+  refreshToken: async (oldRefreshToken) => {
+    try {
+      // 1. Verify the refresh token
+      const decoded = jwt.verify(oldRefreshToken, REFRESH_TOKEN_SECRET);
+      
+      // 2. Generate new tokens
+      const token = jwt.sign(
+        { id: decoded.id, username: decoded.username, role: decoded.role },
+        JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+      
+      const newRefreshToken = jwt.sign(
+        { id: decoded.id, username: decoded.username, role: decoded.role },
+        REFRESH_TOKEN_SECRET,
+        { expiresIn: '7d' }
+      );
+      
+      return { token, refreshToken: newRefreshToken };
+    } catch (error) {
+      throw new Error('Invalid or expired refresh token');
+    }
   }
 };
 
