@@ -25,6 +25,29 @@ android {
         versionName = flutter.versionName
     }
 
+    flavorDimensions += "default"
+
+    buildFeatures {
+        resValues = true
+    }
+
+    productFlavors {
+        create("dev") {
+            dimension = "default"
+            applicationIdSuffix = ".dev"
+            resValue("string", "app_name", "BiteCraft Dev")
+        }
+        create("staging") {
+            dimension = "default"
+            applicationIdSuffix = ".staging"
+            resValue("string", "app_name", "BiteCraft Staging")
+        }
+        create("prod") {
+            dimension = "default"
+            resValue("string", "app_name", "BiteCraft")
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

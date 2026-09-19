@@ -1,0 +1,5 @@
+#include "Generated.xcconfig"
+
+APP_DISPLAY_NAME = BiteCraft Dev
+PRODUCT_BUNDLE_IDENTIFIER = com.example.foodOrderApp.dev
+FLUTTER_TARGET = lib/main_dev.dart

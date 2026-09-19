@@ -4,5 +4,15 @@
   "usernameEmail": "Username or Email",
   "password": "Password",
   "signIn": "Sign In",
-  "foodFeed": "Food/Products Feed"
+  "foodFeed": "Food/Products Feed",
+  "forgotPassword": "Forgot Password?",
+  "rememberMe": "Remember me on this device",
+  "orContinueWith": "or continue with",
+  "dontHaveAccount": "Don't have an account?",
+  "signUp": "Sign Up",
+  "usernameRequired": "Please enter your username or email",
+  "passwordRequired": "Please enter your password",
+  "enterUsernameHint": "e.g. hungrychef or alex@bitecraft.com",
+  "enterPasswordHint": "Enter your password",
+  "secureEncryption": "256-bit SSL encrypted secure login"
 }

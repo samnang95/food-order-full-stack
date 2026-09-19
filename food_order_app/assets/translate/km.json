@@ -4,5 +4,15 @@
   "usernameEmail": "ឈ្មោះគណនី ឬ អ៊ីមែល",
   "password": "ពាក្យសម្ងាត់",
   "signIn": "ចូលគណនី",
-  "foodFeed": "មាតិកាអាហារ / ផលិតផល"
+  "foodFeed": "មាតិកាអាហារ / ផលិតផល",
+  "forgotPassword": "ភ្លេចពាក្យសម្ងាត់?",
+  "rememberMe": "ចងចាំខ្ញុំ",
+  "orContinueWith": "ឬបន្តជាមួយ",
+  "dontHaveAccount": "មិនទាន់មានគណនីមែនទេ?",
+  "signUp": "ចុះឈ្មោះ",
+  "usernameRequired": "សូមបញ្ចូលឈ្មោះគណនី ឬអ៊ីមែលរបស់អ្នក",
+  "passwordRequired": "សូមបញ្ចូលពាក្យសម្ងាត់របស់អ្នក",
+  "enterUsernameHint": "ឧ. hungrychef ឬ alex@bitecraft.com",
+  "enterPasswordHint": "បញ្ចូលពាក្យសម្ងាត់របស់អ្នក",
+  "secureEncryption": "សុវត្ថិភាពខ្ពស់ជាមួយនឹងការអ៊ិនគ្រីប 256-bit SSL"
 }

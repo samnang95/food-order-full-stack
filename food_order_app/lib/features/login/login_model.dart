@@ -1,12 +1,11 @@
-import 'package:equatable/equatable.dart';
-
-class LoginModel extends Equatable {
+class LoginModel {
   final String username;
   final String password;
   final bool isPasswordVisible;
   final bool isLoading;
   final bool rememberMe;
   final bool isSuccess;
+  final String? errorMessage;
 
   const LoginModel({
     this.username = '',
@@ -15,6 +14,7 @@ class LoginModel extends Equatable {
     this.isLoading = false,
     this.rememberMe = true,
     this.isSuccess = false,
+    this.errorMessage,
   });
 
   LoginModel copyWith({
@@ -24,6 +24,7 @@ class LoginModel extends Equatable {
     bool? isLoading,
     bool? rememberMe,
     bool? isSuccess,
+    String? errorMessage,
   }) {
     return LoginModel(
       username: username ?? this.username,
@@ -32,9 +33,7 @@ class LoginModel extends Equatable {
       isLoading: isLoading ?? this.isLoading,
       rememberMe: rememberMe ?? this.rememberMe,
       isSuccess: isSuccess ?? this.isSuccess,
+      errorMessage: errorMessage,
     );
   }
-
-  @override
-  List<Object> get props => [username, password, isPasswordVisible, isLoading, rememberMe, isSuccess];
 }

@@ -3,8 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get/get.dart';
 
 import 'package:food_order_app/core/food_order_app.dart';
+import 'package:food_order_app/core/theme/theme_store.dart';
+import 'package:food_order_app/core/locale/locale_store.dart';
 import 'package:food_order_app/features/login/login_view.dart';
 import 'package:food_order_app/core/db/local_db.dart';
 
@@ -28,6 +31,9 @@ void main() {
       ],
       initLanguageCode: 'en',
     );
+
+    Get.put(ThemeStore(), permanent: true);
+    Get.put(LocaleStore(), permanent: true);
   });
 
   testWidgets('Login route smoke test', (WidgetTester tester) async {

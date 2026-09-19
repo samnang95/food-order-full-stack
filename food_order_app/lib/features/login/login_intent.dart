@@ -1,30 +1,28 @@
-import 'package:equatable/equatable.dart';
-
-sealed class LoginIntent extends Equatable {
+sealed class LoginIntent {
   const LoginIntent();
-
-  @override
-  List<Object> get props => [];
 }
 
 class LoginUsernameChanged extends LoginIntent {
   final String username;
   const LoginUsernameChanged(this.username);
-
-  @override
-  List<Object> get props => [username];
 }
 
 class LoginPasswordChanged extends LoginIntent {
   final String password;
   const LoginPasswordChanged(this.password);
-
-  @override
-  List<Object> get props => [password];
 }
 
 class LoginTogglePasswordVisibility extends LoginIntent {
   const LoginTogglePasswordVisibility();
+}
+
+class LoginToggleRememberMe extends LoginIntent {
+  final bool rememberMe;
+  const LoginToggleRememberMe(this.rememberMe);
+}
+
+class LoginClearError extends LoginIntent {
+  const LoginClearError();
 }
 
 class LoginSubmit extends LoginIntent {

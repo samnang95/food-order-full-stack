@@ -1,15 +1,27 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'home_intent.dart';
 import 'home_model.dart';
 
-class HomeStore extends Bloc<HomeIntent, HomeModel> {
-  HomeStore() : super(const HomeModel()) {
-    on<HomeLoadData>(_onLoadData);
-    on<HomeCategorySelected>(_onCategorySelected);
+class HomeStore extends GetxController {
+  final Rx<HomeModel> state = const HomeModel().obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    onIntent(const HomeLoadData());
   }
 
-  Future<void> _onLoadData(HomeLoadData intent, Emitter<HomeModel> emit) async {
-    emit(state.copyWith(isLoading: true));
+  void onIntent(HomeIntent intent) {
+    switch (intent) {
+      case HomeLoadData():
+        _onLoadData();
+      case HomeCategorySelected(:final category):
+        _onCategorySelected(category);
+    }
+  }
+
+  Future<void> _onLoadData() async {
+    state.value = state.value.copyWith(isLoading: true);
     await Future.delayed(const Duration(milliseconds: 500)); // Simulating network
     
     final categories = ['All', 'Burgers', 'Pizza', 'Asian', 'Healthy', 'Dessert'];
@@ -35,15 +47,15 @@ class HomeStore extends Bloc<HomeIntent, HomeModel> {
       }
     ];
 
-    emit(state.copyWith(
+    state.value = state.value.copyWith(
       isLoading: false,
       categories: categories,
       selectedCategory: 'All',
       popularItems: popularItems,
-    ));
+    );
   }
 
-  void _onCategorySelected(HomeCategorySelected intent, Emitter<HomeModel> emit) {
-    emit(state.copyWith(selectedCategory: intent.category));
+  void _onCategorySelected(String category) {
+    state.value = state.value.copyWith(selectedCategory: category);
   }
 }

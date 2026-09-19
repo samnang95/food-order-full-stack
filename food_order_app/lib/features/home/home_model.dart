@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
-
-class HomeModel extends Equatable {
+class HomeModel {
   final bool isLoading;
   final List<String> categories;
   final String selectedCategory;
@@ -26,7 +24,4 @@ class HomeModel extends Equatable {
       popularItems: popularItems ?? this.popularItems,
     );
   }
-
-  @override
-  List<Object> get props => [isLoading, categories, selectedCategory, popularItems];
 }
