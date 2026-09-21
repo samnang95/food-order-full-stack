@@ -2,8 +2,8 @@ import 'package:get/get.dart';
 
 import '../features/login/login_binding.dart';
 import '../features/login/login_view.dart';
-import '../features/home/home_binding.dart';
-import '../features/home/home_view.dart';
+import '../features/main_navigation/main_nav_binding.dart';
+import '../features/main_navigation/main_nav_view.dart';
 import 'app_routes.dart';
 
 class AppRouter {
@@ -15,8 +15,8 @@ class AppRouter {
     ),
     GetPage(
       name: AppRoutes.home,
-      page: () => const HomeView(),
-      binding: HomeBinding(),
+      page: () => const MainNavView(),
+      binding: MainNavBinding(),
     ),
   ];
 
