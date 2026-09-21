@@ -7,9 +7,9 @@ const { protect, authorizeRoles } = require('../middleware/authMiddleware');
 router.get('/', foodController.getAllFoods);
 router.get('/:id', foodController.getFoodById);
 
-// Protected routes (only admin and staff can modify food)
+// Protected routes (authenticated users can modify food)
 router.use(protect);
-router.use(authorizeRoles('admin', 'staff'));
+router.use(authorizeRoles('user'));
 
 router.post('/', foodController.createFood);
 router.put('/:id', foodController.updateFood);

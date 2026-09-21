@@ -61,8 +61,8 @@ const orderService = {
       throw new Error('Order not found');
     }
 
-    // Security check: if customer, they can only view their own order
-    if (userRole === 'customer' && order.user._id.toString() !== userId.toString()) {
+    // Security check: users can only view their own order
+    if (order.user._id.toString() !== userId.toString()) {
       throw new Error('Not authorized to view this order');
     }
 

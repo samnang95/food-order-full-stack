@@ -15,7 +15,7 @@ class ProfileView extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? const Color(0xFF1E2638) : Colors.white;
     final username = LocalDB.getString('user_username') ?? 'Food Lover';
-    final role = LocalDB.getString('user_role') ?? 'Customer';
+    final role = LocalDB.getString('user_role') ?? 'User';
 
     return Scaffold(
       appBar: AppBar(

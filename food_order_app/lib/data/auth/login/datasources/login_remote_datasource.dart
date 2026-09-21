@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import '../../../../core/db/local_db.dart';
 import '../../../../core/services/api_client.dart';
 import '../models/login_request_model.dart';
 import '../models/login_response_model.dart';
@@ -18,13 +19,17 @@ class LoginRemoteDataSourceImpl implements LoginRemoteDataSource {
     if (response.statusCode == 200 || response.statusCode == 201) {
       final Map<String, dynamic> data = jsonDecode(response.body);
       final responseModel = LoginResponseModel.fromJson(data);
-      
+
       if (responseModel.token.isNotEmpty) {
         await ApiClient.saveTokens(
           token: responseModel.token,
           refreshToken: responseModel.refreshToken,
         );
-        debugPrint('🔑 [LoginDataSource] Token saved ✓');
+        if (responseModel.username.isNotEmpty) {
+          await LocalDB.setString('user_username', responseModel.username);
+        }
+        await LocalDB.setString('user_role', responseModel.role ?? 'user');
+        debugPrint('🔑 [LoginDataSource] Token & role saved ✓');
       }
       return responseModel;
     } else {

@@ -19,10 +19,15 @@ const userSchema = new mongoose.Schema({
     unique: true,
     sparse: true
   },
+  appleId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
   role: {
     type: String,
-    enum: ['customer', 'admin', 'staff'],
-    default: 'customer'
+    enum: ['user'],
+    default: 'user'
   }
 }, { timestamps: true });
 

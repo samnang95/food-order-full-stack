@@ -1,9 +1,11 @@
 import 'package:get/get.dart';
 
-import '../features/login/login_binding.dart';
-import '../features/login/login_view.dart';
+import '../features/auth/login/login_binding.dart';
+import '../features/auth/login/login_view.dart';
 import '../features/main_navigation/main_nav_binding.dart';
 import '../features/main_navigation/main_nav_view.dart';
+import '../features/auth/signup/signup_binding.dart';
+import '../features/auth/signup/signup_view.dart';
 import 'app_routes.dart';
 
 class AppRouter {
@@ -12,6 +14,11 @@ class AppRouter {
       name: AppRoutes.login,
       page: () => const LoginView(),
       binding: LoginBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.signUp,
+      page: () => const SignUpView(),
+      binding: SignUpBinding(),
     ),
     GetPage(
       name: AppRoutes.home,

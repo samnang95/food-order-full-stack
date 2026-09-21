@@ -12,6 +12,10 @@ const userRepository = {
   findByGoogleId: async (googleId) => {
     return await User.findOne({ googleId });
   },
+
+  findByAppleId: async (appleId) => {
+    return await User.findOne({ appleId });
+  },
   
   findById: async (id) => {
     return await User.findById(id);
@@ -22,7 +26,7 @@ const userRepository = {
       username,
       password: hashedPassword,
       email: email || undefined,
-      role: 'customer'
+      role: 'user'
     });
     await newUser.save();
     return newUser;
@@ -33,7 +37,18 @@ const userRepository = {
       username,
       email,
       googleId,
-      role: 'customer'
+      role: 'user'
+    });
+    await newUser.save();
+    return newUser;
+  },
+
+  createAppleUser: async (username, email, appleId) => {
+    const newUser = new User({
+      username,
+      email,
+      appleId,
+      role: 'user'
     });
     await newUser.save();
     return newUser;

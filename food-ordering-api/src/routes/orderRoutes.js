@@ -15,7 +15,7 @@ router.get('/', orderController.getMyOrders);
 // View specific order details
 router.get('/:id', orderController.getOrderById);
 
-// Update order status (Admin/Staff only)
-router.put('/:id/status', authorizeRoles('admin', 'staff'), orderController.updateOrderStatus);
+// Update order status
+router.put('/:id/status', authorizeRoles('user'), orderController.updateOrderStatus);
 
 module.exports = router;

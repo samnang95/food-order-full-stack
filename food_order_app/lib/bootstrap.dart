@@ -8,6 +8,7 @@ import 'core/config/app_environment.dart';
 import 'core/db/local_db.dart';
 import 'core/food_order_app.dart';
 import 'core/locale/locale_store.dart';
+import 'core/locale/translation_helper.dart';
 import 'core/services/services_network.dart';
 import 'core/services/wakelock_service.dart';
 import 'core/theme/theme_store.dart';
@@ -27,8 +28,8 @@ Future<void> runFoodOrderApp({
   final String enJson = await rootBundle.loadString('assets/translate/en.json');
   final String kmJson = await rootBundle.loadString('assets/translate/km.json');
   
-  final Map<String, dynamic> enMap = json.decode(enJson);
-  final Map<String, dynamic> kmMap = json.decode(kmJson);
+  final Map<String, dynamic> enMap = TranslationHelper.flatten(json.decode(enJson));
+  final Map<String, dynamic> kmMap = TranslationHelper.flatten(json.decode(kmJson));
   
   await FlutterLocalization.instance.ensureInitialized();
   final savedLanguage = LocalDB.getString('app_language') ?? 'en';

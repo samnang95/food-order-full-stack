@@ -28,3 +28,12 @@ class LoginClearError extends LoginIntent {
 class LoginSubmit extends LoginIntent {
   const LoginSubmit();
 }
+
+class LoginGoogleSubmit extends LoginIntent {
+  const LoginGoogleSubmit();
+}
+
+class LoginAppleSubmit extends LoginIntent {
+  const LoginAppleSubmit();
+}
+

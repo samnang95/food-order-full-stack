@@ -8,7 +8,8 @@ import 'package:get/get.dart';
 import 'package:food_order_app/core/food_order_app.dart';
 import 'package:food_order_app/core/theme/theme_store.dart';
 import 'package:food_order_app/core/locale/locale_store.dart';
-import 'package:food_order_app/features/login/login_view.dart';
+import 'package:food_order_app/core/locale/translation_helper.dart';
+import 'package:food_order_app/features/auth/login/login_view.dart';
 import 'package:food_order_app/core/db/local_db.dart';
 
 void main() {
@@ -20,8 +21,8 @@ void main() {
     final String enJson = await rootBundle.loadString('assets/translate/en.json');
     final String kmJson = await rootBundle.loadString('assets/translate/km.json');
     
-    final Map<String, dynamic> enMap = json.decode(enJson);
-    final Map<String, dynamic> kmMap = json.decode(kmJson);
+    final Map<String, dynamic> enMap = TranslationHelper.flatten(json.decode(enJson));
+    final Map<String, dynamic> kmMap = TranslationHelper.flatten(json.decode(kmJson));
 
     await FlutterLocalization.instance.ensureInitialized();
     FlutterLocalization.instance.init(

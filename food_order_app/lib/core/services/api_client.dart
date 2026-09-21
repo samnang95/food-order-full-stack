@@ -115,27 +115,29 @@ class ApiClient {
 
   /// --- Helper for Requests ---
 
-  static Map<String, String> _getHeaders() {
+  static Map<String, String> _getHeaders({bool includeAuth = true}) {
     final token = getToken();
     return {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
+      if (includeAuth && token != null) 'Authorization': 'Bearer $token',
     };
   }
 
   /// Wraps requests to handle 401 Unauthorized by attempting a token refresh.
   /// If refresh fails, redirects to login screen.
+  /// Auth endpoints (/auth/*) are exempt from refresh and session expiry redirect.
   static Future<http.Response> _requestWithRetry(
     String method,
     String endpoint,
     Future<http.Response> Function() request,
   ) async {
-    debugPrint('🚀 [ApiClient] $method $endpoint (hasToken: ${getToken() != null})');
+    final isAuthEndpoint = endpoint.startsWith('/auth/');
+    debugPrint('🚀 [ApiClient] $method $endpoint (hasToken: ${!isAuthEndpoint && getToken() != null})');
     var response = await request();
     debugPrint('📥 [ApiClient] $method $endpoint → Status ${response.statusCode}');
 
-    if (response.statusCode == 401) {
+    if (response.statusCode == 401 && !isAuthEndpoint) {
       debugPrint('⚠️ [ApiClient] 401 Unauthorized on $endpoint! Attempting auto-refresh...');
       final isRefreshed = await refreshAccessToken();
       if (isRefreshed) {
@@ -160,20 +162,26 @@ class ApiClient {
   /// GET request
   static Future<http.Response> get(String endpoint) async {
     final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
+    final isAuth = endpoint.startsWith('/auth/');
     return _requestWithRetry(
       'GET',
       endpoint,
-      () => http.get(url, headers: _getHeaders()).timeout(_timeout),
+      () => http.get(url, headers: _getHeaders(includeAuth: !isAuth)).timeout(_timeout),
     );
   }
 
   /// POST request
   static Future<http.Response> post(String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
+    final isAuth = endpoint.startsWith('/auth/');
     return _requestWithRetry(
       'POST',
       endpoint,
-      () => http.post(url, headers: _getHeaders(), body: jsonEncode(body)).timeout(_timeout),
+      () => http.post(
+        url,
+        headers: _getHeaders(includeAuth: !isAuth),
+        body: jsonEncode(body),
+      ).timeout(_timeout),
     );
   }
 

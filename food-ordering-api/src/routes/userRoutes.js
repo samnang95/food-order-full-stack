@@ -14,12 +14,12 @@ router.put('/profile', userController.updateProfile);
 router.put('/profile/password', userController.changePassword);
 
 // ==============================
-// Admin-Only Routes
+// User Management Routes
 // ==============================
 // Get all users in the system
-router.get('/', authorizeRoles('admin'), userController.getAllUsers);
+router.get('/', authorizeRoles('user'), userController.getAllUsers);
 
-// Promote/Demote a user's role
-router.put('/:id/role', authorizeRoles('admin'), userController.updateUserRole);
+// Update a user's role
+router.put('/:id/role', authorizeRoles('user'), userController.updateUserRole);
 
 module.exports = router;

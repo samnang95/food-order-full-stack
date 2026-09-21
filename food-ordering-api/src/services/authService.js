@@ -47,8 +47,11 @@ const authService = {
   },
   
   login: async (username, password) => {
-    // 1. Find the user
-    const user = await userRepository.findByUsername(username);
+    // 1. Find the user by username or email
+    let user = await userRepository.findByUsername(username);
+    if (!user) {
+      user = await userRepository.findByEmail(username);
+    }
     if (!user) {
       throw new Error('Invalid credentials');
     }
@@ -126,6 +129,79 @@ const authService = {
     );
     
     return { token, refreshToken, user: { id: user._id, username: user.username, email: user.email, role: user.role } };
+  },
+
+  appleLogin: async (identityToken, name, clientEmail) => {
+    if (!identityToken) {
+      throw new Error('Apple identity token is required');
+    }
+
+    // 1. Decode Apple identity token
+    const decoded = jwt.decode(identityToken, { complete: true });
+    if (!decoded || !decoded.payload) {
+      throw new Error('Invalid Apple identity token');
+    }
+
+    const payload = decoded.payload;
+    const appleId = payload.sub;
+    if (!appleId) {
+      throw new Error('Apple identity token is missing user identifier');
+    }
+
+    // Email might be in token or provided on first authorization
+    const email = payload.email || clientEmail;
+
+    // 2. Check if user exists by appleId
+    let user = await userRepository.findByAppleId(appleId);
+
+    if (!user) {
+      // Check if user exists by email
+      if (email) {
+        user = await userRepository.findByEmail(email);
+      }
+
+      if (user) {
+        // Link existing account with Apple
+        user.appleId = appleId;
+        await user.save();
+      } else {
+        // Create new Apple user
+        let baseUsername = name || (email ? email.split('@')[0] : `apple_${appleId.slice(0, 8)}`);
+        baseUsername = baseUsername.replace(/\s+/g, '_').toLowerCase();
+        let username = baseUsername;
+
+        const existing = await userRepository.findByUsername(username);
+        if (existing) {
+          username = `${username}_${Date.now().toString().slice(-4)}`;
+        }
+
+        user = await userRepository.createAppleUser(username, email || undefined, appleId);
+      }
+    }
+
+    // 3. Generate JWT Tokens
+    const token = jwt.sign(
+      { id: user._id, username: user.username, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user._id, username: user.username, role: user.role },
+      REFRESH_TOKEN_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    return {
+      token,
+      refreshToken,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }
+    };
   },
   
   refreshToken: async (oldRefreshToken) => {

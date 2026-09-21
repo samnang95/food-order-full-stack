@@ -45,6 +45,26 @@ const googleLogin = async (req, res) => {
   }
 };
 
+const appleLogin = async (req, res) => {
+  try {
+    const { token, name, email } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({ message: 'Apple identity token is required' });
+    }
+    
+    const result = await authService.appleLogin(token, name, email);
+    res.json({
+      message: 'Apple login successful',
+      token: result.token,
+      refreshToken: result.refreshToken,
+      user: result.user
+    });
+  } catch (error) {
+    res.status(401).json({ message: error.message });
+  }
+};
+
 const logout = (req, res) => {
   // With JWT, the server doesn't actually store a session to destroy.
   // Logging out is typically handled on the frontend by simply deleting the token.
@@ -71,6 +91,7 @@ module.exports = {
   register,
   login,
   googleLogin,
+  appleLogin,
   logout,
   refresh
 };

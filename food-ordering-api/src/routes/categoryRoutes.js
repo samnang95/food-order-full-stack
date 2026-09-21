@@ -8,9 +8,9 @@ router.get('/', categoryController.getAllCategories);
 router.get('/:id', categoryController.getCategoryById);
 router.get('/:id/foods', categoryController.getFoodsByCategory);
 
-// Protected routes (only admin and staff can modify categories)
+// Protected routes (authenticated users can modify categories)
 router.use(protect);
-router.use(authorizeRoles('admin', 'staff'));
+router.use(authorizeRoles('user'));
 
 router.post('/', categoryController.createCategory);
 router.put('/:id', categoryController.updateCategory);

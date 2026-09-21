@@ -11,13 +11,7 @@ const placeOrder = async (req, res) => {
 
 const getMyOrders = async (req, res) => {
   try {
-    // If staff/admin calls this, they get all orders. If customer, only theirs.
-    let orders;
-    if (req.user.role === 'admin' || req.user.role === 'staff') {
-      orders = await orderService.getAllOrders();
-    } else {
-      orders = await orderService.getUserOrders(req.user.id);
-    }
+    const orders = await orderService.getUserOrders(req.user.id);
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: error.message });

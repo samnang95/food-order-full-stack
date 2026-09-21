@@ -33,7 +33,9 @@ const protect = (req, res, next) => {
 const authorizeRoles = (...roles) => {
   return (req, res, next) => {
     // req.user comes from the `protect` middleware
-    if (!req.user || !roles.includes(req.user.role)) {
+    const userRole = req.user?.role || 'user';
+    const isAllowed = roles.length === 0 || roles.includes(userRole) || (roles.includes('user') && ['customer', 'admin', 'staff', 'user'].includes(userRole));
+    if (!req.user || !isAllowed) {
       return res.status(403).json({ 
         message: `Forbidden: Your role (${req.user?.role || 'unknown'}) does not have access to this resource.` 
       });

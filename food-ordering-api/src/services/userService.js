@@ -71,20 +71,15 @@ const userService = {
   },
 
   updateUserRole: async (userIdToUpdate, newRole) => {
-    const validRoles = ['customer', 'staff', 'admin'];
+    const validRoles = ['user'];
     
     if (!validRoles.includes(newRole)) {
-      throw new Error('Invalid role specified. Role must be customer, staff, or admin.');
+      throw new Error('Invalid role specified. Role must be user.');
     }
 
     const user = await userRepository.findById(userIdToUpdate);
     if (!user) {
       throw new Error('User not found');
-    }
-
-    // You cannot demote yourself if you are the main admin
-    if (user.role === 'admin' && newRole === 'customer') {
-      throw new Error('You cannot demote an admin to a customer.');
     }
 
     return await userRepository.updateRole(userIdToUpdate, newRole);
