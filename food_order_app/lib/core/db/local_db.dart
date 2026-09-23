@@ -28,6 +28,16 @@ class LocalDB {
     return _prefs.getBool(key);
   }
 
+  // --- String List methods ---
+
+  static Future<bool> setStringList(String key, List<String> value) async {
+    return await _prefs.setStringList(key, value);
+  }
+
+  static List<String>? getStringList(String key) {
+    return _prefs.getStringList(key);
+  }
+
   // --- Utilities ---
 
   static Future<bool> remove(String key) async {

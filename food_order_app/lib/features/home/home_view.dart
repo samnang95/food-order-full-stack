@@ -10,6 +10,7 @@ import 'home_store.dart';
 import 'home_intent.dart';
 import 'widgets/category_chip_list.dart';
 import 'widgets/food_card.dart';
+import '../../routes/app_routes.dart';
 
 class HomeView extends GetView<HomeStore> {
   const HomeView({super.key});
@@ -207,7 +208,7 @@ class HomeView extends GetView<HomeStore> {
                                   return FoodCard(
                                     food: food,
                                     onTap: () {
-                                      // Future: navigate to food detail
+                                      Get.toNamed(AppRoutes.foodDetail, arguments: food);
                                     },
                                   );
                                 },

@@ -7,6 +7,8 @@ import '../features/main_navigation/main_nav_binding.dart';
 import '../features/main_navigation/main_nav_view.dart';
 import '../features/auth/signup/signup_binding.dart';
 import '../features/auth/signup/signup_view.dart';
+import '../features/food_detail/food_detail_binding.dart';
+import '../features/food_detail/food_detail_view.dart';
 import 'app_routes.dart';
 
 class AppRouter {
@@ -25,6 +27,12 @@ class AppRouter {
       name: AppRoutes.home,
       page: () => const MainNavView(),
       binding: MainNavBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.foodDetail,
+      page: () => const FoodDetailView(),
+      binding: FoodDetailBinding(),
+      transition: Transition.fadeIn,
     ),
   ];
 

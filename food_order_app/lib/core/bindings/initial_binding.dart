@@ -1,8 +1,11 @@
 import 'package:get/get.dart';
+import '../services/favorites_service.dart';
 
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
-    // Register other global services here
+    if (!Get.isRegistered<FavoritesService>()) {
+      Get.put(FavoritesService(), permanent: true);
+    }
   }
 }

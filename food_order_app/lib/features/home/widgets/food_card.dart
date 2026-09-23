@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/services/favorites_service.dart';
 import '../../../domain/food/entities/food_entity.dart';
 
 class FoodCard extends StatelessWidget {
@@ -49,29 +51,32 @@ class FoodCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    food.imageUrl.isNotEmpty
-                        ? Image.network(
-                            food.imageUrl,
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Container(
-                                color: isDark ? const Color(0xFF283044) : const Color(0xFFF3F4F6),
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: AppColors.primary.withValues(alpha: 0.6),
-                                    value: loadingProgress.expectedTotalBytes != null
-                                        ? loadingProgress.cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                        : null,
+                    Hero(
+                      tag: 'food_image_${food.id}',
+                      child: food.imageUrl.isNotEmpty
+                          ? Image.network(
+                              food.imageUrl,
+                              fit: BoxFit.cover,
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  color: isDark ? const Color(0xFF283044) : const Color(0xFFF3F4F6),
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppColors.primary.withValues(alpha: 0.6),
+                                      value: loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress.cumulativeBytesLoaded /
+                                              loadingProgress.expectedTotalBytes!
+                                          : null,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                            errorBuilder: (_, _, _) => _buildPlaceholder(isDark),
-                          )
-                        : _buildPlaceholder(isDark),
+                                );
+                              },
+                              errorBuilder: (_, _, _) => _buildPlaceholder(isDark),
+                            )
+                          : _buildPlaceholder(isDark),
+                    ),
                     // Category badge
                     if (food.categoryName.isNotEmpty)
                       Positioned(
@@ -93,6 +98,36 @@ class FoodCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                    // Favorite button
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Obx(() {
+                        final favService = Get.isRegistered<FavoritesService>()
+                            ? Get.find<FavoritesService>()
+                            : null;
+                        final isFav = favService?.isFavorite(food.id) ?? false;
+
+                        return GestureDetector(
+                          onTap: () {
+                            favService?.toggleFavorite(food);
+                          },
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.5),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                              size: 16,
+                              color: isFav ? const Color(0xFFEF4444) : Colors.white,
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
                   ],
                 ),
               ),
