@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/services/cart_service.dart';
 import '../../core/services/favorites_service.dart';
 import '../../domain/food/entities/food_entity.dart';
+import '../../routes/app_routes.dart';
 import 'food_detail_intent.dart';
 import 'food_detail_model.dart';
 
@@ -14,6 +16,13 @@ class FoodDetailStore extends GetxController {
       return Get.find<FavoritesService>();
     }
     return Get.put(FavoritesService(), permanent: true);
+  }
+
+  CartService get _cartService {
+    if (Get.isRegistered<CartService>()) {
+      return Get.find<CartService>();
+    }
+    return Get.put(CartService(), permanent: true);
   }
 
   @override
@@ -99,6 +108,12 @@ class FoodDetailStore extends GetxController {
 
   void _onAddToCart() {
     final current = state.value;
+    _cartService.addItem(
+      current.food,
+      quantity: current.quantity,
+      specialInstructions: current.specialInstructions,
+    );
+
     if (Get.context != null) {
       Get.snackbar(
         'Added to Cart! 🛒',
@@ -106,13 +121,23 @@ class FoodDetailStore extends GetxController {
         snackPosition: SnackPosition.TOP,
         backgroundColor: AppColors.primary,
         colorText: Colors.white,
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 3),
         margin: const EdgeInsets.all(16),
         borderRadius: 14,
         icon: const Icon(
           Icons.check_circle_rounded,
           color: Colors.white,
           size: 28,
+        ),
+        mainButton: TextButton(
+          onPressed: () => Get.toNamed(AppRoutes.cart),
+          child: const Text(
+            'VIEW CART',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
         ),
       );
     }

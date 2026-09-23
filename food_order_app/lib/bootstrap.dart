@@ -9,6 +9,7 @@ import 'core/db/local_db.dart';
 import 'core/food_order_app.dart';
 import 'core/locale/locale_store.dart';
 import 'core/locale/translation_helper.dart';
+import 'core/services/cart_service.dart';
 import 'core/services/favorites_service.dart';
 import 'core/services/services_network.dart';
 import 'core/services/wakelock_service.dart';
@@ -44,6 +45,7 @@ Future<void> runFoodOrderApp({
   Get.put(ThemeStore(), permanent: true);
   Get.put(LocaleStore(), permanent: true);
   Get.put(FavoritesService(), permanent: true);
+  Get.put(CartService(), permanent: true);
 
   runApp(const FoodOrderApp());
 }

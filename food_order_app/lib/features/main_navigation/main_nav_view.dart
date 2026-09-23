@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../core/widgets/floating_cart_bar.dart';
 import '../categories/categories_view.dart';
 import '../home/home_view.dart';
 import '../orders/orders_view.dart';
@@ -17,13 +18,23 @@ class MainNavView extends GetView<MainNavStore> {
       final currentIndex = controller.state.value.currentIndex;
 
       return Scaffold(
-        body: IndexedStack(
-          index: currentIndex,
-          children: const [
-            HomeView(),
-            CategoriesView(),
-            OrdersView(),
-            ProfileView(),
+        body: Stack(
+          children: [
+            IndexedStack(
+              index: currentIndex,
+              children: const [
+                HomeView(),
+                CategoriesView(),
+                OrdersView(),
+                ProfileView(),
+              ],
+            ),
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 8,
+              child: FloatingCartBar(),
+            ),
           ],
         ),
         bottomNavigationBar: CustomBottomNavBar(
