@@ -1,263 +1,304 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
+import 'package:food_order_app/core/constants/app_images.dart';
 import 'package:get/get.dart';
 import '../../core/constants/app_colors.dart';
+import '../../data/order/datasources/order_remote_datasource.dart';
+import '../../data/order/repositories/order_repository_impl.dart';
+import '../../domain/order/entities/order_entity.dart';
+import '../../domain/order/repositories/order_repository.dart';
 import '../main_navigation/main_nav_intent.dart';
 import '../main_navigation/main_nav_store.dart';
+import 'orders_intent.dart';
+import 'orders_store.dart';
 
-class OrdersView extends StatefulWidget {
+class OrdersView extends StatelessWidget {
   const OrdersView({super.key});
 
-  @override
-  State<OrdersView> createState() => _OrdersViewState();
-}
+  OrdersStore get controller {
+    if (Get.isRegistered<OrdersStore>()) {
+      return Get.find<OrdersStore>();
+    }
+    final remote = Get.isRegistered<OrderRemoteDataSource>()
+        ? Get.find<OrderRemoteDataSource>()
+        : Get.put<OrderRemoteDataSource>(OrderRemoteDataSourceImpl());
+    final repo = Get.isRegistered<OrderRepository>()
+        ? Get.find<OrderRepository>()
+        : Get.put<OrderRepository>(OrderRepositoryImpl(remoteDataSource: remote));
+    return Get.put(OrdersStore(orderRepository: repo));
+  }
 
-class _OrdersViewState extends State<OrdersView> {
-  int _selectedFilter = 0; // 0: All, 1: Active, 2: Completed
-
-  final List<Map<String, dynamic>> _sampleOrders = [
-    {
-      'id': '#BC-9821',
-      'date': 'Today, 12:45 PM',
-      'restaurant': 'BiteCraft Burgers & Fries',
-      'items': '2x Double Cheese Burger, 1x Truffle Fries',
-      'total': '\$24.50',
-      'status': 'On the way',
-      'statusColor': Color(0xFFF97316),
-      'isActive': true,
-      'eta': 'Est. arrival in 12 mins',
-    },
-    {
-      'id': '#BC-8492',
-      'date': 'Yesterday, 7:15 PM',
-      'restaurant': 'Tokyo Ramen House',
-      'items': '1x Spicy Tonkotsu Ramen, 1x Gyoza',
-      'total': '\$19.80',
-      'status': 'Delivered',
-      'statusColor': Color(0xFF10B981),
-      'isActive': false,
-      'eta': 'Delivered yesterday',
-    },
-    {
-      'id': '#BC-7310',
-      'date': '14 Sep 2026',
-      'restaurant': 'Bella Italia Pizzeria',
-      'items': '1x Margherita Pizza (L), 2x Cola Zero',
-      'total': '\$22.00',
-      'status': 'Delivered',
-      'statusColor': Color(0xFF10B981),
-      'isActive': false,
-      'eta': 'Delivered to Home',
-    },
-  ];
+  String _loc(BuildContext context, String key, String fallback) {
+    final str = key.getString(context);
+    if (str.isEmpty || str.endsWith('not found') || str == key) {
+      return fallback;
+    }
+    return str;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final store = controller;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? const Color(0xFF1E2638) : Colors.white;
 
-    final filteredOrders = _sampleOrders.where((order) {
-      if (_selectedFilter == 1) return order['isActive'] == true;
-      if (_selectedFilter == 2) return order['isActive'] == false;
-      return true;
-    }).toList();
-
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        title: Row(
           children: [
+            Image.asset(AppImages.bitecraftLogo, height: 36),
+            const SizedBox(width: 4),
             Text(
-              'ordersTitle'.getString(context).isNotEmpty
-                  ? 'ordersTitle'.getString(context)
-                  : 'My Orders',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            Text(
-              'ordersSubtitle'.getString(context).isNotEmpty
-                  ? 'ordersSubtitle'.getString(context)
-                  : 'Track live delivery & past orders',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: isDark ? Colors.white60 : AppColors.subtitleColor,
-                  ),
+              _loc(context, 'ordersTitle', 'My Orders'),
+              style: Theme.of(context).textTheme.titleLarge,
             ),
           ],
         ),
-        titleSpacing: 16,
+        titleSpacing: 12,
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Filter Pills
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  _buildFilterChip(0, 'All Orders (${_sampleOrders.length})'),
-                  const SizedBox(width: 8),
-                  _buildFilterChip(1, 'Active (1)'),
-                  const SizedBox(width: 8),
-                  _buildFilterChip(2, 'Completed (2)'),
-                ],
-              ),
-            ),
-            Expanded(
-              child: filteredOrders.isEmpty
-                  ? _buildEmptyState(context, isDark)
-                  : ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.all(16),
-                      itemCount: filteredOrders.length,
-                      itemBuilder: (context, index) {
-                        final order = filteredOrders[index];
-                        final statusColor = order['statusColor'] as Color;
-                        final isActive = order['isActive'] as bool;
+        child: Obx(() {
+          final state = store.state.value;
+          final filteredOrders = state.filteredOrders;
+          final totalCount = state.orders.length;
+          final activeCount = state.activeCount;
+          final completedCount = state.completedCount;
 
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            color: cardBg,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isActive
-                                  ? AppColors.primary.withValues(alpha: 0.5)
-                                  : (isDark
-                                      ? const Color(0xFF2E3A52)
-                                      : AppColors.borderColor),
-                              width: isActive ? 1.5 : 1.0,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: isActive
-                                    ? AppColors.primary.withValues(alpha: 0.08)
-                                    : Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        order['id'] as String,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15,
-                                          color: isDark ? Colors.white : AppColors.neutral,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        order['date'] as String,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: isDark ? Colors.white54 : AppColors.subtitleColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: statusColor.withValues(alpha: 0.12),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        if (isActive) ...[
-                                          Container(
-                                            width: 6,
-                                            height: 6,
-                                            decoration: BoxDecoration(
-                                              color: statusColor,
-                                              shape: BoxShape.circle,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 5),
-                                        ],
-                                        Text(
-                                          order['status'] as String,
-                                          style: TextStyle(
-                                            color: statusColor,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 11.5,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Divider(height: 20),
-                              Text(
-                                order['restaurant'] as String,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                order['items'] as String,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: isDark ? Colors.white70 : AppColors.subtitleColor,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    order['total'] as String,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 16,
-                                      color: AppColors.primary,
-                                    ),
-                                  ),
-                                  Text(
-                                    order['eta'] as String,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: isDark ? Colors.white60 : Colors.black54,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+          return Column(
+            children: [
+              // Filter Pills
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                  children: [
+                    _buildFilterChip(
+                      index: 0,
+                      label: 'All ($totalCount)',
+                      selectedIndex: state.selectedFilter,
+                      isDark: isDark,
+                      onTap: () => store.onIntent(const ChangeOrdersFilterIntent(0)),
                     ),
-            ),
-          ],
-        ),
+                    const SizedBox(width: 8),
+                    _buildFilterChip(
+                      index: 1,
+                      label: 'Active ($activeCount)',
+                      selectedIndex: state.selectedFilter,
+                      isDark: isDark,
+                      onTap: () => store.onIntent(const ChangeOrdersFilterIntent(1)),
+                    ),
+                    const SizedBox(width: 8),
+                    _buildFilterChip(
+                      index: 2,
+                      label: 'Completed ($completedCount)',
+                      selectedIndex: state.selectedFilter,
+                      isDark: isDark,
+                      onTap: () => store.onIntent(const ChangeOrdersFilterIntent(2)),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Orders List or Empty State
+              Expanded(
+                child: RefreshIndicator(
+                  color: AppColors.primary,
+                  onRefresh: () async => store.onIntent(const FetchOrdersIntent()),
+                  child: state.isLoading && state.orders.isEmpty
+                      ? const Center(
+                          child: CircularProgressIndicator(color: AppColors.primary),
+                        )
+                      : filteredOrders.isEmpty
+                          ? _buildEmptyState(context, isDark)
+                          : ListView.builder(
+                              physics: const AlwaysScrollableScrollPhysics(
+                                parent: BouncingScrollPhysics(),
+                              ),
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+                              itemCount: filteredOrders.length,
+                              itemBuilder: (context, index) {
+                                final order = filteredOrders[index];
+                                return _buildOrderCard(order, isDark, cardBg);
+                              },
+                            ),
+                ),
+              ),
+            ],
+          );
+        }),
       ),
     );
   }
 
-  Widget _buildFilterChip(int index, String label) {
-    final isSelected = _selectedFilter == index;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  Widget _buildOrderCard(OrderEntity order, bool isDark, Color cardBg) {
+    final statusColor = order.statusColor;
+    final isActive = order.isActive;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isActive
+              ? AppColors.primary.withValues(alpha: 0.5)
+              : (isDark ? const Color(0xFF2E3A52) : AppColors.borderColor),
+          width: isActive ? 1.5 : 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isActive
+                ? AppColors.primary.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Order ID & Status Badge
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    order.shortId,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: isDark ? Colors.white : AppColors.neutral,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    order.formattedDate,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.white54 : AppColors.subtitleColor,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (isActive) ...[
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                    ],
+                    Text(
+                      order.statusLabel,
+                      style: TextStyle(
+                        color: statusColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const Divider(height: 20),
+
+          // Items summary
+          Text(
+            order.itemsSummary,
+            style: TextStyle(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : AppColors.neutral,
+            ),
+          ),
+          if (order.deliveryAddress.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Icon(
+                  Icons.location_on_outlined,
+                  size: 14,
+                  color: isDark ? Colors.white54 : AppColors.subtitleColor,
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    order.deliveryAddress,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.white54 : AppColors.subtitleColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 12),
+
+          // Total Price & Payment Method
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '\$${order.totalAmount.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                  color: AppColors.primary,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF161C2C) : const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  order.paymentMethod.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white60 : Colors.black54,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip({
+    required int index,
+    required String label,
+    required int selectedIndex,
+    required bool isDark,
+    required VoidCallback onTap,
+  }) {
+    final isSelected = selectedIndex == index;
 
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedFilter = index;
-        });
-      },
+      onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
@@ -303,9 +344,7 @@ class _OrdersViewState extends State<OrdersView> {
             ),
             const SizedBox(height: 16),
             Text(
-              'noOrdersYet'.getString(context).isNotEmpty
-                  ? 'noOrdersYet'.getString(context)
-                  : 'No orders placed yet',
+              _loc(context, 'noOrdersYet', 'No orders yet'),
               style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.bold,
@@ -313,9 +352,11 @@ class _OrdersViewState extends State<OrdersView> {
             ),
             const SizedBox(height: 8),
             Text(
-              'noOrdersDesc'.getString(context).isNotEmpty
-                  ? 'noOrdersDesc'.getString(context)
-                  : 'Explore delicious dishes and place your first order now!',
+              _loc(
+                context,
+                'noOrdersDesc',
+                'Explore delicious dishes and place your first order!',
+              ),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
@@ -338,9 +379,7 @@ class _OrdersViewState extends State<OrdersView> {
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
               child: Text(
-                'startOrdering'.getString(context).isNotEmpty
-                    ? 'startOrdering'.getString(context)
-                    : 'Explore Food Now',
+                _loc(context, 'startOrdering', 'Explore Menu'),
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),

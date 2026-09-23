@@ -6,4 +6,6 @@ class AppRoutes {
   static const String home = '/home';
   static const String foodDetail = '/food-detail';
   static const String cart = '/cart';
+  static const String checkout = '/checkout';
+  static const String orderSuccess = '/order-success';
 }

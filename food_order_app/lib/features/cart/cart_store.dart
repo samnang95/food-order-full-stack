@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/services/cart_service.dart';
+import '../../routes/app_routes.dart';
 import 'cart_intent.dart';
 
 class CartStore extends GetxController {
@@ -55,23 +55,7 @@ class CartStore extends GetxController {
 
   void _onCheckout() {
     if (cartService.isEmpty) return;
-
-    if (Get.context != null) {
-      Get.snackbar(
-        'Checkout Ready! 🎉',
-        'Total: \$${cartService.totalAmount.toStringAsFixed(2)} with ${cartService.totalQuantity} items. Checkout flow coming up next!',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: AppColors.primary,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-        margin: const EdgeInsets.all(16),
-        borderRadius: 14,
-        icon: const Icon(
-          Icons.payment_rounded,
-          color: Colors.white,
-          size: 28,
-        ),
-      );
-    }
+    Get.toNamed(AppRoutes.checkout);
   }
 }
+

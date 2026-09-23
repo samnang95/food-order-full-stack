@@ -9,6 +9,9 @@ import '../features/auth/signup/signup_binding.dart';
 import '../features/auth/signup/signup_view.dart';
 import '../features/cart/cart_binding.dart';
 import '../features/cart/cart_view.dart';
+import '../features/checkout/checkout_binding.dart';
+import '../features/checkout/checkout_view.dart';
+import '../features/checkout/order_success_view.dart';
 import '../features/food_detail/food_detail_binding.dart';
 import '../features/food_detail/food_detail_view.dart';
 import 'app_routes.dart';
@@ -41,6 +44,17 @@ class AppRouter {
       page: () => const CartView(),
       binding: CartBinding(),
       transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.checkout,
+      page: () => const CheckoutView(),
+      binding: CheckoutBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.orderSuccess,
+      page: () => const OrderSuccessView(),
+      transition: Transition.fadeIn,
     ),
   ];
 
