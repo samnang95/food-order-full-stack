@@ -1,27 +1,38 @@
+import '../../domain/category/entities/category_entity.dart';
+import '../../domain/food/entities/food_entity.dart';
+
 class HomeModel {
   final bool isLoading;
-  final List<String> categories;
-  final String selectedCategory;
-  final List<Map<String, dynamic>> popularItems;
+  final List<CategoryEntity> categories;
+  final String selectedCategoryId;
+  final List<FoodEntity> foods;
+  final String searchQuery;
+  final String? errorMessage;
 
   const HomeModel({
     this.isLoading = true,
     this.categories = const [],
-    this.selectedCategory = '',
-    this.popularItems = const [],
+    this.selectedCategoryId = '',
+    this.foods = const [],
+    this.searchQuery = '',
+    this.errorMessage,
   });
 
   HomeModel copyWith({
     bool? isLoading,
-    List<String>? categories,
-    String? selectedCategory,
-    List<Map<String, dynamic>>? popularItems,
+    List<CategoryEntity>? categories,
+    String? selectedCategoryId,
+    List<FoodEntity>? foods,
+    String? searchQuery,
+    String? errorMessage,
   }) {
     return HomeModel(
       isLoading: isLoading ?? this.isLoading,
       categories: categories ?? this.categories,
-      selectedCategory: selectedCategory ?? this.selectedCategory,
-      popularItems: popularItems ?? this.popularItems,
+      selectedCategoryId: selectedCategoryId ?? this.selectedCategoryId,
+      foods: foods ?? this.foods,
+      searchQuery: searchQuery ?? this.searchQuery,
+      errorMessage: errorMessage,
     );
   }
 }

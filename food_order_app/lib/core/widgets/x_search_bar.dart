@@ -1,80 +1,127 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../constants/app_colors.dart';
 
 class XSearchBar extends StatelessWidget {
   final TextEditingController? controller;
-  final VoidCallback? onFilterTap;
+  final ValueChanged<String>? onChanged;
+  final String? hintText;
+  final bool readOnly;
+  final VoidCallback? onTap;
 
   const XSearchBar({
     super.key,
     this.controller,
-    this.onFilterTap,
+    this.onChanged,
+    this.hintText,
+    this.readOnly = false,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 56,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF6F6F9),
-              borderRadius: BorderRadius.circular(28),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textController = controller ?? TextEditingController();
+    final hasText = textController.text.isNotEmpty.obs;
+
+    final bgColor = isDark ? const Color(0xFF1E2638) : const Color(0xFFF4F1EE);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : AppColors.primary.withValues(alpha: 0.12);
+    final iconColor = isDark ? Colors.white38 : const Color(0xFF9E8E82);
+    final hintColor = isDark ? Colors.white30 : const Color(0xFFA49589);
+    final textColor = isDark ? Colors.white : AppColors.neutral;
+
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor, width: 1),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 14),
+          Obx(
+            () => Icon(
+              Icons.search_rounded,
+              color: hasText.value ? AppColors.primary : iconColor,
+              size: 22,
             ),
-            child: Row(
-              children: [
-                const SizedBox(width: 16),
-                const Icon(
-                  Icons.search,
-                  color: Color(0xFF917F74),
-                  size: 28,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextField(
+              controller: textController,
+              readOnly: readOnly,
+              onTap: onTap,
+              onChanged: (value) {
+                hasText.value = value.isNotEmpty;
+                onChanged?.call(value);
+              },
+              decoration: InputDecoration(
+                hintText: hintText ?? 'Search food, drinks...',
+                hintStyle: TextStyle(
+                  color: hintColor,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(
-                      hintText: "Search burgers, ramen, tacos...",
-                      hintStyle: TextStyle(
-                        color: Color(0xFF917F74),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                filled: false,
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+              style: TextStyle(
+                color: textColor,
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          // Clear button — appears when typing
+          Obx(
+            () => AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: ScaleTransition(scale: animation, child: child),
+              ),
+              child: hasText.value
+                  ? GestureDetector(
+                      key: const ValueKey('clear'),
+                      onTap: () {
+                        textController.clear();
+                        hasText.value = false;
+                        onChanged?.call('');
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.1)
+                                : Colors.black.withValues(alpha: 0.06),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.close_rounded,
+                            size: 14,
+                            color: isDark
+                                ? Colors.white54
+                                : AppColors.subtitleColor,
+                          ),
+                        ),
                       ),
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      filled: false,
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    style: const TextStyle(
-                      color: Color(0xFF1E293B),
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ],
+                    )
+                  : const SizedBox.shrink(key: ValueKey('empty')),
             ),
           ),
-        ),
-        const SizedBox(width: 12),
-        GestureDetector(
-          onTap: onFilterTap,
-          child: Container(
-            width: 56,
-            height: 56,
-            decoration: const BoxDecoration(
-              color: Color(0xFFE4EAF8), // Subtle blue tint
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.tune,
-              color: Color(0xFF1E293B),
-              size: 28,
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

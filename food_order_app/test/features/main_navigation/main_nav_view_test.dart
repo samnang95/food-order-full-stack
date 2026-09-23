@@ -8,6 +8,12 @@ import 'package:food_order_app/features/home/home_store.dart';
 import 'package:food_order_app/features/main_navigation/main_nav_store.dart';
 import 'package:food_order_app/features/main_navigation/main_nav_view.dart';
 import 'package:food_order_app/features/main_navigation/widgets/custom_bottom_nav_bar.dart';
+import 'package:food_order_app/data/category/datasources/category_remote_datasource.dart';
+import 'package:food_order_app/data/category/repositories/category_repository_impl.dart';
+import 'package:food_order_app/data/food/datasources/food_remote_datasource.dart';
+import 'package:food_order_app/data/food/repositories/food_repository_impl.dart';
+import 'package:food_order_app/domain/category/usecases/get_categories_usecase.dart';
+import 'package:food_order_app/domain/food/usecases/get_foods_usecase.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +26,28 @@ void main() {
   setUp(() {
     Get.reset();
     Get.put(ThemeStore());
-    Get.put(HomeStore());
+
+    // Register dependencies for HomeStore
+    Get.put<CategoryRemoteDataSource>(CategoryRemoteDataSourceImpl());
+    Get.put(CategoryRepositoryImpl(
+      remoteDataSource: Get.find<CategoryRemoteDataSource>(),
+    ));
+    Get.put(GetCategoriesUseCase(
+      repository: Get.find<CategoryRepositoryImpl>(),
+    ));
+
+    Get.put<FoodRemoteDataSource>(FoodRemoteDataSourceImpl());
+    Get.put(FoodRepositoryImpl(
+      remoteDataSource: Get.find<FoodRemoteDataSource>(),
+    ));
+    Get.put(GetFoodsUseCase(
+      repository: Get.find<FoodRepositoryImpl>(),
+    ));
+
+    Get.put(HomeStore(
+      getCategoriesUseCase: Get.find<GetCategoriesUseCase>(),
+      getFoodsUseCase: Get.find<GetFoodsUseCase>(),
+    ));
     Get.put(MainNavStore());
   });
 

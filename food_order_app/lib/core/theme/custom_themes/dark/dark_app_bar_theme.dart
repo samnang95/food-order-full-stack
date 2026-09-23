@@ -7,6 +7,8 @@ class DarkAppBarTheme {
   static const AppBarTheme theme = AppBarTheme(
     backgroundColor: Colors.transparent,
     elevation: 0,
+    scrolledUnderElevation: 0,
+    surfaceTintColor: Colors.transparent,
     centerTitle: true,
     iconTheme: IconThemeData(color: Colors.white),
     titleTextStyle: TextStyle(

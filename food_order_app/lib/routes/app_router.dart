@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import '../core/services/api_client.dart';
 import '../features/auth/login/login_binding.dart';
 import '../features/auth/login/login_view.dart';
 import '../features/main_navigation/main_nav_binding.dart';
@@ -27,5 +28,5 @@ class AppRouter {
     ),
   ];
 
-  static const String initialRoute = AppRoutes.login;
+  static String get initialRoute => ApiClient.isAuthenticated ? AppRoutes.home : AppRoutes.login;
 }

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/db/local_db.dart';
 import '../../core/locale/locale_store.dart';
+import '../../core/services/api_client.dart';
 import '../../core/theme/theme_store.dart';
 import '../../routes/app_routes.dart';
 
@@ -335,8 +336,7 @@ class ProfileView extends StatelessWidget {
       buttonColor: const Color(0xFFEF4444),
       cancelTextColor: AppColors.subtitleColor,
       onConfirm: () async {
-        await LocalDB.remove('auth_token');
-        await LocalDB.remove('refresh_token');
+        await ApiClient.clearTokens();
         await LocalDB.remove('user_username');
         await LocalDB.remove('user_role');
         Get.offAllNamed(AppRoutes.login);

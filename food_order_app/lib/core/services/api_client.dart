@@ -45,7 +45,10 @@ class ApiClient {
   }
 
   /// Check if user is authenticated
-  static bool get isAuthenticated => getToken() != null;
+  static bool get isAuthenticated {
+    final token = getToken();
+    return token != null && token.trim().isNotEmpty;
+  }
 
   /// Attempt to refresh the token using the refresh token.
   /// Prevents multiple simultaneous refresh calls via Completer guard.
