@@ -26,6 +26,7 @@ const userRoutes = require('./routes/userRoutes');
 const foodRoutes = require('./routes/foodRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 // Public Auth Routes
 app.use('/auth', authRoutes);
@@ -41,6 +42,9 @@ app.use('/categories', categoryRoutes);
 
 // Order Routes
 app.use('/orders', orderRoutes);
+
+// Upload Routes
+app.use('/upload', uploadRoutes);
 
 
 
