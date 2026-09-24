@@ -68,6 +68,20 @@
     "savedAddresses": "Saved Addresses",
     "paymentMethods": "Payment Methods",
     "helpCenter": "Help & Support",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "editProfile": "Edit Profile",
+    "saveChanges": "Save Changes",
+    "addAddress": "Add Address",
+    "noSavedAddresses": "No saved addresses yet",
+    "enterAddress": "Enter your delivery address",
+    "cancel": "Cancel",
+    "preferences": "Preferences",
+    "orders": "Orders",
+    "points": "Points",
+    "favorites": "Favorites",
+    "changePhoto": "Change Profile Photo",
+    "takePhoto": "Take Photo",
+    "chooseFromGallery": "Choose from Gallery",
+    "uploadingAvatar": "Uploading photo..."
   }
 }

@@ -13,6 +13,7 @@ const userService = {
       username: user.username,
       email: user.email,
       role: user.role,
+      avatar: user.avatar || '',
       createdAt: user.createdAt
     };
   },
@@ -39,7 +40,8 @@ const userService = {
       id: updatedUser._id,
       username: updatedUser.username,
       email: updatedUser.email,
-      role: updatedUser.role
+      role: updatedUser.role,
+      avatar: updatedUser.avatar || ''
     };
   },
 

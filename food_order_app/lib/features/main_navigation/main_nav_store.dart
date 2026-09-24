@@ -2,6 +2,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../orders/orders_intent.dart';
 import '../orders/orders_store.dart';
+import '../profile/profile_intent.dart';
+import '../profile/profile_store.dart';
 import 'main_nav_intent.dart';
 import 'main_nav_model.dart';
 
@@ -18,6 +20,8 @@ class MainNavStore extends GetxController {
       state.value = state.value.copyWith(currentIndex: args);
       if (args == 2 && Get.isRegistered<OrdersStore>()) {
         Get.find<OrdersStore>().onIntent(const FetchOrdersIntent());
+      } else if (args == 3 && Get.isRegistered<ProfileStore>()) {
+        Get.find<ProfileStore>().onIntent(const LoadProfileIntent());
       }
     }
   }
@@ -37,6 +41,11 @@ class MainNavStore extends GetxController {
     // Refresh orders automatically whenever the user navigates to the Orders tab
     if (index == 2 && Get.isRegistered<OrdersStore>()) {
       Get.find<OrdersStore>().onIntent(const FetchOrdersIntent());
+    }
+
+    // Refresh profile automatically whenever the user navigates to the Profile tab
+    if (index == 3 && Get.isRegistered<ProfileStore>()) {
+      Get.find<ProfileStore>().onIntent(const LoadProfileIntent());
     }
   }
 }

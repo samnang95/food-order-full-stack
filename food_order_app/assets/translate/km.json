@@ -68,6 +68,20 @@
     "savedAddresses": "អាសយដ្ឋានដែលបានរក្សាទុក",
     "paymentMethods": "វិធីសាស្ត្រទូទាត់ប្រាក់",
     "helpCenter": "ជំនួយ និងការគាំទ្រ",
-    "signOut": "ចាកចេញពីគណនី"
+    "signOut": "ចាកចេញពីគណនី",
+    "editProfile": "កែប្រែព័ត៌មានផ្ទាល់ខ្លួន",
+    "saveChanges": "រក្សាទុកការផ្លាស់ប្តូរ",
+    "addAddress": "បន្ថែមអាសយដ្ឋាន",
+    "noSavedAddresses": "មិនទាន់មានអាសយដ្ឋានដែលបានរក្សាទុកនៅឡើយទេ",
+    "enterAddress": "បញ្ចូលអាសយដ្ឋានដឹកជញ្ជូនរបស់អ្នក",
+    "cancel": "បោះបង់",
+    "preferences": "ការកំណត់",
+    "orders": "ការកម្ម៉ង់",
+    "points": "ពិន្ទុ",
+    "favorites": "ចូលចិត្ត",
+    "changePhoto": "ប្តូររូបថតគណនី",
+    "takePhoto": "ថតរូប",
+    "chooseFromGallery": "ជ្រើសពីវិចិត្រសាល",
+    "uploadingAvatar": "កំពុងផ្ទុករូបភាពឡើង..."
   }
 }

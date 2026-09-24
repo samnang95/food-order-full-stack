@@ -10,6 +10,7 @@ import '../../domain/food/usecases/get_foods_usecase.dart';
 import '../../domain/order/repositories/order_repository.dart';
 import '../home/home_store.dart';
 import '../orders/orders_store.dart';
+import '../profile/profile_store.dart';
 import 'main_nav_store.dart';
 
 class MainNavBinding extends Bindings {
@@ -58,6 +59,13 @@ class MainNavBinding extends Bindings {
     }
     if (!Get.isRegistered<OrdersStore>()) {
       Get.lazyPut(() => OrdersStore(
+        orderRepository: Get.find<OrderRepository>(),
+      ));
+    }
+
+    // Profile Store
+    if (!Get.isRegistered<ProfileStore>()) {
+      Get.lazyPut(() => ProfileStore(
         orderRepository: Get.find<OrderRepository>(),
       ));
     }

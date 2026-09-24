@@ -207,4 +207,26 @@ class ApiClient {
       () => http.delete(url, headers: _getHeaders()).timeout(_timeout),
     );
   }
+
+  /// Multipart file upload request
+  static Future<http.Response> uploadFile(
+    String endpoint,
+    String filePath, {
+    String fieldName = 'image',
+  }) async {
+    final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
+    final token = getToken();
+    debugPrint('🚀 [ApiClient] POST (Multipart) $endpoint (file: $filePath)');
+
+    final request = http.MultipartRequest('POST', url);
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+    request.files.add(await http.MultipartFile.fromPath(fieldName, filePath));
+
+    final streamedResponse = await request.send().timeout(_timeout);
+    final response = await http.Response.fromStream(streamedResponse);
+    debugPrint('📥 [ApiClient] Multipart $endpoint → Status ${response.statusCode}');
+    return response;
+  }
 }

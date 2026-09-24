@@ -4,7 +4,9 @@ const orderRepository = {
   create: async (orderData) => {
     const newOrder = new Order(orderData);
     await newOrder.save();
-    return newOrder;
+    const populated = await Order.findById(newOrder._id)
+      .populate('items.food', 'name imageUrl price');
+    return populated || newOrder;
   },
 
   findById: async (id) => {

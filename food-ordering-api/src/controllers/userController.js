@@ -12,12 +12,13 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const { username, email } = req.body;
+    const { username, email, avatar } = req.body;
     
     // Only pass fields that are present in the request
     const updateData = {};
     if (username) updateData.username = username;
     if (email) updateData.email = email;
+    if (avatar !== undefined) updateData.avatar = avatar;
     
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({ message: 'No valid fields provided for update' });
