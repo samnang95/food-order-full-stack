@@ -10,4 +10,6 @@ abstract class OrderRepository {
   Future<List<OrderEntity>> getMyOrders();
 
   Future<OrderEntity> getOrderById(String orderId);
+
+  Future<OrderEntity> cancelOrder(String orderId);
 }

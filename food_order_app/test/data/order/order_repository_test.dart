@@ -25,6 +25,11 @@ class FakeOrderRemoteDataSource implements OrderRemoteDataSource {
   Future<OrderModel> getOrderById(String orderId) async {
     return modelToReturn!;
   }
+
+  @override
+  Future<OrderModel> cancelOrder(String orderId) async {
+    return modelToReturn!;
+  }
 }
 
 void main() {
@@ -171,6 +176,25 @@ void main() {
       final orders = await repository.getMyOrders();
       expect(orders.length, 1);
       expect(orders.first.id, 'ord_1');
+    });
+
+    test('cancelOrder delegates to dataSource and returns updated OrderEntity', () async {
+      fakeDataSource.modelToReturn = OrderModel(
+        id: 'ord_cancel',
+        userId: 'u_1',
+        items: const [],
+        totalAmount: 10.0,
+        deliveryAddress: 'Home',
+        status: 'cancelled',
+        paymentMethod: 'cash',
+        paymentStatus: 'pending',
+        createdAt: DateTime.now(),
+      );
+
+      final order = await repository.cancelOrder('ord_cancel');
+      expect(order.id, 'ord_cancel');
+      expect(order.status, 'cancelled');
+      expect(order.isCancelled, true);
     });
   });
 }

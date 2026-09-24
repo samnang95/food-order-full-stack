@@ -32,4 +32,10 @@ class OrderRepositoryImpl implements OrderRepository {
     final model = await remoteDataSource.getOrderById(orderId);
     return model.toEntity();
   }
+
+  @override
+  Future<OrderEntity> cancelOrder(String orderId) async {
+    final model = await remoteDataSource.cancelOrder(orderId);
+    return model.toEntity();
+  }
 }

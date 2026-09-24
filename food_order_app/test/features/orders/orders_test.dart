@@ -23,6 +23,9 @@ class MockOrderRepository implements OrderRepository {
 
   @override
   Future<OrderEntity> getOrderById(String orderId) async => throw UnimplementedError();
+
+  @override
+  Future<OrderEntity> cancelOrder(String orderId) async => throw UnimplementedError();
 }
 
 void main() {
@@ -124,5 +127,22 @@ void main() {
     expect(find.text('Completed (1)'), findsOneWidget);
     expect(find.text('2x Truffle Burger'), findsOneWidget);
     expect(find.text('Order Placed'), findsOneWidget);
+  });
+
+  testWidgets('OrdersView renders error state with retry button when error occurs', (tester) async {
+    ordersStore.state.value = ordersStore.state.value.copyWith(
+      orders: [],
+      errorMessage: 'Could not connect to the database server.',
+    );
+
+    await tester.pumpWidget(
+      const GetMaterialApp(
+        home: OrdersView(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Unable to Load Orders'), findsOneWidget);
+    expect(find.text('Try Again'), findsOneWidget);
   });
 }

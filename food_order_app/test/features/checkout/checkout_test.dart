@@ -58,6 +58,9 @@ class MockOrderRepository implements OrderRepository {
 
   @override
   Future<OrderEntity> getOrderById(String orderId) async => throw UnimplementedError();
+
+  @override
+  Future<OrderEntity> cancelOrder(String orderId) async => throw UnimplementedError();
 }
 
 void main() {

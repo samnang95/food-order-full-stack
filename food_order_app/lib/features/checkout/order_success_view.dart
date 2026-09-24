@@ -3,8 +3,6 @@ import 'package:get/get.dart';
 import '../../core/constants/app_colors.dart';
 import '../../domain/order/entities/order_entity.dart';
 import '../../routes/app_routes.dart';
-import '../main_navigation/main_nav_intent.dart';
-import '../main_navigation/main_nav_store.dart';
 
 class OrderSuccessView extends StatelessWidget {
   const OrderSuccessView({super.key});
@@ -185,10 +183,7 @@ class OrderSuccessView extends StatelessWidget {
   }
 
   void _goToHome(int tabIndex) {
-    if (Get.isRegistered<MainNavStore>()) {
-      Get.find<MainNavStore>().onIntent(ChangeTabIntent(tabIndex));
-    }
-    Get.offAllNamed(AppRoutes.home);
+    Get.offAllNamed(AppRoutes.home, arguments: tabIndex);
   }
 
   Widget _buildDetailRow({

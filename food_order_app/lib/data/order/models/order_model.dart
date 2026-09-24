@@ -45,6 +45,19 @@ class OrderItemModel {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    '_id': id,
+    'food': {
+      '_id': foodId,
+      'name': foodName,
+      'imageUrl': foodImageUrl,
+      'price': price,
+    },
+    'price': price,
+    'quantity': quantity,
+  };
+
   OrderItemEntity toEntity() {
     return OrderItemEntity(
       id: id,
@@ -114,6 +127,20 @@ class OrderModel {
           : null,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    '_id': id,
+    'user': userId,
+    'items': items.map((i) => i.toJson()).toList(),
+    'totalAmount': totalAmount,
+    'deliveryAddress': deliveryAddress,
+    'status': status,
+    'paymentMethod': paymentMethod,
+    'paymentStatus': paymentStatus,
+    'createdAt': createdAt.toIso8601String(),
+    'updatedAt': updatedAt?.toIso8601String(),
+  };
 
   OrderEntity toEntity() {
     return OrderEntity(

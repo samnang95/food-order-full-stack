@@ -4,6 +4,8 @@ import '../../core/db/local_db.dart';
 import '../../core/services/cart_service.dart';
 import '../../domain/order/repositories/order_repository.dart';
 import '../../routes/app_routes.dart';
+import '../orders/orders_intent.dart';
+import '../orders/orders_store.dart';
 import 'checkout_intent.dart';
 import 'checkout_state.dart';
 
@@ -106,6 +108,11 @@ class CheckoutStore extends GetxController {
 
       // Clear cart
       cartService.clearCart();
+
+      // Refresh OrdersStore so the newly placed order is immediately loaded
+      if (Get.isRegistered<OrdersStore>()) {
+        Get.find<OrdersStore>().onIntent(const FetchOrdersIntent());
+      }
 
       state.value = state.value.copyWith(isLoading: false);
 

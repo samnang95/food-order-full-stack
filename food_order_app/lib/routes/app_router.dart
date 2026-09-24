@@ -14,6 +14,8 @@ import '../features/checkout/checkout_view.dart';
 import '../features/checkout/order_success_view.dart';
 import '../features/food_detail/food_detail_binding.dart';
 import '../features/food_detail/food_detail_view.dart';
+import '../features/order_detail/order_detail_binding.dart';
+import '../features/order_detail/order_detail_view.dart';
 import 'app_routes.dart';
 
 class AppRouter {
@@ -55,6 +57,12 @@ class AppRouter {
       name: AppRoutes.orderSuccess,
       page: () => const OrderSuccessView(),
       transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: AppRoutes.orderDetail,
+      page: () => const OrderDetailView(),
+      binding: OrderDetailBinding(),
+      transition: Transition.rightToLeft,
     ),
   ];
 

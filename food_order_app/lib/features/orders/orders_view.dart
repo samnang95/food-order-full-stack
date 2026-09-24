@@ -7,6 +7,7 @@ import '../../data/order/datasources/order_remote_datasource.dart';
 import '../../data/order/repositories/order_repository_impl.dart';
 import '../../domain/order/entities/order_entity.dart';
 import '../../domain/order/repositories/order_repository.dart';
+import '../../routes/app_routes.dart';
 import '../main_navigation/main_nav_intent.dart';
 import '../main_navigation/main_nav_store.dart';
 import 'orders_intent.dart';
@@ -100,7 +101,7 @@ class OrdersView extends StatelessWidget {
                 ),
               ),
 
-              // Orders List or Empty State
+              // Orders List, Error State, or Empty State
               Expanded(
                 child: RefreshIndicator(
                   color: AppColors.primary,
@@ -109,19 +110,23 @@ class OrdersView extends StatelessWidget {
                       ? const Center(
                           child: CircularProgressIndicator(color: AppColors.primary),
                         )
-                      : filteredOrders.isEmpty
-                          ? _buildEmptyState(context, isDark)
-                          : ListView.builder(
-                              physics: const AlwaysScrollableScrollPhysics(
-                                parent: BouncingScrollPhysics(),
-                              ),
-                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
-                              itemCount: filteredOrders.length,
-                              itemBuilder: (context, index) {
-                                final order = filteredOrders[index];
-                                return _buildOrderCard(order, isDark, cardBg);
-                              },
-                            ),
+                      : state.errorMessage != null && state.orders.isEmpty
+                          ? _buildErrorState(context, isDark, state.errorMessage!, () {
+                              store.onIntent(const FetchOrdersIntent());
+                            })
+                          : filteredOrders.isEmpty
+                              ? _buildEmptyState(context, isDark)
+                              : ListView.builder(
+                                  physics: const AlwaysScrollableScrollPhysics(
+                                    parent: BouncingScrollPhysics(),
+                                  ),
+                                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+                                  itemCount: filteredOrders.length,
+                                  itemBuilder: (context, index) {
+                                    final order = filteredOrders[index];
+                                    return _buildOrderCard(order, isDark, cardBg);
+                                  },
+                                ),
                 ),
               ),
             ],
@@ -135,155 +140,168 @@ class OrdersView extends StatelessWidget {
     final statusColor = order.statusColor;
     final isActive = order.isActive;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isActive
-              ? AppColors.primary.withValues(alpha: 0.5)
-              : (isDark ? const Color(0xFF2E3A52) : AppColors.borderColor),
-          width: isActive ? 1.5 : 1.0,
-        ),
-        boxShadow: [
-          BoxShadow(
+    return GestureDetector(
+      onTap: () => Get.toNamed(AppRoutes.orderDetail, arguments: order),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
             color: isActive
-                ? AppColors.primary.withValues(alpha: 0.08)
-                : Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+                ? AppColors.primary.withValues(alpha: 0.5)
+                : (isDark ? const Color(0xFF2E3A52) : AppColors.borderColor),
+            width: isActive ? 1.5 : 1.0,
           ),
-        ],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Order ID & Status Badge
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    order.shortId,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: isDark ? Colors.white : AppColors.neutral,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    order.formattedDate,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isDark ? Colors.white54 : AppColors.subtitleColor,
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+          boxShadow: [
+            BoxShadow(
+              color: isActive
+                  ? AppColors.primary.withValues(alpha: 0.08)
+                  : Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Order ID & Status Badge
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
                   children: [
-                    if (isActive) ...[
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: statusColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                    ],
                     Text(
-                      order.statusLabel,
+                      order.shortId,
                       style: TextStyle(
-                        color: statusColor,
                         fontWeight: FontWeight.bold,
-                        fontSize: 11.5,
+                        fontSize: 15,
+                        color: isDark ? Colors.white : AppColors.neutral,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      order.formattedDate,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? Colors.white54 : AppColors.subtitleColor,
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          const Divider(height: 20),
-
-          // Items summary
-          Text(
-            order.itemsSummary,
-            style: TextStyle(
-              fontSize: 13.5,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : AppColors.neutral,
-            ),
-          ),
-          if (order.deliveryAddress.isNotEmpty) ...[
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                Icon(
-                  Icons.location_on_outlined,
-                  size: 14,
-                  color: isDark ? Colors.white54 : AppColors.subtitleColor,
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    order.deliveryAddress,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isDark ? Colors.white54 : AppColors.subtitleColor,
-                    ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isActive) ...[
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: statusColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                      ],
+                      Text(
+                        order.statusLabel,
+                        style: TextStyle(
+                          color: statusColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11.5,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ],
-          const SizedBox(height: 12),
+            const Divider(height: 20),
 
-          // Total Price & Payment Method
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '\$${order.totalAmount.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 16,
-                  color: AppColors.primary,
-                ),
+            // Items summary
+            Text(
+              order.itemsSummary,
+              style: TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : AppColors.neutral,
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF161C2C) : const Color(0xFFF3F4F6),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  order.paymentMethod.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white60 : Colors.black54,
+            ),
+            if (order.deliveryAddress.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Icon(
+                    Icons.location_on_outlined,
+                    size: 14,
+                    color: isDark ? Colors.white54 : AppColors.subtitleColor,
                   ),
-                ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      order.deliveryAddress,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? Colors.white54 : AppColors.subtitleColor,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
-          ),
-        ],
+            const SizedBox(height: 12),
+
+            // Total Price & Payment Method
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '\$${order.totalAmount.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                    color: AppColors.primary,
+                  ),
+                ),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF161C2C) : const Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        order.paymentMethod.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white60 : Colors.black54,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 12,
+                      color: isDark ? Colors.white38 : Colors.black38,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -323,9 +341,11 @@ class OrdersView extends StatelessWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, bool isDark) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 80.0),
+        alignment: Alignment.center,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -381,6 +401,82 @@ class OrdersView extends StatelessWidget {
               child: Text(
                 _loc(context, 'startOrdering', 'Explore Menu'),
                 style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(
+    BuildContext context,
+    bool isDark,
+    String errorMessage,
+    VoidCallback onRetry,
+  ) {
+    final isConnectionError = errorMessage.contains('SSL') ||
+        errorMessage.contains('SocketException') ||
+        errorMessage.contains('timed out') ||
+        errorMessage.contains('connect');
+
+    final displayMessage = isConnectionError
+        ? 'Could not connect to the database server. If testing on a new network, make sure your current IP address is whitelisted in MongoDB Atlas.'
+        : errorMessage;
+
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 80.0),
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEF4444).withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.wifi_off_rounded,
+                size: 40,
+                color: Color(0xFFEF4444),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Unable to Load Orders',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              displayMessage,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? Colors.white60 : AppColors.subtitleColor,
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text(
+                'Try Again',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
             ),
           ],
