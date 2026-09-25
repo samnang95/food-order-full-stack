@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../../core/db/local_db.dart';
 import '../../core/services/api_client.dart';
+import '../../core/services/local_notification_service.dart';
 import '../../core/services/socket_service.dart';
 import 'models/notification_item_model.dart';
 import 'widgets/in_app_push_banner.dart';
@@ -146,6 +147,15 @@ class NotificationStore extends GetxController {
   void addNotification(NotificationItemModel item, {bool showBanner = true}) {
     notifications.insert(0, item);
     _saveToLocal();
+
+    // Post real native OS notification on iOS & Android system tray / lock screen
+    LocalNotificationService.instance.showNativeNotification(
+      id: item.id.hashCode.abs(),
+      title: item.title,
+      body: item.body,
+      payload: item.orderId != null ? 'order_${item.orderId}' : item.promoCode,
+      type: item.type,
+    );
 
     if (showBanner) {
       InAppPushBanner.show(item);

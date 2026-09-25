@@ -11,6 +11,7 @@ import 'core/locale/locale_store.dart';
 import 'core/locale/translation_helper.dart';
 import 'core/services/cart_service.dart';
 import 'core/services/favorites_service.dart';
+import 'core/services/local_notification_service.dart';
 import 'core/services/services_network.dart';
 import 'core/services/wakelock_service.dart';
 import 'core/theme/theme_store.dart';
@@ -26,6 +27,7 @@ Future<void> runFoodOrderApp({
   await dotenv.load(fileName: envFile);
   await LocalDB.init();
   await WakelockService.initialize();
+  await LocalNotificationService.instance.initialize();
   NetworkService.instance.initialize(scaffoldMessengerKey);
   
   final String enJson = await rootBundle.loadString('assets/translate/en.json');
