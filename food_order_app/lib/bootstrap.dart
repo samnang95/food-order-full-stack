@@ -12,6 +12,7 @@ import 'core/locale/locale_store.dart';
 import 'core/locale/translation_helper.dart';
 import 'core/services/cart_service.dart';
 import 'core/services/favorites_service.dart';
+import 'core/services/firebase_notification_service.dart';
 import 'core/services/local_notification_service.dart';
 import 'core/services/services_network.dart';
 import 'core/services/wakelock_service.dart';
@@ -55,6 +56,8 @@ Future<void> runFoodOrderApp({
   Get.put(FavoritesService(), permanent: true);
   Get.put(CartService(), permanent: true);
   Get.put(NotificationStore(), permanent: true);
+
+  await FirebaseNotificationService.instance.initialize();
 
   runApp(const FoodOrderApp());
 }
