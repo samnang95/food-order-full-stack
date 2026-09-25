@@ -12,6 +12,7 @@ router.use(protect);
 router.get('/profile', userController.getProfile);
 router.put('/profile', userController.updateProfile);
 router.put('/profile/password', userController.changePassword);
+router.post('/fcm-token', userController.updateFcmToken);
 
 // ==============================
 // User Management Routes

@@ -65,10 +65,24 @@ const updateUserRole = async (req, res) => {
   }
 };
 
+const updateFcmToken = async (req, res) => {
+  try {
+    const { fcmToken } = req.body;
+    if (!fcmToken) {
+      return res.status(400).json({ message: 'fcmToken is required' });
+    }
+    const updatedUser = await userService.updateFcmToken(req.user.id, fcmToken);
+    res.json({ message: 'FCM token updated successfully', fcmToken: updatedUser?.fcmToken });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
   changePassword,
   getAllUsers,
-  updateUserRole
+  updateUserRole,
+  updateFcmToken
 };

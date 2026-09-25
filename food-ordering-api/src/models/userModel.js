@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     default: ''
+  },
+  fcmToken: {
+    type: String,
+    default: null
   }
 }, { timestamps: true });
 

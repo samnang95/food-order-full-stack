@@ -3,6 +3,7 @@ const foodRepository = require('../repositories/foodRepository');
 const voucherService = require('./voucherService');
 const { startSimulation, stopSimulation } = require('../socket/driverSimulator');
 const { getIO } = require('../socket/socketManager');
+const firebaseService = require('./firebaseService');
 
 /**
  * Default Phnom Penh delivery locations (simulated for demo)
@@ -94,6 +95,18 @@ const orderService = {
       };
       io.to(`order_${createdOrder._id}`).emit('push_notification', notif);
       io.emit('push_notification', notif);
+    } catch (_) {}
+
+    // Send push notification via Firebase Cloud Messaging
+    try {
+      await firebaseService.sendPushNotificationToUser(userId, {
+        title: '📦 Order Confirmed!',
+        body: `Your order #${createdOrder._id.toString().slice(-6).toUpperCase()} has been placed and is being prepared.`,
+        data: {
+          orderId: createdOrder._id.toString(),
+          type: 'order',
+        },
+      });
     } catch (_) {}
 
     return createdOrder;
@@ -190,6 +203,21 @@ const orderService = {
         };
         io.to(`order_${orderId}`).emit('push_notification', notif);
         io.emit('push_notification', notif);
+
+        // Send push notification via Firebase Cloud Messaging
+        const orderUserId = order.user?._id || order.user;
+        if (orderUserId) {
+          try {
+            await firebaseService.sendPushNotificationToUser(orderUserId, {
+              title: notifTitle,
+              body: notifBody,
+              data: {
+                orderId: orderId.toString(),
+                type: notifType,
+              },
+            });
+          } catch (_) {}
+        }
       }
     } catch (e) {
       // Socket not initialized yet, skip

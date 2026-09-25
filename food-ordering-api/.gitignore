@@ -2,3 +2,8 @@ node_modules/
 .env
 .DS_Store
 *.log
+*service-account*.json
+*serviceAccount*.json
+*adminsdk*.json
+
+

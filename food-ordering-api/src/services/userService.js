@@ -85,6 +85,10 @@ const userService = {
     }
 
     return await userRepository.updateRole(userIdToUpdate, newRole);
+  },
+
+  updateFcmToken: async (userId, fcmToken) => {
+    return await userRepository.update(userId, { fcmToken });
   }
 };
 
