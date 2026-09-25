@@ -156,40 +156,47 @@ const orderService = {
       const deliveryLocation = order.deliveryLocation || 
         DEFAULT_DELIVERY_LOCATIONS[Math.floor(Math.random() * DEFAULT_DELIVERY_LOCATIONS.length)];
 
-      startSimulation(orderId, deliveryLocation, async () => {
-        // Auto-update order status to delivered when driver arrives
-        await orderRepository.updateStatus(orderId, 'delivered', 'completed');
-      });
+      try {
+        startSimulation(orderId, deliveryLocation, async () => {
+          // Auto-update order status to delivered when driver arrives
+          await orderRepository.updateStatus(orderId, 'delivered', 'completed');
+        });
+      } catch (err) {
+        console.warn('⚠️ [orderService] Driver simulation error:', err.message);
+      }
     }
 
     // If cancelling, stop any active simulation
     if (status === 'cancelled') {
-      stopSimulation(orderId);
+      try {
+        stopSimulation(orderId);
+      } catch (_) {}
     }
 
-    // Emit status change event via Socket.IO
+    // Determine notification content for status transition
+    let notifTitle = null;
+    let notifBody = null;
+    let notifType = 'order';
+
+    if (status === 'preparing') {
+      notifTitle = '🍳 Kitchen is Cooking!';
+      notifBody = `Your order #${orderId.toString().slice(-6).toUpperCase()} is currently being freshly prepared.`;
+    } else if (status === 'out_for_delivery') {
+      notifTitle = '🛵 Rider Dispatched!';
+      notifBody = 'Rider Sok Dara has picked up your food and is on the way!';
+    } else if (status === 'delivered') {
+      notifTitle = '🎉 Order Delivered!';
+      notifBody = 'Your food has arrived at your address. Enjoy your meal!';
+      notifType = 'delivery';
+    } else if (status === 'cancelled') {
+      notifTitle = '❌ Order Cancelled';
+      notifBody = `Your order #${orderId.toString().slice(-6).toUpperCase()} has been cancelled.`;
+    }
+
+    // 1. Emit status change & push notification via Socket.IO
     try {
       const io = getIO();
       io.to(`order_${orderId}`).emit('order_status_changed', { orderId, status });
-
-      let notifTitle = null;
-      let notifBody = null;
-      let notifType = 'order';
-
-      if (status === 'preparing') {
-        notifTitle = '🍳 Kitchen is Cooking!';
-        notifBody = `Your order #${orderId.toString().slice(-6).toUpperCase()} is currently being freshly prepared.`;
-      } else if (status === 'out_for_delivery') {
-        notifTitle = '🛵 Rider Dispatched!';
-        notifBody = 'Rider Sok Dara has picked up your food and is on the way!';
-      } else if (status === 'delivered') {
-        notifTitle = '🎉 Order Delivered!';
-        notifBody = 'Your food has arrived at your address. Enjoy your meal!';
-        notifType = 'delivery';
-      } else if (status === 'cancelled') {
-        notifTitle = '❌ Order Cancelled';
-        notifBody = `Your order #${orderId.toString().slice(-6).toUpperCase()} has been cancelled.`;
-      }
 
       if (notifTitle) {
         const notif = {
@@ -203,24 +210,28 @@ const orderService = {
         };
         io.to(`order_${orderId}`).emit('push_notification', notif);
         io.emit('push_notification', notif);
+      }
+    } catch (_) {
+      // Socket not initialized, skip
+    }
 
-        // Send push notification via Firebase Cloud Messaging
-        const orderUserId = order.user?._id || order.user;
-        if (orderUserId) {
-          try {
-            await firebaseService.sendPushNotificationToUser(orderUserId, {
-              title: notifTitle,
-              body: notifBody,
-              data: {
-                orderId: orderId.toString(),
-                type: notifType,
-              },
-            });
-          } catch (_) {}
+    // 2. Send push notification via Firebase Cloud Messaging
+    if (notifTitle) {
+      const orderUserId = order.user?._id || order.user;
+      if (orderUserId) {
+        try {
+          await firebaseService.sendPushNotificationToUser(orderUserId, {
+            title: notifTitle,
+            body: notifBody,
+            data: {
+              orderId: orderId.toString(),
+              type: notifType,
+            },
+          });
+        } catch (err) {
+          console.error('⚠️ [orderService] FCM push error:', err.message);
         }
       }
-    } catch (e) {
-      // Socket not initialized yet, skip
     }
 
     return await orderRepository.updateStatus(orderId, status, paymentStatus);

@@ -56,7 +56,13 @@ const startSimulation = (orderId, deliveryLocation, onDelivered) => {
   // Stop any existing simulation for this order
   stopSimulation(orderId);
 
-  const io = getIO();
+  let io;
+  try {
+    io = getIO();
+  } catch (_) {
+    console.warn(`⚠️ [Driver] Cannot start simulation for order ${orderId}: Socket.IO not initialized`);
+    return;
+  }
   const restaurant = RESTAURANT_LOCATIONS[Math.floor(Math.random() * RESTAURANT_LOCATIONS.length)];
   const waypoints = generateWaypoints(restaurant, deliveryLocation, 20);
   let currentIndex = 0;
