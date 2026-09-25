@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -16,6 +17,7 @@ import 'core/services/services_network.dart';
 import 'core/services/wakelock_service.dart';
 import 'core/theme/theme_store.dart';
 import 'features/notifications/notification_store.dart';
+import 'firebase_options.dart';
 
 Future<void> runFoodOrderApp({
   required String envFile,
@@ -25,6 +27,9 @@ Future<void> runFoodOrderApp({
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   AppConfig.environment = environment;
   await dotenv.load(fileName: envFile);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await LocalDB.init();
   await WakelockService.initialize();
   await LocalNotificationService.instance.initialize();
