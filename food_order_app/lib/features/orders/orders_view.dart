@@ -10,6 +10,7 @@ import '../../domain/order/repositories/order_repository.dart';
 import '../../routes/app_routes.dart';
 import '../main_navigation/main_nav_intent.dart';
 import '../main_navigation/main_nav_store.dart';
+import '../notifications/notification_store.dart';
 import 'orders_intent.dart';
 import 'orders_store.dart';
 
@@ -62,6 +63,52 @@ class OrdersView extends StatelessWidget {
           ],
         ),
         titleSpacing: 12,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Center(
+              child: GestureDetector(
+                onTap: () {
+                  Get.toNamed(AppRoutes.notifications);
+                },
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(Icons.notifications_outlined, size: 24),
+                    if (Get.isRegistered<NotificationStore>())
+                      Obx(() {
+                        final unread = Get.find<NotificationStore>().unreadCount;
+                        if (unread == 0) return const SizedBox.shrink();
+                        return Positioned(
+                          top: -4,
+                          right: -4,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 4.5, vertical: 1.5),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF141A29) : Colors.white,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Text(
+                              '$unread',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Obx(() {

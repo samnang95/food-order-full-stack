@@ -8,8 +8,10 @@ import '../../core/theme/theme_store.dart';
 import '../../data/order/datasources/order_remote_datasource.dart';
 import '../../data/order/repositories/order_repository_impl.dart';
 import '../../domain/order/repositories/order_repository.dart';
+import '../../routes/app_routes.dart';
 import '../main_navigation/main_nav_intent.dart';
 import '../main_navigation/main_nav_store.dart';
+import '../notifications/notification_store.dart';
 import 'profile_intent.dart';
 import 'profile_store.dart';
 import 'widgets/widgets.dart';
@@ -217,6 +219,51 @@ class ProfileView extends StatelessWidget {
                           ],
                         ),
                         onTap: () => SavedAddressesSheet.show(context, store),
+                      ),
+                      Divider(height: 1, color: borderColor),
+
+                      // Notification Center Shortcut
+                      ListTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.notifications_active_rounded, color: Color(0xFFF59E0B), size: 20),
+                        ),
+                        title: Text(
+                          _loc(context, 'notificationsTitle', 'Notifications'),
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (Get.isRegistered<NotificationStore>())
+                              Obx(() {
+                                final unread = Get.find<NotificationStore>().unreadCount;
+                                if (unread == 0) return const SizedBox.shrink();
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  margin: const EdgeInsets.only(right: 6),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    '$unread',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                );
+                              }),
+                            const Icon(Icons.chevron_right_rounded, size: 20),
+                          ],
+                        ),
+                        onTap: () => Get.toNamed(AppRoutes.notifications),
                       ),
                       Divider(height: 1, color: borderColor),
 

@@ -14,6 +14,7 @@ class NotificationView extends GetView<NotificationStore> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final store = controller;
+    final isScrolled = ValueNotifier<bool>(false);
 
     return Scaffold(
       appBar: AppBar(
@@ -95,12 +96,43 @@ class NotificationView extends GetView<NotificationStore> {
           ),
         ],
         elevation: 0,
+        scrolledUnderElevation: 0,
       ),
       body: SafeArea(
         child: Column(
           children: [
-            // Filter Tabs Bar
-            _buildFilterBar(context, store, isDark),
+            // Filter Tabs Bar with subtle shadow when scrolling
+            ValueListenableBuilder<bool>(
+              valueListenable: isScrolled,
+              builder: (context, scrolled, child) {
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF141A29) : Colors.white,
+                    border: Border(
+                      bottom: BorderSide(
+                        color: scrolled
+                            ? Colors.transparent
+                            : (isDark ? const Color(0xFF2E3A52) : const Color(0xFFF1F5F9)),
+                      ),
+                    ),
+                    boxShadow: scrolled
+                        ? [
+                            BoxShadow(
+                              color: isDark
+                                  ? Colors.black.withValues(alpha: 0.35)
+                                  : Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ]
+                        : [],
+                  ),
+                  child: child,
+                );
+              },
+              child: _buildFilterBar(context, store, isDark),
+            ),
 
             // Notification List
             Expanded(
@@ -111,20 +143,26 @@ class NotificationView extends GetView<NotificationStore> {
                   return _buildEmptyState(context, store.selectedTab.value, isDark);
                 }
 
-                return RefreshIndicator(
-                  onRefresh: () => store.loadNotifications(),
-                  color: AppColors.primary,
-                  child: ListView.separated(
-                    physics: const AlwaysScrollableScrollPhysics(
-                      parent: BouncingScrollPhysics(),
+                return NotificationListener<ScrollNotification>(
+                  onNotification: (scrollInfo) {
+                    isScrolled.value = scrollInfo.metrics.pixels > 5;
+                    return false;
+                  },
+                  child: RefreshIndicator(
+                    onRefresh: () => store.loadNotifications(),
+                    color: AppColors.primary,
+                    child: ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+                      itemCount: list.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 10),
+                      itemBuilder: (context, index) {
+                        final item = list[index];
+                        return _buildNotificationCard(context, store, item, isDark);
+                      },
                     ),
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-                    itemCount: list.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      final item = list[index];
-                      return _buildNotificationCard(context, store, item, isDark);
-                    },
                   ),
                 );
               }),

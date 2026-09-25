@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -5,6 +6,7 @@ import 'package:food_order_app/core/db/local_db.dart';
 import 'package:food_order_app/features/notifications/models/notification_item_model.dart';
 import 'package:food_order_app/features/notifications/notification_store.dart';
 import 'package:food_order_app/features/notifications/notification_view.dart';
+import 'package:food_order_app/features/notifications/widgets/notification_bottom_sheet.dart';
 
 void main() {
   late NotificationStore store;
@@ -217,6 +219,23 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('No Notifications Yet'), findsOneWidget);
+    });
+
+    testWidgets('NotificationBottomSheet renders header, tabs, and list', (tester) async {
+      await tester.pumpWidget(
+        const GetMaterialApp(
+          home: Scaffold(
+            body: NotificationBottomSheet(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Notifications'), findsOneWidget);
+      expect(find.text('All'), findsOneWidget);
+      expect(find.text('Orders'), findsOneWidget);
+      expect(find.text('Promotions'), findsOneWidget);
+      expect(find.text('Manage All Notifications'), findsOneWidget);
     });
   });
 }
