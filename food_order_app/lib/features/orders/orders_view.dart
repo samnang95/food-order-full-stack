@@ -42,9 +42,13 @@ class OrdersView extends StatelessWidget {
     final store = controller;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? const Color(0xFF1E2638) : Colors.white;
+    final scaffoldBg = Theme.of(context).scaffoldBackgroundColor;
+    final isScrolled = ValueNotifier<bool>(false);
 
     return Scaffold(
+      backgroundColor: scaffoldBg,
       appBar: AppBar(
+        backgroundColor: scaffoldBg,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         title: Row(
@@ -69,9 +73,30 @@ class OrdersView extends StatelessWidget {
 
           return Column(
             children: [
-              // Filter Pills
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              // Filter Pills with subtle shadow when scrolling
+              ValueListenableBuilder<bool>(
+                valueListenable: isScrolled,
+                builder: (context, scrolled, child) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      color: scaffoldBg,
+                      boxShadow: scrolled
+                          ? [
+                              BoxShadow(
+                                color: isDark
+                                    ? Colors.black.withValues(alpha: 0.35)
+                                    : Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
+                          : [],
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: child,
+                  );
+                },
                 child: Row(
                   children: [
                     _buildFilterChip(
@@ -103,9 +128,17 @@ class OrdersView extends StatelessWidget {
 
               // Orders List, Error State, or Empty State
               Expanded(
-                child: RefreshIndicator(
-                  color: AppColors.primary,
-                  onRefresh: () async => store.onIntent(const FetchOrdersIntent()),
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    final scrolledNow = notification.metrics.pixels > 5;
+                    if (isScrolled.value != scrolledNow) {
+                      isScrolled.value = scrolledNow;
+                    }
+                    return false;
+                  },
+                  child: RefreshIndicator(
+                    color: AppColors.primary,
+                    onRefresh: () async => store.onIntent(const FetchOrdersIntent()),
                   child: state.isLoading && state.orders.isEmpty
                       ? const Center(
                           child: CircularProgressIndicator(color: AppColors.primary),
@@ -127,8 +160,9 @@ class OrdersView extends StatelessWidget {
                                     return _buildOrderCard(order, isDark, cardBg);
                                   },
                                 ),
-                ),
-              ),
+                      ),
+                    ),
+                  ),
             ],
           );
         }),
