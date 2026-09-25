@@ -1,5 +1,19 @@
 const orderRepository = require('../repositories/orderRepository');
 const foodRepository = require('../repositories/foodRepository');
+const { startSimulation, stopSimulation } = require('../socket/driverSimulator');
+const { getIO } = require('../socket/socketManager');
+
+/**
+ * Default Phnom Penh delivery locations (simulated for demo)
+ * In production, this would come from the user's real GPS coordinates
+ */
+const DEFAULT_DELIVERY_LOCATIONS = [
+  { lat: 11.5564, lng: 104.9282 }, // Central Market area
+  { lat: 11.5725, lng: 104.9200 }, // Toul Tom Poung
+  { lat: 11.5494, lng: 104.9339 }, // Riverside
+  { lat: 11.5684, lng: 104.8910 }, // Russian Market
+  { lat: 11.5448, lng: 104.9283 }, // Wat Phnom area
+];
 
 const orderService = {
   placeOrder: async (userId, orderData) => {
@@ -35,12 +49,17 @@ const orderService = {
       });
     }
 
-    // 3. Create the order
+    // 3. Assign a random delivery location (simulated)
+    const deliveryLocation = orderData.deliveryLocation ||
+      DEFAULT_DELIVERY_LOCATIONS[Math.floor(Math.random() * DEFAULT_DELIVERY_LOCATIONS.length)];
+
+    // 4. Create the order
     const finalOrderData = {
       user: userId,
       items: finalItems,
       totalAmount: totalAmount,
       deliveryAddress: orderData.deliveryAddress,
+      deliveryLocation,
       paymentMethod: orderData.paymentMethod || 'cash'
     };
 
@@ -84,6 +103,30 @@ const orderService = {
     const validPaymentStatuses = ['pending', 'completed', 'failed'];
     if (paymentStatus && !validPaymentStatuses.includes(paymentStatus)) {
       throw new Error('Invalid payment status');
+    }
+
+    // If transitioning to out_for_delivery, start driver simulation
+    if (status === 'out_for_delivery' && order.status !== 'out_for_delivery') {
+      const deliveryLocation = order.deliveryLocation || 
+        DEFAULT_DELIVERY_LOCATIONS[Math.floor(Math.random() * DEFAULT_DELIVERY_LOCATIONS.length)];
+
+      startSimulation(orderId, deliveryLocation, async () => {
+        // Auto-update order status to delivered when driver arrives
+        await orderRepository.updateStatus(orderId, 'delivered', 'completed');
+      });
+    }
+
+    // If cancelling, stop any active simulation
+    if (status === 'cancelled') {
+      stopSimulation(orderId);
+    }
+
+    // Emit status change event via Socket.IO
+    try {
+      const io = getIO();
+      io.to(`order_${orderId}`).emit('order_status_changed', { orderId, status });
+    } catch (e) {
+      // Socket not initialized yet, skip
     }
 
     return await orderRepository.updateStatus(orderId, status, paymentStatus);

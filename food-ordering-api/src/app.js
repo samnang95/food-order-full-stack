@@ -1,9 +1,15 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
 const connectDB = require('./db/database');
 const cors = require('cors');
+const { initSocket } = require('./socket/socketManager');
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Create HTTP server and attach Socket.IO
+const server = http.createServer(app);
+initSocket(server);
 
 // Enable CORS for web and mobile clients
 app.use(cors());
@@ -51,7 +57,7 @@ app.use('/upload', uploadRoutes);
 // Connect to MongoDB
 connectDB();
 
-// Start the Express server
-app.listen(port, () => {
+// Start the HTTP server (Express + Socket.IO)
+server.listen(port, () => {
   console.log(`Food Ordering API is running at http://localhost:${port}`);
 });

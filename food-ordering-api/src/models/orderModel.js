@@ -17,6 +17,11 @@ const orderItemSchema = new mongoose.Schema({
   }
 });
 
+const locationSchema = new mongoose.Schema({
+  lat: { type: Number, required: true },
+  lng: { type: Number, required: true },
+}, { _id: false });
+
 const orderSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -32,6 +37,18 @@ const orderSchema = new mongoose.Schema({
   deliveryAddress: {
     type: String,
     // Optional, can be empty if it's pickup or dine-in
+  },
+  deliveryLocation: {
+    type: locationSchema,
+    default: null,
+  },
+  restaurantLocation: {
+    type: locationSchema,
+    default: null,
+  },
+  driverLocation: {
+    type: locationSchema,
+    default: null,
   },
   status: {
     type: String,
