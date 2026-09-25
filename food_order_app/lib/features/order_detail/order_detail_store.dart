@@ -17,13 +17,18 @@ import 'order_detail_state.dart';
 class OrderDetailStore extends GetxController {
   final OrderRepository orderRepository;
   final OrderEntity initialOrder;
+  final bool autoFetch;
 
   OrderDetailStore({
     required this.orderRepository,
     required this.initialOrder,
+    this.autoFetch = false,
   });
 
-  late final Rx<OrderDetailState> state = OrderDetailState(order: initialOrder).obs;
+  late final Rx<OrderDetailState> state = OrderDetailState(
+    order: initialOrder,
+    isLoading: autoFetch,
+  ).obs;
 
   final _socketService = SocketService.instance;
 
@@ -37,8 +42,9 @@ class OrderDetailStore extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Auto-connect to tracking if order is out for delivery
-    if (initialOrder.status == 'out_for_delivery') {
+    if (autoFetch || initialOrder.items.isEmpty) {
+      _onRefresh();
+    } else if (initialOrder.status == 'out_for_delivery') {
       _startTracking();
     }
   }

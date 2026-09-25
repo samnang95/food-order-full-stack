@@ -14,7 +14,7 @@ class OrderSuccessView extends StatelessWidget {
     final borderColor = isDark ? const Color(0xFF2E3A52) : AppColors.borderColor;
     final textMuted = isDark ? Colors.white60 : AppColors.subtitleColor;
 
-    final order = Get.arguments as OrderEntity?;
+    final order = Get.arguments is OrderEntity ? Get.arguments as OrderEntity : null;
 
     return PopScope(
       canPop: false,

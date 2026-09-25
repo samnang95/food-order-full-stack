@@ -15,6 +15,67 @@ class OrderDetailView extends GetView<OrderDetailStore> {
       final state = controller.state.value;
       final order = state.order;
 
+      if (state.isLoading && order.items.isEmpty) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              order.id.isNotEmpty ? 'Order ${order.shortId}' : 'Order Details',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+              onPressed: () => Get.back(),
+            ),
+            elevation: 0,
+          ),
+          body: const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
+        );
+      }
+
+      if (state.errorMessage != null && order.items.isEmpty) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Order Details'),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+              onPressed: () => Get.back(),
+            ),
+            elevation: 0,
+          ),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline_rounded, size: 48, color: Color(0xFFEF4444)),
+                  const SizedBox(height: 12),
+                  Text(
+                    state.errorMessage ?? 'Failed to load order',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () => controller.onIntent(const RefreshOrderDetailIntent()),
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: const Text('Retry'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+
       return Scaffold(
         appBar: AppBar(
           title: Text(

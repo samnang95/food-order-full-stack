@@ -73,6 +73,20 @@ class OrderEntity {
     this.restaurantLng,
   });
 
+  factory OrderEntity.placeholder(String orderId) {
+    return OrderEntity(
+      id: orderId,
+      userId: '',
+      items: const [],
+      totalAmount: 0.0,
+      deliveryAddress: '',
+      status: 'pending',
+      paymentMethod: 'cash',
+      paymentStatus: 'pending',
+      createdAt: DateTime.now(),
+    );
+  }
+
   String get shortId {
     if (id.length >= 4) {
       final sub = id.substring(id.length - 4).toUpperCase();

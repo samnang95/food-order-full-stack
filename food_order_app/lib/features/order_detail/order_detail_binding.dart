@@ -16,14 +16,27 @@ class OrderDetailBinding extends Bindings {
         () => OrderRepositoryImpl(remoteDataSource: Get.find<OrderRemoteDataSource>()),
       );
     }
-    final order = Get.arguments as OrderEntity?;
-    if (order != null) {
-      Get.lazyPut<OrderDetailStore>(
-        () => OrderDetailStore(
-          orderRepository: Get.find<OrderRepository>(),
-          initialOrder: order,
-        ),
-      );
+    OrderEntity? order;
+    bool needsFetch = false;
+
+    final args = Get.arguments;
+    if (args is OrderEntity) {
+      order = args;
+    } else if (args is String && args.isNotEmpty) {
+      order = OrderEntity.placeholder(args);
+      needsFetch = true;
+    } else if (args is Map && args['orderId'] != null) {
+      order = OrderEntity.placeholder(args['orderId'].toString());
+      needsFetch = true;
     }
+
+    final resolvedOrder = order ?? OrderEntity.placeholder('');
+    Get.lazyPut<OrderDetailStore>(
+      () => OrderDetailStore(
+        orderRepository: Get.find<OrderRepository>(),
+        initialOrder: resolvedOrder,
+        autoFetch: needsFetch || resolvedOrder.items.isEmpty,
+      ),
+    );
   }
 }

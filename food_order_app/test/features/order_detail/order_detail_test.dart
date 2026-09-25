@@ -8,6 +8,7 @@ import 'package:food_order_app/core/services/cart_service.dart';
 import 'package:food_order_app/core/services/socket_service.dart';
 import 'package:food_order_app/domain/order/entities/order_entity.dart';
 import 'package:food_order_app/domain/order/repositories/order_repository.dart';
+import 'package:food_order_app/features/order_detail/order_detail_binding.dart';
 import 'package:food_order_app/features/order_detail/order_detail_intent.dart';
 import 'package:food_order_app/features/order_detail/order_detail_store.dart';
 import 'package:food_order_app/features/order_detail/order_detail_view.dart';
@@ -262,5 +263,30 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
 
     SocketService.instance.disconnect();
+  });
+
+  testWidgets('OrderDetailBinding resolves orderId String argument and auto-fetches order', (tester) async {
+    Get.reset();
+    Get.testMode = true;
+    mockRepo = MockOrderRepository();
+    mockRepo.orderToReturn = sampleOrder;
+    Get.put<OrderRepository>(mockRepo);
+
+    // Simulate opening with orderId String argument (like from notification)
+    Get.routing.args = 'ord_12345';
+
+    final binding = OrderDetailBinding();
+    binding.dependencies();
+
+    await tester.pumpWidget(
+      const GetMaterialApp(
+        home: OrderDetailView(),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Order #BC-2345'), findsOneWidget);
+    expect(find.text('Truffle Burger'), findsOneWidget);
   });
 }
