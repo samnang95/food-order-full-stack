@@ -79,7 +79,24 @@ const orderService = {
       paymentMethod: orderData.paymentMethod || 'cash'
     };
 
-    return await orderRepository.create(finalOrderData);
+    const createdOrder = await orderRepository.create(finalOrderData);
+
+    try {
+      const io = getIO();
+      const notif = {
+        id: `notif_${Date.now()}`,
+        type: 'order',
+        title: '📦 Order Confirmed!',
+        body: `Your order #${createdOrder._id.toString().slice(-6).toUpperCase()} has been placed and is being prepared.`,
+        orderId: createdOrder._id.toString(),
+        timestamp: new Date().toISOString(),
+        isRead: false,
+      };
+      io.to(`order_${createdOrder._id}`).emit('push_notification', notif);
+      io.emit('push_notification', notif);
+    } catch (_) {}
+
+    return createdOrder;
   },
 
   getUserOrders: async (userId) => {
@@ -141,6 +158,39 @@ const orderService = {
     try {
       const io = getIO();
       io.to(`order_${orderId}`).emit('order_status_changed', { orderId, status });
+
+      let notifTitle = null;
+      let notifBody = null;
+      let notifType = 'order';
+
+      if (status === 'preparing') {
+        notifTitle = '🍳 Kitchen is Cooking!';
+        notifBody = `Your order #${orderId.toString().slice(-6).toUpperCase()} is currently being freshly prepared.`;
+      } else if (status === 'out_for_delivery') {
+        notifTitle = '🛵 Rider Dispatched!';
+        notifBody = 'Rider Sok Dara has picked up your food and is on the way!';
+      } else if (status === 'delivered') {
+        notifTitle = '🎉 Order Delivered!';
+        notifBody = 'Your food has arrived at your address. Enjoy your meal!';
+        notifType = 'delivery';
+      } else if (status === 'cancelled') {
+        notifTitle = '❌ Order Cancelled';
+        notifBody = `Your order #${orderId.toString().slice(-6).toUpperCase()} has been cancelled.`;
+      }
+
+      if (notifTitle) {
+        const notif = {
+          id: `notif_${Date.now()}`,
+          type: notifType,
+          title: notifTitle,
+          body: notifBody,
+          orderId: orderId.toString(),
+          timestamp: new Date().toISOString(),
+          isRead: false,
+        };
+        io.to(`order_${orderId}`).emit('push_notification', notif);
+        io.emit('push_notification', notif);
+      }
     } catch (e) {
       // Socket not initialized yet, skip
     }

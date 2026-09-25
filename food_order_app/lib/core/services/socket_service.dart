@@ -83,6 +83,17 @@ class SocketService {
     });
   }
 
+  /// Listen for real-time push notifications
+  void onPushNotification(void Function(Map<String, dynamic> data) callback) {
+    _socket?.on('push_notification', (data) {
+      if (data is Map<String, dynamic>) {
+        callback(data);
+      } else if (data is Map) {
+        callback(Map<String, dynamic>.from(data));
+      }
+    });
+  }
+
   /// Remove all listeners for a specific event
   void offDriverLocation() {
     _socket?.off('driver_location');
@@ -90,6 +101,10 @@ class SocketService {
 
   void offOrderStatusChanged() {
     _socket?.off('order_status_changed');
+  }
+
+  void offPushNotification() {
+    _socket?.off('push_notification');
   }
 
   /// Disconnect from the server

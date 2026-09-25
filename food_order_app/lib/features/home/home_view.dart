@@ -10,6 +10,7 @@ import 'home_store.dart';
 import 'home_intent.dart';
 import 'widgets/category_chip_list.dart';
 import 'widgets/food_card.dart';
+import '../notifications/notification_store.dart';
 import '../../routes/app_routes.dart';
 
 class HomeView extends GetView<HomeStore> {
@@ -36,6 +37,55 @@ class HomeView extends GetView<HomeStore> {
         ),
         titleSpacing: 12,
         actions: [
+          // Notification Bell with unread badge
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Center(
+              child: GestureDetector(
+                onTap: () {
+                  Get.toNamed(AppRoutes.notifications);
+                },
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(Icons.notifications_outlined, size: 24),
+                    if (Get.isRegistered<NotificationStore>())
+                      Obx(() {
+                        final unread = Get.find<NotificationStore>().unreadCount;
+                        if (unread == 0) return const SizedBox.shrink();
+                        return Positioned(
+                          top: -4,
+                          right: -4,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 4.5, vertical: 1.5),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF141A29) : Colors.white,
+                                width: 1.5,
+                              ),
+                            ),
+                            constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                            child: Center(
+                              child: Text(
+                                unread > 9 ? '9+' : '$unread',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w900,
+                                  height: 1,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                  ],
+                ),
+              ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: GestureDetector(

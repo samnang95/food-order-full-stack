@@ -6,6 +6,8 @@ import '../../core/services/api_client.dart';
 import '../../core/services/cart_service.dart';
 import '../../domain/order/repositories/order_repository.dart';
 import '../../routes/app_routes.dart';
+import '../notifications/models/notification_item_model.dart';
+import '../notifications/notification_store.dart';
 import '../orders/orders_intent.dart';
 import '../orders/orders_store.dart';
 import 'checkout_intent.dart';
@@ -232,6 +234,25 @@ class CheckoutStore extends GetxController {
 
       // Clear cart
       cartService.clearCart();
+
+      // Dispatch order confirmed in-app push notification
+      if (Get.isRegistered<NotificationStore>()) {
+        final shortId = order.id.length > 6
+            ? order.id.substring(order.id.length - 6).toUpperCase()
+            : order.id;
+        Get.find<NotificationStore>().addNotification(
+          NotificationItemModel(
+            id: 'order_${order.id}',
+            type: 'order',
+            title: '📦 Order Confirmed!',
+            body: 'Your order #$shortId has been placed and is being prepared.',
+            orderId: order.id,
+            timestamp: DateTime.now(),
+            isRead: false,
+          ),
+          showBanner: true,
+        );
+      }
 
       // Refresh OrdersStore so the newly placed order is immediately loaded
       if (Get.isRegistered<OrdersStore>()) {

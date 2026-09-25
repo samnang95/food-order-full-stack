@@ -9,4 +9,5 @@ class AppRoutes {
   static const String checkout = '/checkout';
   static const String orderSuccess = '/order-success';
   static const String orderDetail = '/order-detail';
+  static const String notifications = '/notifications';
 }

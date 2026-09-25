@@ -14,6 +14,7 @@ import 'core/services/favorites_service.dart';
 import 'core/services/services_network.dart';
 import 'core/services/wakelock_service.dart';
 import 'core/theme/theme_store.dart';
+import 'features/notifications/notification_store.dart';
 
 Future<void> runFoodOrderApp({
   required String envFile,
@@ -46,6 +47,7 @@ Future<void> runFoodOrderApp({
   Get.put(LocaleStore(), permanent: true);
   Get.put(FavoritesService(), permanent: true);
   Get.put(CartService(), permanent: true);
+  Get.put(NotificationStore(), permanent: true);
 
   runApp(const FoodOrderApp());
 }

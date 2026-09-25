@@ -156,5 +156,21 @@
     "endCall": "End Call",
     "mute": "Mute",
     "speaker": "Speaker"
+  },
+  "notifications": {
+    "notificationsTitle": "Notifications",
+    "markAllAsRead": "Mark all as read",
+    "allNotificationsRead": "All notifications marked as read",
+    "clearAll": "Clear all notifications",
+    "all": "All",
+    "ordersTab": "Orders",
+    "promosTab": "Promotions",
+    "trackOrder": "Track Order",
+    "noNotifications": "No Notifications Yet",
+    "noNotificationsDesc": "You will receive order updates, promotions, and delivery news here.",
+    "noOrderNotifs": "No Order Updates",
+    "noOrderNotifsDesc": "Updates about your active deliveries will appear here.",
+    "noPromoNotifs": "No Active Promos",
+    "noPromoNotifsDesc": "Special discount codes and celebrations will drop here."
   }
 }

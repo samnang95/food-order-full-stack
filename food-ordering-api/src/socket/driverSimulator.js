@@ -107,6 +107,16 @@ const startSimulation = (orderId, deliveryLocation, onDelivered) => {
         status: 'delivered',
       });
 
+      io.to(`order_${orderId}`).emit('push_notification', {
+        id: `notif_${Date.now()}`,
+        type: 'delivery',
+        title: '🎉 Order Delivered!',
+        body: 'Your food has arrived at your address. Enjoy your meal!',
+        orderId,
+        timestamp: new Date().toISOString(),
+        isRead: false,
+      });
+
       console.log(`✅ [Driver] Order ${orderId} delivered!`);
 
       if (onDelivered) {
@@ -120,6 +130,19 @@ const startSimulation = (orderId, deliveryLocation, onDelivered) => {
     const heading = calculateHeading(current, next);
     const remainingSteps = totalSteps - currentIndex;
     const eta = Math.ceil((remainingSteps * 3) / 60); // minutes
+
+    // When driver is approximately 2 minutes away, send push notification
+    if (currentIndex === Math.floor(totalSteps * 0.7)) {
+      io.to(`order_${orderId}`).emit('push_notification', {
+        id: `notif_${Date.now()}`,
+        type: 'order',
+        title: '🛵 Driver is Almost There!',
+        body: 'Rider Sok Dara is 2 minutes away. Please prepare to receive your order!',
+        orderId,
+        timestamp: new Date().toISOString(),
+        isRead: false,
+      });
+    }
 
     io.to(`order_${orderId}`).emit('driver_location', {
       orderId,
