@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 import 'package:get/get.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/api_client.dart';
@@ -68,10 +69,17 @@ class OrderDetailStore extends GetxController {
       if (res.statusCode == 200) {
         _startTracking();
         await _onRefresh();
-        if (Get.context != null) {
+        final ctx = Get.context;
+        if (ctx != null && ctx.mounted) {
+          final title = 'driverDispatched'.getString(ctx).isNotEmpty
+              ? 'driverDispatched'.getString(ctx)
+              : 'Driver Dispatched! 🚴';
+          final desc = 'driverDispatchedDesc'.getString(ctx).isNotEmpty
+              ? 'driverDispatchedDesc'.getString(ctx)
+              : 'Live driver simulation started! Watch the rider deliver to your location.';
           Get.snackbar(
-            '🚴 Driver Dispatched!',
-            'Live driver simulation started! Watch the rider deliver to your location.',
+            title,
+            desc,
             backgroundColor: AppColors.primary,
             colorText: Colors.white,
             snackPosition: SnackPosition.TOP,
@@ -118,9 +126,16 @@ class OrderDetailStore extends GetxController {
         _onRefresh();
 
         if (Get.context != null) {
+          final ctx = Get.context!;
+          final title = 'orderDelivered'.getString(ctx).isNotEmpty
+              ? 'orderDelivered'.getString(ctx)
+              : 'Order Delivered! 🎉';
+          final desc = 'orderDeliveredDesc'.getString(ctx).isNotEmpty
+              ? 'orderDeliveredDesc'.getString(ctx)
+              : 'Your food has arrived. Enjoy your meal!';
           Get.snackbar(
-            'Order Delivered! 🎉',
-            'Your food has arrived. Enjoy your meal!',
+            title,
+            desc,
             backgroundColor: const Color(0xFF10B981),
             colorText: Colors.white,
             snackPosition: SnackPosition.TOP,

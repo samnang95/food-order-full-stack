@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/locale/translation_helper.dart';
 
 class LocationPreset {
   final String label;
@@ -214,7 +215,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Set Delivery Location',
+                        'setDeliveryLocation'.trOr(context, 'Set Delivery Location'),
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w700,
@@ -222,7 +223,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                         ),
                       ),
                       Text(
-                        'Tap map or select a popular area in Phnom Penh',
+                        'popularAreasHint'.trOr(context, 'Tap map or select a popular area in Phnom Penh'),
                         style: TextStyle(
                           fontSize: 12,
                           color: isDark ? Colors.white54 : const Color(0xFF64748B),
@@ -385,7 +386,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                         const Icon(Icons.touch_app_rounded, size: 14, color: AppColors.primary),
                         const SizedBox(width: 5),
                         Text(
-                          'Tap anywhere to move pin',
+                          'tapToMovePin'.trOr(context, 'Tap anywhere to move pin'),
                           style: TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w600,
@@ -418,7 +419,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                       const Icon(Icons.edit_location_alt_rounded, size: 16, color: AppColors.primary),
                       const SizedBox(width: 6),
                       Text(
-                        'Delivery Address Details',
+                        'deliveryAddressDetails'.trOr(context, 'Delivery Address Details'),
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
@@ -446,7 +447,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                       color: isDark ? Colors.white : const Color(0xFF1E293B),
                     ),
                     decoration: InputDecoration(
-                      hintText: 'Enter street, house number, area...',
+                      hintText: 'enterAddressHint'.trOr(context, 'Enter street, house number, area...'),
                       hintStyle: TextStyle(
                         fontSize: 12.5,
                         color: isDark ? Colors.white38 : Colors.black38,
@@ -490,14 +491,14 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                         ),
                         elevation: 0,
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.check_circle_rounded, size: 18),
-                          SizedBox(width: 8),
+                          const Icon(Icons.check_circle_rounded, size: 18),
+                          const SizedBox(width: 8),
                           Text(
-                            'Confirm Delivery Location',
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                            'confirmLocation'.trOr(context, 'Confirm Delivery Location'),
+                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),

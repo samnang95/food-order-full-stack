@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/locale/translation_helper.dart';
 
 /// A beautiful map card showing the driver's real-time location,
 /// restaurant, and delivery destination with an animated route.
@@ -221,7 +222,7 @@ class _DeliveryMapCardState extends State<DeliveryMapCard>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Driver is on the way',
+                  'onTheWay'.trOr(context, 'Driver is on the way'),
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
@@ -257,7 +258,7 @@ class _DeliveryMapCardState extends State<DeliveryMapCard>
                   const Icon(Icons.schedule_rounded, size: 14, color: Colors.white),
                   const SizedBox(width: 4),
                   Text(
-                    '~${widget.estimatedEta} min',
+                    '~${widget.estimatedEta} ${'mins'.trOr(context, 'min')}',
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -324,7 +325,7 @@ class _DeliveryMapCardState extends State<DeliveryMapCard>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Locating your driver...',
+                  'locatingDriver'.trOr(context, 'Locating your driver...'),
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 15,
@@ -333,7 +334,7 @@ class _DeliveryMapCardState extends State<DeliveryMapCard>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Live tracking will appear here shortly',
+                  'trackingWillAppear'.trOr(context, 'Live tracking will appear here shortly'),
                   style: TextStyle(
                     fontSize: 13,
                     color: isDark ? Colors.white54 : const Color(0xFF64748B),

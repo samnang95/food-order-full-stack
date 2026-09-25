@@ -1,3 +1,6 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localization/flutter_localization.dart';
+
 class TranslationHelper {
   TranslationHelper._();
 
@@ -25,3 +28,18 @@ class TranslationHelper {
     return flattened;
   }
 }
+
+extension LocalizationFallback on String {
+  String trOr(BuildContext context, String fallback) {
+    try {
+      final str = getString(context);
+      if (str.isEmpty || str.endsWith('not found') || str == this) {
+        return fallback;
+      }
+      return str;
+    } catch (_) {
+      return fallback;
+    }
+  }
+}
+

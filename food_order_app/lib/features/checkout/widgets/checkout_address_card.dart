@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/locale/translation_helper.dart';
 import '../checkout_intent.dart';
 import '../checkout_store.dart';
 import 'location_picker_sheet.dart';
@@ -76,7 +77,7 @@ class CheckoutAddressCard extends GetView<CheckoutStore> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Delivery Address',
+                        'deliveryAddress'.trOr(context, 'Delivery Address'),
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -84,7 +85,7 @@ class CheckoutAddressCard extends GetView<CheckoutStore> {
                         ),
                       ),
                       Text(
-                        'Live tracking will deliver here',
+                        'liveTrackingSub'.trOr(context, 'Live tracking will deliver here'),
                         style: TextStyle(
                           fontSize: 11.5,
                           color: isDark ? Colors.white54 : const Color(0xFF64748B),
@@ -96,9 +97,9 @@ class CheckoutAddressCard extends GetView<CheckoutStore> {
                 TextButton.icon(
                   onPressed: () => _openLocationPicker(context, address, lat, lng),
                   icon: const Icon(Icons.edit_location_alt_outlined, size: 15),
-                  label: const Text(
-                    'Change Pin',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  label: Text(
+                    'changePin'.trOr(context, 'Change Pin'),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                   ),
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.primary,
@@ -174,16 +175,16 @@ class CheckoutAddressCard extends GetView<CheckoutStore> {
                               ],
                             ),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.touch_app_rounded, size: 13, color: Colors.white),
-                                  SizedBox(width: 5),
+                                  const Icon(Icons.touch_app_rounded, size: 13, color: Colors.white),
+                                  const SizedBox(width: 5),
                                   Text(
-                                    'Tap map to change location',
-                                    style: TextStyle(
+                                    'tapMapToChange'.trOr(context, 'Tap map to change location'),
+                                    style: const TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.white,
@@ -191,7 +192,7 @@ class CheckoutAddressCard extends GetView<CheckoutStore> {
                                   ),
                                 ],
                               ),
-                              Icon(Icons.open_in_full_rounded, size: 13, color: Colors.white70),
+                              const Icon(Icons.open_in_full_rounded, size: 13, color: Colors.white70),
                             ],
                           ),
                         ),
@@ -248,7 +249,10 @@ class CheckoutAddressCard extends GetView<CheckoutStore> {
             TextField(
               onChanged: (val) => controller.onIntent(ChangeDeliveryNote(val)),
               decoration: InputDecoration(
-                hintText: 'Note for rider (e.g. Call upon arrival, 2nd floor)',
+                hintText: 'noteForRider'.trOr(
+                  context,
+                  'Note for rider (e.g. Call upon arrival, 2nd floor)',
+                ),
                 hintStyle: TextStyle(
                   fontSize: 12.5,
                   color: isDark ? Colors.white38 : Colors.black38,

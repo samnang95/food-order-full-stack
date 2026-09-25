@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/locale/translation_helper.dart';
 import '../order_detail_intent.dart';
 import '../order_detail_store.dart';
 
@@ -40,14 +41,14 @@ class OrderDetailBottomBar extends GetView<OrderDetailStore> {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.delivery_dining_rounded, color: AppColors.primary, size: 22),
-                  SizedBox(width: 10),
+                  const Icon(Icons.delivery_dining_rounded, color: AppColors.primary, size: 22),
+                  const SizedBox(width: 10),
                   Text(
-                    '🛵 Rider is on the way with your food!',
-                    style: TextStyle(
+                    'riderOnTheWay'.trOr(context, '🛵 Rider is on the way with your food!'),
+                    style: const TextStyle(
                       color: AppColors.primary,
                       fontSize: 14.5,
                       fontWeight: FontWeight.bold,
@@ -86,9 +87,9 @@ class OrderDetailBottomBar extends GetView<OrderDetailStore> {
                   child: ElevatedButton.icon(
                     onPressed: () => controller.onIntent(const SimulateDeliveryIntent()),
                     icon: const Icon(Icons.two_wheeler_rounded, size: 20),
-                    label: const Text(
-                      '🚴 Start Live Delivery Tracking',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    label: Text(
+                      'startLiveTracking'.trOr(context, '🚴 Start Live Delivery Tracking'),
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
@@ -126,14 +127,14 @@ class OrderDetailBottomBar extends GetView<OrderDetailStore> {
                                 strokeWidth: 2,
                               ),
                             )
-                          : const Row(
+                          : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.cancel_outlined, size: 16),
-                                SizedBox(width: 8),
+                                const Icon(Icons.cancel_outlined, size: 16),
+                                const SizedBox(width: 8),
                                 Text(
-                                  'Cancel Order',
-                                  style: TextStyle(
+                                  'cancelOrder'.trOr(context, 'Cancel Order'),
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -178,14 +179,14 @@ class OrderDetailBottomBar extends GetView<OrderDetailStore> {
                 ),
                 elevation: 0,
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.replay_rounded, size: 20),
-                  SizedBox(width: 8),
+                  const Icon(Icons.replay_rounded, size: 20),
+                  const SizedBox(width: 8),
                   Text(
-                    'Reorder All Items',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    'reorderAllItems'.trOr(context, 'Reorder All Items'),
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
