@@ -7,6 +7,7 @@ import '../../features/notifications/notification_store.dart';
 import '../../firebase_options.dart';
 import '../../routes/app_routes.dart';
 import '../db/local_db.dart';
+import 'api_client.dart';
 
 /// Top-level background message handler required by FlutterFire
 @pragma('vm:entry-point')
@@ -25,7 +26,11 @@ class FirebaseNotificationService {
   FirebaseNotificationService._();
   static final FirebaseNotificationService instance = FirebaseNotificationService._();
 
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  FirebaseMessaging? get _messaging {
+    if (Firebase.apps.isEmpty) return null;
+    return FirebaseMessaging.instance;
+  }
+
   bool _isInitialized = false;
   String? _fcmToken;
 
@@ -35,10 +40,17 @@ class FirebaseNotificationService {
   /// Initialize Firebase Cloud Messaging listeners and permissions
   Future<void> initialize() async {
     if (_isInitialized) return;
+    if (Firebase.apps.isEmpty) {
+      debugPrint('ℹ️ [FirebaseNotificationService] Firebase not initialized; skipping FCM setup');
+      return;
+    }
+
+    final messaging = _messaging;
+    if (messaging == null) return;
 
     try {
       // 1. Request user permissions (required for iOS and Android 13+)
-      final settings = await _messaging.requestPermission(
+      final settings = await messaging.requestPermission(
         alert: true,
         announcement: false,
         badge: true,
@@ -50,7 +62,7 @@ class FirebaseNotificationService {
       debugPrint('🔔 [FirebaseNotificationService] Permission status: ${settings.authorizationStatus}');
 
       // 2. Set iOS foreground presentation options
-      await _messaging.setForegroundNotificationPresentationOptions(
+      await messaging.setForegroundNotificationPresentationOptions(
         alert: true,
         badge: true,
         sound: true,
@@ -63,10 +75,11 @@ class FirebaseNotificationService {
       await _fetchAndStoreToken();
 
       // 5. Listen for token refreshes
-      _messaging.onTokenRefresh.listen((newToken) {
+      messaging.onTokenRefresh.listen((newToken) {
         _fcmToken = newToken;
         debugPrint('🔥 [FirebaseNotificationService] FCM Token refreshed: $newToken');
         LocalDB.setString('fcm_token', newToken);
+        syncTokenWithBackend();
       });
 
       // 6. Listen to foreground messages
@@ -84,7 +97,7 @@ class FirebaseNotificationService {
       // 8. Handle notification tap when app opened from terminated state
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         try {
-          final initialMessage = await _messaging.getInitialMessage();
+          final initialMessage = await messaging.getInitialMessage();
           if (initialMessage != null) {
             debugPrint('👆 [FirebaseNotificationService] App launched from terminated via notification: ${initialMessage.messageId}');
             _handleNotificationTap(initialMessage);
@@ -104,17 +117,39 @@ class FirebaseNotificationService {
   /// Retrieve FCM device registration token
   Future<String?> _fetchAndStoreToken() async {
     try {
-      _fcmToken = await _messaging.getToken();
+      final messaging = _messaging;
+      if (messaging == null) return null;
+      _fcmToken = await messaging.getToken();
       if (_fcmToken != null) {
         debugPrint('\n======================================================');
         debugPrint('🔥 [FCM] Device Token: $_fcmToken');
         debugPrint('======================================================\n');
         await LocalDB.setString('fcm_token', _fcmToken!);
+        await syncTokenWithBackend();
       }
       return _fcmToken;
     } catch (e) {
       debugPrint('⚠️ [FirebaseNotificationService] Could not retrieve FCM token: $e');
       return null;
+    }
+  }
+
+  /// Sync device FCM token with backend API if user is authenticated
+  Future<void> syncTokenWithBackend() async {
+    if (Firebase.apps.isEmpty) return;
+    final token = _fcmToken ?? LocalDB.getString('fcm_token');
+    if (token == null || !ApiClient.isAuthenticated) return;
+
+    try {
+      final response = await ApiClient.post(
+        '/users/fcm-token',
+        {'fcmToken': token},
+      );
+      if (response.statusCode == 200) {
+        debugPrint('☁️ [FirebaseNotificationService] FCM token registered with backend');
+      }
+    } catch (e) {
+      debugPrint('⚠️ [FirebaseNotificationService] Failed to sync token with backend: $e');
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/db/local_db.dart';
 import '../../../core/services/apple_auth_service.dart';
+import '../../../core/services/firebase_notification_service.dart';
 import '../../../core/services/google_auth_service.dart';
 import '../../../domain/auth/apple/usecases/login_with_apple_usecase.dart';
 import '../../../domain/auth/google/usecases/login_with_google_usecase.dart';
@@ -51,13 +52,16 @@ class LoginStore extends GetxController {
     }
 
     ever(state, (model) {
-      if (model.isSuccess && Get.key.currentState != null) {
-        try {
-          if (Get.currentRoute != AppRoutes.home) {
-            Get.offAllNamed(AppRoutes.home);
+      if (model.isSuccess) {
+        FirebaseNotificationService.instance.syncTokenWithBackend();
+        if (Get.key.currentState != null) {
+          try {
+            if (Get.currentRoute != AppRoutes.home) {
+              Get.offAllNamed(AppRoutes.home);
+            }
+          } catch (e) {
+            debugPrint('⚠️ [LoginStore] Navigation error: $e');
           }
-        } catch (e) {
-          debugPrint('⚠️ [LoginStore] Navigation error: $e');
         }
       }
     });
