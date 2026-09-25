@@ -64,6 +64,14 @@ const orderSchema = new mongoose.Schema({
     type: String,
     enum: ['pending', 'completed', 'failed'],
     default: 'pending'
+  },
+  voucherCode: {
+    type: String,
+    default: null,
+  },
+  discountAmount: {
+    type: Number,
+    default: 0,
   }
 }, { timestamps: true });
 

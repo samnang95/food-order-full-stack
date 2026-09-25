@@ -33,6 +33,7 @@ const foodRoutes = require('./routes/foodRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const voucherRoutes = require('./routes/voucherRoutes');
 
 // Public Auth Routes
 app.use('/auth', authRoutes);
@@ -51,6 +52,9 @@ app.use('/orders', orderRoutes);
 
 // Upload Routes
 app.use('/upload', uploadRoutes);
+
+// Voucher & Promo Code Routes
+app.use('/vouchers', voucherRoutes);
 
 
 

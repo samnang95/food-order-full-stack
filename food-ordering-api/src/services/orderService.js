@@ -1,5 +1,6 @@
 const orderRepository = require('../repositories/orderRepository');
 const foodRepository = require('../repositories/foodRepository');
+const voucherService = require('./voucherService');
 const { startSimulation, stopSimulation } = require('../socket/driverSimulator');
 const { getIO } = require('../socket/socketManager');
 
@@ -49,15 +50,30 @@ const orderService = {
       });
     }
 
-    // 3. Assign a random delivery location (simulated)
+    // 3. Process voucher discount if provided
+    let discountAmount = 0;
+    let appliedVoucherCode = null;
+
+    if (orderData.voucherCode) {
+      const voucherRes = voucherService.validateVoucher(orderData.voucherCode, totalAmount);
+      if (voucherRes.valid) {
+        discountAmount = voucherRes.discountAmount;
+        appliedVoucherCode = voucherRes.code;
+        totalAmount = voucherRes.finalSubtotal;
+      }
+    }
+
+    // 4. Assign a random delivery location (simulated)
     const deliveryLocation = orderData.deliveryLocation ||
       DEFAULT_DELIVERY_LOCATIONS[Math.floor(Math.random() * DEFAULT_DELIVERY_LOCATIONS.length)];
 
-    // 4. Create the order
+    // 5. Create the order
     const finalOrderData = {
       user: userId,
       items: finalItems,
       totalAmount: totalAmount,
+      voucherCode: appliedVoucherCode,
+      discountAmount: discountAmount,
       deliveryAddress: orderData.deliveryAddress,
       deliveryLocation,
       paymentMethod: orderData.paymentMethod || 'cash'
