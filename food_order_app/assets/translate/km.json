@@ -122,5 +122,28 @@
     "trackingWillAppear": "ការតាមដានផ្ទាល់នឹងបង្ហាញនៅទីនេះឆាប់ៗ",
     "cancelOrder": "បោះបង់ការកុម្ម៉ង់",
     "reorderAllItems": "កុម្ម៉ង់មុខម្ហូបទាំងអស់ឡើងវិញ"
+  },
+  "riderContact": {
+    "riderTitle": "អ្នកដឹកជញ្ជូនរបស់អ្នក",
+    "driverName": "សុខ ដារ៉ា",
+    "vehicle": "Honda Dream 125 • 1AJ-8829",
+    "rating": "4.9 (ដឹកបាន 142 លើក)",
+    "chat": "ផ្ញើសារ",
+    "call": "ទូរស័ព្ទ",
+    "online": "អនឡាញ • កំពុងធ្វើដំណើរ",
+    "chatTitle": "ជជែកជាមួយអ្នកដឹក",
+    "typeMessageHint": "សរសេរសារនៅទីនេះ...",
+    "quickPresets": "សាររហ័ស",
+    "presetDownstairs": "ខ្ញុំកំពុងរង់ចាំនៅខាងក្រោម",
+    "presetLeaveAtDoor": "សូមទុកអាហារនៅមាត់ទ្វារ",
+    "presetCallArrival": "សូមទូរស័ព្ទមកពេលមកដល់",
+    "presetCashReady": "ខ្ញុំបានត្រៀមលុយរួចរាល់ហើយ",
+    "simulatedReply1": "បាទទទួលដំណឹងហើយ! ជិតដល់ហើយ ៥ នាទីទៀតជួបគ្នា! 🛵",
+    "simulatedReply2": "ចាស/បាទ គ្មានបញ្ហាទេ! អរគុណដែលបានប្រាប់ 🙏",
+    "callConnecting": "កំពុងហៅទៅកាន់អ្នកដឹក...",
+    "callConnected": "បានភ្ជាប់ការសន្ទនា",
+    "endCall": "បញ្ចប់ការហៅ",
+    "mute": "បិទសំឡេង",
+    "speaker": "បំពងសំឡេង"
   }
 }

@@ -48,7 +48,7 @@ class OrderDetailView extends GetView<OrderDetailStore> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 0. Live Delivery Map (only when out for delivery)
+                  // 0. Live Delivery Map & Rider Contact Card (only when out for delivery)
                   if (order.status == 'out_for_delivery' || state.isTrackingActive) ...[
                     DeliveryMapCard(
                       driverLat: state.driverLat,
@@ -61,6 +61,8 @@ class OrderDetailView extends GetView<OrderDetailStore> {
                       estimatedEta: state.estimatedEta,
                       progress: state.trackingProgress,
                     ),
+                    const SizedBox(height: 14),
+                    const RiderContactCard(),
                     const SizedBox(height: 16),
                   ],
 

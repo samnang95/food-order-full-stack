@@ -1,8 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:food_order_app/core/db/local_db.dart';
 import 'package:food_order_app/core/services/cart_service.dart';
+import 'package:food_order_app/core/services/socket_service.dart';
 import 'package:food_order_app/domain/order/entities/order_entity.dart';
 import 'package:food_order_app/domain/order/repositories/order_repository.dart';
 import 'package:food_order_app/features/order_detail/order_detail_intent.dart';
@@ -82,6 +85,7 @@ void main() {
     Get.testMode = true;
     SharedPreferences.setMockInitialValues({});
     await LocalDB.init();
+    dotenv.loadFromString(envString: 'BASE_URL=http://localhost:3000');
 
     mockRepo = MockOrderRepository();
     mockRepo.orderToReturn = sampleOrder;
@@ -89,6 +93,7 @@ void main() {
   });
 
   tearDown(() {
+    SocketService.instance.disconnect();
     Get.reset();
   });
 
@@ -198,5 +203,63 @@ void main() {
 
     expect(find.text('Reorder All Items'), findsOneWidget);
     expect(find.text('Cancel Order'), findsNothing);
+  });
+
+  testWidgets('OrderDetailView renders RiderContactCard and interacts with chat and call sheets for out_for_delivery order', (tester) async {
+    final deliveringOrder = OrderEntity(
+      id: 'ord_delivering',
+      userId: 'u1',
+      items: sampleOrder.items,
+      totalAmount: 28.5,
+      deliveryAddress: 'Street 271, Phnom Penh',
+      status: 'out_for_delivery',
+      paymentMethod: 'cash',
+      paymentStatus: 'pending',
+      createdAt: DateTime.now(),
+    );
+
+    Get.put(OrderDetailStore(
+      orderRepository: mockRepo,
+      initialOrder: deliveringOrder,
+    ));
+
+    await tester.pumpWidget(
+      const GetMaterialApp(
+        home: OrderDetailView(),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Your Delivery Rider'), findsOneWidget);
+    expect(find.text('Sok Dara'), findsOneWidget);
+    expect(find.byIcon(Icons.chat_bubble_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.phone_in_talk_rounded), findsOneWidget);
+
+    // Tap Chat button
+    await tester.tap(find.byIcon(Icons.chat_bubble_rounded));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text("I'm waiting downstairs"), findsOneWidget);
+
+    // Tap Close chat
+    await tester.tap(find.byIcon(Icons.close_rounded));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // Tap Call button
+    await tester.tap(find.byIcon(Icons.phone_in_talk_rounded));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.byIcon(Icons.call_end_rounded), findsOneWidget);
+
+    // End call
+    await tester.tap(find.byIcon(Icons.call_end_rounded));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    SocketService.instance.disconnect();
   });
 }

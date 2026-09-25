@@ -122,5 +122,28 @@
     "trackingWillAppear": "Live tracking will appear here shortly",
     "cancelOrder": "Cancel Order",
     "reorderAllItems": "Reorder All Items"
+  },
+  "riderContact": {
+    "riderTitle": "Your Delivery Rider",
+    "driverName": "Sok Dara",
+    "vehicle": "Honda Dream 125 • 1AJ-8829",
+    "rating": "4.9 (142 deliveries)",
+    "chat": "Chat",
+    "call": "Call",
+    "online": "Online • On Delivery",
+    "chatTitle": "Chat with Rider",
+    "typeMessageHint": "Type a message...",
+    "quickPresets": "Quick Messages",
+    "presetDownstairs": "I'm waiting downstairs",
+    "presetLeaveAtDoor": "Please leave food at door",
+    "presetCallArrival": "Please call when you arrive",
+    "presetCashReady": "I have exact cash ready",
+    "simulatedReply1": "Got it! Almost there, see you in a few mins! 🛵",
+    "simulatedReply2": "Sure thing! Thanks for letting me know 🙏",
+    "callConnecting": "Calling Rider...",
+    "callConnected": "Connected",
+    "endCall": "End Call",
+    "mute": "Mute",
+    "speaker": "Speaker"
   }
 }
