@@ -14,6 +14,7 @@ class OrderRepositoryImpl implements OrderRepository {
     required String paymentMethod,
     double? deliveryLat,
     double? deliveryLng,
+    String? voucherCode,
   }) async {
     final model = await remoteDataSource.placeOrder(
       items: items,
@@ -21,6 +22,7 @@ class OrderRepositoryImpl implements OrderRepository {
       paymentMethod: paymentMethod,
       deliveryLat: deliveryLat,
       deliveryLng: deliveryLng,
+      voucherCode: voucherCode,
     );
     return model.toEntity();
   }

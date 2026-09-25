@@ -31,3 +31,13 @@ class ChangePaymentMethod extends CheckoutIntent {
 class SubmitOrder extends CheckoutIntent {
   const SubmitOrder();
 }
+
+class ApplyVoucherIntent extends CheckoutIntent {
+  final String code;
+  const ApplyVoucherIntent(this.code);
+}
+
+class RemoveVoucherIntent extends CheckoutIntent {
+  const RemoveVoucherIntent();
+}
+

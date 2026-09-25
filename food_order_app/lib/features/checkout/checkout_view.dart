@@ -41,7 +41,11 @@ class CheckoutView extends GetView<CheckoutStore> {
               const CheckoutOrderSummaryCard(),
               const SizedBox(height: 16),
 
-              // 4. Bill Breakdown
+              // 4. Promo Code & Vouchers
+              const CheckoutVoucherCard(),
+              const SizedBox(height: 16),
+
+              // 5. Bill Breakdown
               const CheckoutBillBreakdown(),
               const SizedBox(height: 16),
             ],

@@ -11,6 +11,7 @@ abstract class OrderRemoteDataSource {
     required String paymentMethod,
     double? deliveryLat,
     double? deliveryLng,
+    String? voucherCode,
   });
 
   Future<List<OrderModel>> getMyOrders();
@@ -71,12 +72,17 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     required String paymentMethod,
     double? deliveryLat,
     double? deliveryLng,
+    String? voucherCode,
   }) async {
     final Map<String, dynamic> payload = {
       'items': items,
       'deliveryAddress': deliveryAddress,
       'paymentMethod': paymentMethod,
     };
+
+    if (voucherCode != null && voucherCode.trim().isNotEmpty) {
+      payload['voucherCode'] = voucherCode.trim();
+    }
 
     if (deliveryLat != null && deliveryLng != null) {
       payload['deliveryLocation'] = {

@@ -98,7 +98,18 @@
     "totalToPay": "ទឹកប្រាក់សរុប",
     "orderSuccess": "ការកុម្ម៉ង់បានជោគជ័យ! 🎉",
     "trackMyOrder": "តាមដានការដឹកជញ្ជូន",
-    "backToExplore": "ត្រឡប់ទៅស្វែងរកមុខម្ហូប"
+    "backToExplore": "ត្រឡប់ទៅស្វែងរកមុខម្ហូប",
+    "voucherTitle": "ប័ណ្ណបញ្ចុះតម្លៃ និងប្រូម៉ូកូដ",
+    "voucherSubtitle": "ប្រើប័ណ្ណបញ្ចុះតម្លៃដើម្បីសន្សំប្រាក់លើការកុម្ម៉ង់",
+    "voucherHint": "បញ្ចូលប្រូម៉ូកូដ (ឧ. WELCOME10)",
+    "apply": "អនុវត្ត",
+    "remove": "លុបចេញ",
+    "voucherSavings": "បញ្ចុះតម្លៃរួច",
+    "voucherSavedMsg": "ការបញ្ចុះតម្លៃត្រូវបានអនុវត្តលើការកុម្ម៉ង់របស់អ្នក",
+    "subtotal": "សរុបមុខម្ហូប",
+    "deliveryFee": "ថ្លៃដឹកជញ្ជូន",
+    "discount": "ការបញ្ចុះតម្លៃប្រូម៉ូ",
+    "totalPayment": "ទឹកប្រាក់ត្រូវទូទាត់សរុប"
   },
   "deliveryTracking": {
     "setDeliveryLocation": "កំណត់ទីតាំងដឹកជញ្ជូន",

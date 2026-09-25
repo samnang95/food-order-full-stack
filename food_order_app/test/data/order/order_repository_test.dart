@@ -14,6 +14,7 @@ class FakeOrderRemoteDataSource implements OrderRemoteDataSource {
     required String paymentMethod,
     double? deliveryLat,
     double? deliveryLng,
+    String? voucherCode,
   }) async {
     return modelToReturn!;
   }

@@ -21,6 +21,7 @@ class MockOrderRepository implements OrderRepository {
     required String paymentMethod,
     double? deliveryLat,
     double? deliveryLng,
+    String? voucherCode,
   }) async => throw UnimplementedError();
 
   @override

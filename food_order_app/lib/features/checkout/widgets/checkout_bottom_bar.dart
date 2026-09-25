@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/locale/translation_helper.dart';
 import '../checkout_intent.dart';
 import '../checkout_store.dart';
 
@@ -14,7 +15,7 @@ class CheckoutBottomBar extends GetView<CheckoutStore> {
     final textMuted = isDark ? Colors.white60 : AppColors.subtitleColor;
 
     return Obx(() {
-      final total = controller.cartService.totalAmount;
+      final total = controller.finalTotal;
       final isLoading = controller.state.value.isLoading;
 
       return Container(
@@ -42,7 +43,7 @@ class CheckoutBottomBar extends GetView<CheckoutStore> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Total to Pay',
+                      'totalToPay'.trOr(context, 'Total to Pay'),
                       style: TextStyle(
                         fontSize: 12,
                         color: textMuted,
@@ -89,18 +90,18 @@ class CheckoutBottomBar extends GetView<CheckoutStore> {
                             strokeWidth: 2.5,
                           ),
                         )
-                      : const Row(
+                      : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Place Order',
-                              style: TextStyle(
+                              'placeOrder'.trOr(context, 'Place Order'),
+                              style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(width: 6),
-                            Icon(Icons.check_circle_outline_rounded, size: 18),
+                            const SizedBox(width: 6),
+                            const Icon(Icons.check_circle_outline_rounded, size: 18),
                           ],
                         ),
                 ),

@@ -18,6 +18,7 @@ class MockOrderRepository implements OrderRepository {
   String? lastPaymentMethod;
   double? lastLat;
   double? lastLng;
+  String? lastVoucherCode;
   bool shouldThrow = false;
 
   @override
@@ -27,6 +28,7 @@ class MockOrderRepository implements OrderRepository {
     required String paymentMethod,
     double? deliveryLat,
     double? deliveryLng,
+    String? voucherCode,
   }) async {
     if (shouldThrow) {
       throw Exception('Server connection failed');
@@ -36,6 +38,7 @@ class MockOrderRepository implements OrderRepository {
     lastPaymentMethod = paymentMethod;
     lastLat = deliveryLat;
     lastLng = deliveryLng;
+    lastVoucherCode = voucherCode;
 
     return OrderEntity(
       id: '67890abcdef',
@@ -171,7 +174,39 @@ void main() {
     expect(cartService.isEmpty, false);
   });
 
-  testWidgets('CheckoutView renders address, payment methods, and items', (tester) async {
+  test('Voucher flow: empty code sets error, remove resets voucher', () {
+    // Empty code
+    checkoutStore.onIntent(const ApplyVoucherIntent('   '));
+    expect(checkoutStore.state.value.voucherError, 'Please enter a voucher code');
+
+    // Simulate applied voucher
+    checkoutStore.state.value = checkoutStore.state.value.copyWith(
+      appliedVoucherCode: 'WELCOME10',
+      discountAmount: 2.40,
+    );
+    expect(checkoutStore.state.value.appliedVoucherCode, 'WELCOME10');
+    expect(checkoutStore.state.value.discountAmount, 2.40);
+
+    // Remove voucher
+    checkoutStore.onIntent(const RemoveVoucherIntent());
+    expect(checkoutStore.state.value.appliedVoucherCode, isNull);
+    expect(checkoutStore.state.value.discountAmount, 0.0);
+  });
+
+  test('SubmitOrder includes applied voucher code in repository call', () async {
+    cartService.addItem(burger, quantity: 2);
+    checkoutStore.state.value = checkoutStore.state.value.copyWith(
+      appliedVoucherCode: 'WELCOME10',
+      discountAmount: 2.40,
+    );
+
+    checkoutStore.onIntent(const SubmitOrder());
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    expect(mockRepo.lastVoucherCode, 'WELCOME10');
+  });
+
+  testWidgets('CheckoutView renders address, payment methods, voucher card, and items', (tester) async {
     cartService.addItem(burger, quantity: 2);
 
     await tester.pumpWidget(
@@ -186,6 +221,9 @@ void main() {
     expect(find.text('Payment Method'), findsOneWidget);
     expect(find.text('Cash on Delivery'), findsOneWidget);
     expect(find.text('ABA KHQR / Mobile'), findsOneWidget);
+    expect(find.text('Promo Code & Vouchers'), findsOneWidget);
+    expect(find.text('WELCOME10'), findsOneWidget);
+    expect(find.text('FREESHIP'), findsOneWidget);
     expect(find.text('Place Order'), findsOneWidget);
   });
 

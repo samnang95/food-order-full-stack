@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/locale/translation_helper.dart';
 import '../checkout_store.dart';
 
 class CheckoutBillBreakdown extends GetView<CheckoutStore> {
@@ -14,9 +15,11 @@ class CheckoutBillBreakdown extends GetView<CheckoutStore> {
     final textMuted = isDark ? Colors.white60 : AppColors.subtitleColor;
 
     return Obx(() {
+      final state = controller.state.value;
       final subtotal = controller.cartService.subtotal;
-      final deliveryFee = controller.cartService.deliveryFee;
-      final total = controller.cartService.totalAmount;
+      final deliveryFee = controller.deliveryFee;
+      final discount = state.discountAmount;
+      final total = controller.finalTotal;
       final isFreeDelivery = deliveryFee == 0.0 && subtotal > 0;
 
       return Container(
@@ -36,7 +39,7 @@ class CheckoutBillBreakdown extends GetView<CheckoutStore> {
         child: Column(
           children: [
             _buildRow(
-              title: 'Subtotal',
+              title: 'subtotal'.trOr(context, 'Subtotal'),
               value: '\$${subtotal.toStringAsFixed(2)}',
               isDark: isDark,
               textColor: textMuted,
@@ -46,7 +49,7 @@ class CheckoutBillBreakdown extends GetView<CheckoutStore> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Delivery Fee',
+                  'deliveryFee'.trOr(context, 'Delivery Fee'),
                   style: TextStyle(
                     fontSize: 13.5,
                     color: textMuted,
@@ -78,6 +81,36 @@ class CheckoutBillBreakdown extends GetView<CheckoutStore> {
                       ),
               ],
             ),
+            if (discount > 0) ...[
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.discount_rounded, size: 14, color: Color(0xFF10B981)),
+                      const SizedBox(width: 5),
+                      Text(
+                        '${'discount'.trOr(context, 'Promo Discount')} (${state.appliedVoucherCode})',
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF10B981),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '-\$${discount.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF10B981),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 12),
             Divider(color: isDark ? const Color(0xFF2A364F) : const Color(0xFFF3F4F6)),
             const SizedBox(height: 8),
@@ -85,7 +118,7 @@ class CheckoutBillBreakdown extends GetView<CheckoutStore> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total Payment',
+                  'totalPayment'.trOr(context, 'Total Payment'),
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,

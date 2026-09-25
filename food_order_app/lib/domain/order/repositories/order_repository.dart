@@ -7,6 +7,7 @@ abstract class OrderRepository {
     required String paymentMethod,
     double? deliveryLat,
     double? deliveryLng,
+    String? voucherCode,
   });
 
   Future<List<OrderEntity>> getMyOrders();

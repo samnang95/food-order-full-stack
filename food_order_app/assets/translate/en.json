@@ -98,7 +98,18 @@
     "totalToPay": "Total to Pay",
     "orderSuccess": "Order Placed! 🎉",
     "trackMyOrder": "Track My Order",
-    "backToExplore": "Back to Explore"
+    "backToExplore": "Back to Explore",
+    "voucherTitle": "Promo Code & Vouchers",
+    "voucherSubtitle": "Apply a coupon to save on your meal",
+    "voucherHint": "Enter promo code (e.g. WELCOME10)",
+    "apply": "Apply",
+    "remove": "Remove",
+    "voucherSavings": "discount applied",
+    "voucherSavedMsg": "Discount successfully applied to your order",
+    "subtotal": "Subtotal",
+    "deliveryFee": "Delivery Fee",
+    "discount": "Promo Discount",
+    "totalPayment": "Total Payment"
   },
   "deliveryTracking": {
     "setDeliveryLocation": "Set Delivery Location",

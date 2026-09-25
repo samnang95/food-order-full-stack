@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/db/local_db.dart';
+import '../../core/services/api_client.dart';
 import '../../core/services/cart_service.dart';
 import '../../domain/order/repositories/order_repository.dart';
 import '../../routes/app_routes.dart';
@@ -27,10 +29,20 @@ class CheckoutStore extends GetxController {
     return Get.put(CartService(), permanent: true);
   }
 
+  double get deliveryFee => 1.50;
+
+  double get finalTotal {
+    final subtotal = cartService.subtotal;
+    final discount = state.value.discountAmount;
+    final total = (subtotal - discount + deliveryFee).clamp(0.0, double.infinity);
+    return double.parse(total.toStringAsFixed(2));
+  }
+
   @override
   void onInit() {
     super.onInit();
     _loadSavedAddress();
+    _fetchAvailableVouchers();
   }
 
   void _loadSavedAddress() {
@@ -57,6 +69,23 @@ class CheckoutStore extends GetxController {
     }
   }
 
+  Future<void> _fetchAvailableVouchers() async {
+    try {
+      final res = await ApiClient.get('/vouchers');
+      if (res.statusCode == 200) {
+        final json = jsonDecode(res.body);
+        if (json['data'] is List) {
+          final list = (json['data'] as List)
+              .whereType<Map<String, dynamic>>()
+              .toList();
+          state.value = state.value.copyWith(availableVouchers: list);
+        }
+      }
+    } catch (e) {
+      debugPrint('⚠️ [CheckoutStore] Failed to fetch vouchers: $e');
+    }
+  }
+
   void onIntent(CheckoutIntent intent) {
     switch (intent) {
       case ChangeDeliveryAddress(:final address):
@@ -71,9 +100,74 @@ class CheckoutStore extends GetxController {
         state.value = state.value.copyWith(deliveryNote: note);
       case ChangePaymentMethod(:final method):
         state.value = state.value.copyWith(paymentMethod: method);
+      case ApplyVoucherIntent(:final code):
+        _onApplyVoucher(code);
+      case RemoveVoucherIntent():
+        _onRemoveVoucher();
       case SubmitOrder():
         _onSubmitOrder();
     }
+  }
+
+  Future<void> _onApplyVoucher(String code) async {
+    final cleanCode = code.trim();
+    if (cleanCode.isEmpty) {
+      state.value = state.value.copyWith(voucherError: 'Please enter a voucher code');
+      return;
+    }
+
+    state.value = state.value.copyWith(isApplyingVoucher: true, voucherError: null);
+
+    try {
+      final res = await ApiClient.post('/vouchers/validate', {
+        'code': cleanCode,
+        'subtotal': cartService.subtotal,
+      });
+
+      final json = jsonDecode(res.body);
+      if (res.statusCode == 200 && json['status'] == 'success') {
+        final data = json['data'] as Map<String, dynamic>;
+        final discount = (data['discountAmount'] as num?)?.toDouble() ?? 0.0;
+        final appliedCode = data['code'] as String? ?? cleanCode.toUpperCase();
+        final message = data['message'] as String? ?? 'Voucher applied!';
+
+        state.value = state.value.copyWith(
+          isApplyingVoucher: false,
+          appliedVoucherCode: appliedCode,
+          discountAmount: discount,
+          voucherSuccessMessage: message,
+          voucherError: null,
+        );
+
+        if (Get.context != null) {
+          Get.snackbar(
+            '🎉 Promo Applied!',
+            message,
+            backgroundColor: const Color(0xFF10B981),
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.all(16),
+            borderRadius: 12,
+            duration: const Duration(seconds: 3),
+          );
+        }
+      } else {
+        final errMsg = json['message'] as String? ?? 'Invalid voucher code';
+        state.value = state.value.copyWith(
+          isApplyingVoucher: false,
+          voucherError: errMsg,
+        );
+      }
+    } catch (e) {
+      state.value = state.value.copyWith(
+        isApplyingVoucher: false,
+        voucherError: 'Failed to validate voucher. Please try again.',
+      );
+    }
+  }
+
+  void _onRemoveVoucher() {
+    state.value = state.value.copyWith(clearVoucher: true);
   }
 
   Future<void> _onSubmitOrder() async {
@@ -128,6 +222,7 @@ class CheckoutStore extends GetxController {
         paymentMethod: state.value.paymentMethod,
         deliveryLat: state.value.deliveryLat,
         deliveryLng: state.value.deliveryLng,
+        voucherCode: state.value.appliedVoucherCode,
       );
 
       // Save delivery address and coordinates for future orders
