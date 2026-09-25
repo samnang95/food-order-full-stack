@@ -13,3 +13,7 @@ class CancelOrderIntent extends OrderDetailIntent {
 class ReorderItemsIntent extends OrderDetailIntent {
   const ReorderItemsIntent();
 }
+
+class SimulateDeliveryIntent extends OrderDetailIntent {
+  const SimulateDeliveryIntent();
+}

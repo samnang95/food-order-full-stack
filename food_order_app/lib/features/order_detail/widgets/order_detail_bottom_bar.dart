@@ -16,8 +16,8 @@ class OrderDetailBottomBar extends GetView<OrderDetailStore> {
       final order = controller.state.value.order;
       final isCancelling = controller.state.value.isCancelling;
 
-      // Active pending order: option to cancel
-      if (order.status == 'pending') {
+      // Out for delivery: Active delivery indicator
+      if (order.status == 'out_for_delivery') {
         return Container(
           padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),
           decoration: BoxDecoration(
@@ -33,44 +33,117 @@ class OrderDetailBottomBar extends GetView<OrderDetailStore> {
           ),
           child: SafeArea(
             top: false,
-            child: SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: isCancelling
-                    ? null
-                    : () => controller.onIntent(const CancelOrderIntent()),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFFEF4444),
-                  side: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.delivery_dining_rounded, color: AppColors.primary, size: 22),
+                  SizedBox(width: 10),
+                  Text(
+                    '🛵 Rider is on the way with your food!',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+
+      // Active pending or preparing order: option to simulate tracking or cancel
+      if (order.status == 'pending' || order.status == 'preparing') {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),
+          decoration: BoxDecoration(
+            color: cardBg,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+                blurRadius: 18,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Start Live Tracking Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => controller.onIntent(const SimulateDeliveryIntent()),
+                    icon: const Icon(Icons.two_wheeler_rounded, size: 20),
+                    label: const Text(
+                      '🚴 Start Live Delivery Tracking',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
                   ),
                 ),
-                child: isCancelling
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          color: Color(0xFFEF4444),
-                          strokeWidth: 2,
+                if (order.status == 'pending') ...[
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: isCancelling
+                          ? null
+                          : () => controller.onIntent(const CancelOrderIntent()),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFEF4444),
+                        side: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                      )
-                    : const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.cancel_outlined, size: 18),
-                          SizedBox(width: 8),
-                          Text(
-                            'Cancel Order',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
                       ),
-              ),
+                      child: isCancelling
+                          ? const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(
+                                color: Color(0xFFEF4444),
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.cancel_outlined, size: 16),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Cancel Order',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
         );

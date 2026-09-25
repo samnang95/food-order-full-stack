@@ -12,11 +12,15 @@ class OrderRepositoryImpl implements OrderRepository {
     required List<Map<String, dynamic>> items,
     required String deliveryAddress,
     required String paymentMethod,
+    double? deliveryLat,
+    double? deliveryLng,
   }) async {
     final model = await remoteDataSource.placeOrder(
       items: items,
       deliveryAddress: deliveryAddress,
       paymentMethod: paymentMethod,
+      deliveryLat: deliveryLat,
+      deliveryLng: deliveryLng,
     );
     return model.toEntity();
   }

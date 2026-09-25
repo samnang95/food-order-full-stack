@@ -12,6 +12,8 @@ class FakeOrderRemoteDataSource implements OrderRemoteDataSource {
     required List<Map<String, dynamic>> items,
     required String deliveryAddress,
     required String paymentMethod,
+    double? deliveryLat,
+    double? deliveryLng,
   }) async {
     return modelToReturn!;
   }

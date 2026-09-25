@@ -317,13 +317,10 @@ class OrdersView extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+      child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primary
-              : (isDark ? const Color(0xFF1E2638) : const Color(0xFFF3ECE7)),
+          color: isSelected ? AppColors.primary : (isDark ? const Color(0xFF1E2638) : const Color(0xFFF3ECE7)),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -331,9 +328,7 @@ class OrdersView extends StatelessWidget {
           style: TextStyle(
             fontSize: 12.5,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            color: isSelected
-                ? Colors.white
-                : (isDark ? Colors.white70 : AppColors.subtitleColor),
+            color: isSelected ? Colors.white : (isDark ? Colors.white70 : AppColors.subtitleColor),
           ),
         ),
       ),

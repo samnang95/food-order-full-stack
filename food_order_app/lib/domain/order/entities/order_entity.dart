@@ -51,6 +51,10 @@ class OrderEntity {
   final String paymentStatus;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final double? deliveryLat;
+  final double? deliveryLng;
+  final double? restaurantLat;
+  final double? restaurantLng;
 
   const OrderEntity({
     required this.id,
@@ -63,6 +67,10 @@ class OrderEntity {
     required this.paymentStatus,
     required this.createdAt,
     this.updatedAt,
+    this.deliveryLat,
+    this.deliveryLng,
+    this.restaurantLat,
+    this.restaurantLng,
   });
 
   String get shortId {

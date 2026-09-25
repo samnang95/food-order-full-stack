@@ -16,6 +16,8 @@ class MockOrderRepository implements OrderRepository {
   List<Map<String, dynamic>>? lastItems;
   String? lastAddress;
   String? lastPaymentMethod;
+  double? lastLat;
+  double? lastLng;
   bool shouldThrow = false;
 
   @override
@@ -23,6 +25,8 @@ class MockOrderRepository implements OrderRepository {
     required List<Map<String, dynamic>> items,
     required String deliveryAddress,
     required String paymentMethod,
+    double? deliveryLat,
+    double? deliveryLng,
   }) async {
     if (shouldThrow) {
       throw Exception('Server connection failed');
@@ -30,6 +34,8 @@ class MockOrderRepository implements OrderRepository {
     lastItems = items;
     lastAddress = deliveryAddress;
     lastPaymentMethod = paymentMethod;
+    lastLat = deliveryLat;
+    lastLng = deliveryLng;
 
     return OrderEntity(
       id: '67890abcdef',
@@ -107,12 +113,27 @@ void main() {
     expect(checkoutStore.state.value.deliveryAddress, 'No. 45, St. 310, BKK1');
   });
 
-  test('SubmitOrder places order, clears cart, and saves address', () async {
+  test('Changing delivery location updates address, lat, and lng', () {
+    checkoutStore.onIntent(const ChangeDeliveryLocation(
+      address: 'Riverside Walkway, Phnom Penh',
+      lat: 11.5690,
+      lng: 104.9355,
+    ));
+    expect(checkoutStore.state.value.deliveryAddress, 'Riverside Walkway, Phnom Penh');
+    expect(checkoutStore.state.value.deliveryLat, 11.5690);
+    expect(checkoutStore.state.value.deliveryLng, 104.9355);
+  });
+
+  test('SubmitOrder places order, clears cart, and saves address & coordinates', () async {
     // Add item to cart
     cartService.addItem(burger, quantity: 2);
     expect(cartService.isEmpty, false);
 
-    checkoutStore.onIntent(const ChangeDeliveryAddress('No. 45, St. 310, BKK1'));
+    checkoutStore.onIntent(const ChangeDeliveryLocation(
+      address: 'No. 45, St. 310, BKK1',
+      lat: 11.5529,
+      lng: 104.9282,
+    ));
     checkoutStore.onIntent(const ChangeDeliveryNote('Gate 2'));
     checkoutStore.onIntent(const ChangePaymentMethod('khqr'));
 
@@ -125,12 +146,16 @@ void main() {
     expect(mockRepo.lastItems!.first['quantity'], 2);
     expect(mockRepo.lastAddress, 'No. 45, St. 310, BKK1 (Note: Gate 2)');
     expect(mockRepo.lastPaymentMethod, 'khqr');
+    expect(mockRepo.lastLat, 11.5529);
+    expect(mockRepo.lastLng, 104.9282);
 
     // Verify cart was cleared
     expect(cartService.isEmpty, true);
 
-    // Verify address was persisted to LocalDB
+    // Verify address and coordinates were persisted to LocalDB
     expect(LocalDB.getString('user_delivery_address'), 'No. 45, St. 310, BKK1');
+    expect(LocalDB.getString('user_delivery_lat'), '11.5529');
+    expect(LocalDB.getString('user_delivery_lng'), '104.9282');
   });
 
   test('SubmitOrder handles error when repository throws', () async {

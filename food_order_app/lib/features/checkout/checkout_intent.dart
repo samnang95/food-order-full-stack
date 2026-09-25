@@ -7,6 +7,17 @@ class ChangeDeliveryAddress extends CheckoutIntent {
   const ChangeDeliveryAddress(this.address);
 }
 
+class ChangeDeliveryLocation extends CheckoutIntent {
+  final String address;
+  final double lat;
+  final double lng;
+  const ChangeDeliveryLocation({
+    required this.address,
+    required this.lat,
+    required this.lng,
+  });
+}
+
 class ChangeDeliveryNote extends CheckoutIntent {
   final String note;
   const ChangeDeliveryNote(this.note);

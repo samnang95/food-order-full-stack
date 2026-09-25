@@ -81,6 +81,10 @@ class OrderModel {
   final String paymentStatus;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final double? deliveryLat;
+  final double? deliveryLng;
+  final double? restaurantLat;
+  final double? restaurantLng;
 
   const OrderModel({
     required this.id,
@@ -93,6 +97,10 @@ class OrderModel {
     required this.paymentStatus,
     required this.createdAt,
     this.updatedAt,
+    this.deliveryLat,
+    this.deliveryLng,
+    this.restaurantLat,
+    this.restaurantLng,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -110,6 +118,23 @@ class OrderModel {
         .map((item) => OrderItemModel.fromJson(item))
         .toList();
 
+    // Parse location data
+    double? deliveryLat;
+    double? deliveryLng;
+    double? restaurantLat;
+    double? restaurantLng;
+
+    final deliveryLoc = json['deliveryLocation'];
+    if (deliveryLoc is Map) {
+      deliveryLat = (deliveryLoc['lat'] as num?)?.toDouble();
+      deliveryLng = (deliveryLoc['lng'] as num?)?.toDouble();
+    }
+    final restaurantLoc = json['restaurantLocation'];
+    if (restaurantLoc is Map) {
+      restaurantLat = (restaurantLoc['lat'] as num?)?.toDouble();
+      restaurantLng = (restaurantLoc['lng'] as num?)?.toDouble();
+    }
+
     return OrderModel(
       id: json['_id'] as String? ?? json['id'] as String? ?? '',
       userId: userId,
@@ -125,6 +150,10 @@ class OrderModel {
       updatedAt: json['updatedAt'] != null
           ? DateTime.tryParse(json['updatedAt'] as String)
           : null,
+      deliveryLat: deliveryLat,
+      deliveryLng: deliveryLng,
+      restaurantLat: restaurantLat,
+      restaurantLng: restaurantLng,
     );
   }
 
@@ -154,6 +183,10 @@ class OrderModel {
       paymentStatus: paymentStatus,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      deliveryLat: deliveryLat,
+      deliveryLng: deliveryLng,
+      restaurantLat: restaurantLat,
+      restaurantLng: restaurantLng,
     );
   }
 }

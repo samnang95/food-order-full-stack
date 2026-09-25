@@ -60,12 +60,9 @@ class CartView extends GetView<CartStore> {
               (item) => CartItemTile(
                 key: ValueKey('${item.food.id}_${item.specialInstructions}'),
                 item: item,
-                onIncrement: () =>
-                    controller.onIntent(CartIncrementQty(item.food.id)),
-                onDecrement: () =>
-                    controller.onIntent(CartDecrementQty(item.food.id)),
-                onRemove: () =>
-                    controller.onIntent(CartRemoveItem(item.food.id)),
+                onIncrement: () => controller.onIntent(CartIncrementQty(item.food.id)),
+                onDecrement: () => controller.onIntent(CartDecrementQty(item.food.id)),
+                onRemove: () => controller.onIntent(CartRemoveItem(item.food.id)),
               ),
             ),
             const SizedBox(height: 12),

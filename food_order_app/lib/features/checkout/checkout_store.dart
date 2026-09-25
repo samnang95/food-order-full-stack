@@ -15,6 +15,8 @@ class CheckoutStore extends GetxController {
   CheckoutStore({required this.orderRepository});
 
   static const String _addressKey = 'user_delivery_address';
+  static const String _latKey = 'user_delivery_lat';
+  static const String _lngKey = 'user_delivery_lng';
 
   final Rx<CheckoutState> state = const CheckoutState().obs;
 
@@ -32,9 +34,26 @@ class CheckoutStore extends GetxController {
   }
 
   void _loadSavedAddress() {
-    final saved = LocalDB.getString(_addressKey);
-    if (saved != null && saved.trim().isNotEmpty) {
-      state.value = state.value.copyWith(deliveryAddress: saved.trim());
+    final savedAddr = LocalDB.getString(_addressKey);
+    final savedLatStr = LocalDB.getString(_latKey);
+    final savedLngStr = LocalDB.getString(_lngKey);
+
+    double? lat;
+    double? lng;
+    if (savedLatStr != null) lat = double.tryParse(savedLatStr);
+    if (savedLngStr != null) lng = double.tryParse(savedLngStr);
+
+    if (savedAddr != null && savedAddr.trim().isNotEmpty) {
+      state.value = state.value.copyWith(
+        deliveryAddress: savedAddr.trim(),
+        deliveryLat: lat,
+        deliveryLng: lng,
+      );
+    } else if (lat != null && lng != null) {
+      state.value = state.value.copyWith(
+        deliveryLat: lat,
+        deliveryLng: lng,
+      );
     }
   }
 
@@ -42,6 +61,12 @@ class CheckoutStore extends GetxController {
     switch (intent) {
       case ChangeDeliveryAddress(:final address):
         state.value = state.value.copyWith(deliveryAddress: address);
+      case ChangeDeliveryLocation(:final address, :final lat, :final lng):
+        state.value = state.value.copyWith(
+          deliveryAddress: address,
+          deliveryLat: lat,
+          deliveryLng: lng,
+        );
       case ChangeDeliveryNote(:final note):
         state.value = state.value.copyWith(deliveryNote: note);
       case ChangePaymentMethod(:final method):
@@ -101,10 +126,14 @@ class CheckoutStore extends GetxController {
         items: itemsPayload,
         deliveryAddress: fullAddress,
         paymentMethod: state.value.paymentMethod,
+        deliveryLat: state.value.deliveryLat,
+        deliveryLng: state.value.deliveryLng,
       );
 
-      // Save delivery address for future orders
+      // Save delivery address and coordinates for future orders
       await LocalDB.setString(_addressKey, address);
+      await LocalDB.setString(_latKey, state.value.deliveryLat.toString());
+      await LocalDB.setString(_lngKey, state.value.deliveryLng.toString());
 
       // Clear cart
       cartService.clearCart();

@@ -97,8 +97,7 @@ class CheckoutPaymentSelector extends GetView<CheckoutStore> {
 
               return GestureDetector(
                 onTap: () => controller.onIntent(ChangePaymentMethod(id)),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
+                child: Container(
                   margin: const EdgeInsets.only(bottom: 10),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(

@@ -34,9 +34,7 @@ class CategoryChipList extends StatelessWidget {
 
           return GestureDetector(
             onTap: () => onCategorySelected(isAll ? '' : categories[index - 1].id),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
+            child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               decoration: BoxDecoration(
                 color: isSelected

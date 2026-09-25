@@ -40,6 +40,8 @@ class MockOrderRepository implements OrderRepository {
     required List<Map<String, dynamic>> items,
     required String deliveryAddress,
     required String paymentMethod,
+    double? deliveryLat,
+    double? deliveryLng,
   }) async => throw UnimplementedError();
 }
 

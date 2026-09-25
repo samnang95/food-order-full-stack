@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import 'order_detail_intent.dart';
 import 'order_detail_store.dart';
 import 'widgets/widgets.dart';
+import 'widgets/delivery_map_card.dart';
 
 class OrderDetailView extends GetView<OrderDetailStore> {
   const OrderDetailView({super.key});
@@ -11,7 +12,8 @@ class OrderDetailView extends GetView<OrderDetailStore> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final order = controller.state.value.order;
+      final state = controller.state.value;
+      final order = state.order;
 
       return Scaffold(
         appBar: AppBar(
@@ -46,6 +48,22 @@ class OrderDetailView extends GetView<OrderDetailStore> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // 0. Live Delivery Map (only when out for delivery)
+                  if (order.status == 'out_for_delivery' || state.isTrackingActive) ...[
+                    DeliveryMapCard(
+                      driverLat: state.driverLat,
+                      driverLng: state.driverLng,
+                      driverHeading: state.driverHeading,
+                      restaurantLat: state.restaurantLat ?? order.restaurantLat,
+                      restaurantLng: state.restaurantLng ?? order.restaurantLng,
+                      deliveryLat: state.deliveryLat ?? order.deliveryLat,
+                      deliveryLng: state.deliveryLng ?? order.deliveryLng,
+                      estimatedEta: state.estimatedEta,
+                      progress: state.trackingProgress,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
                   // 1. Live Tracking Stepper
                   OrderTrackingStepper(order: order),
                   const SizedBox(height: 16),

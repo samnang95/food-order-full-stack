@@ -9,6 +9,8 @@ abstract class OrderRemoteDataSource {
     required List<Map<String, dynamic>> items,
     required String deliveryAddress,
     required String paymentMethod,
+    double? deliveryLat,
+    double? deliveryLng,
   });
 
   Future<List<OrderModel>> getMyOrders();
@@ -67,12 +69,21 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     required List<Map<String, dynamic>> items,
     required String deliveryAddress,
     required String paymentMethod,
+    double? deliveryLat,
+    double? deliveryLng,
   }) async {
-    final payload = {
+    final Map<String, dynamic> payload = {
       'items': items,
       'deliveryAddress': deliveryAddress,
       'paymentMethod': paymentMethod,
     };
+
+    if (deliveryLat != null && deliveryLng != null) {
+      payload['deliveryLocation'] = {
+        'lat': deliveryLat,
+        'lng': deliveryLng,
+      };
+    }
 
     debugPrint('📦 [OrderRemoteDataSource] Placing order: ${jsonEncode(payload)}');
     final response = await ApiClient.post('/orders', payload);
