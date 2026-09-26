@@ -131,7 +131,19 @@
     "statusCancelled": "បានបោះបង់",
     "trackDelivery": "តាមដានផ្ទាល់",
     "viewDetails": "មើលព័ត៌មានលម្អិត",
-    "reorder": "កុម្ម៉ង់ម្តងទៀត"
+    "reorder": "កុម្ម៉ង់ម្តងទៀត",
+    "mapTitle": "ផែនទីតាមដានការដឹកជញ្ជូនផ្ទាល់",
+    "mapSubtitle": "តាមដានទីតាំង GPS ផ្ទាល់ក្នុងរាជធានីភ្នំពេញ",
+    "restaurantLocation": "ផ្ទះបាយ BiteCraft",
+    "deliveryLocation": "ទីតាំងទទួលអាហារ",
+    "driverOnTheWay": "អ្នកដឹកជញ្ជូន សុខ តារា កំពុងធ្វើដំណើរមកដល់!",
+    "driverDelivered": "អាហារបានដឹកជញ្ជូនដល់ដោយជោគជ័យ!",
+    "driverVehicle": "Honda Scoopy • ស្លាកលេខ 1BG-8899",
+    "recenterMap": "កំណត់ផែនទីកណ្តាលឡើងវិញ",
+    "gpsConnected": "ភ្ជាប់ GPS ផ្ទាល់",
+    "estimatedArrival": "ពេលវេលាមកដល់ប៉ាន់ស្មាន",
+    "callRider": "ទូរស័ព្ទទៅអ្នកដឹក",
+    "riderMoving": "កំពុងធ្វើដំណើរមកកាន់អ្នក"
   },
   "auth": {
     "welcomeBack": "សូមស្វាគមន៍មកវិញ!",

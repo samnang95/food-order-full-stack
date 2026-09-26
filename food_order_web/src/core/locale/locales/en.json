@@ -131,7 +131,19 @@
     "statusCancelled": "Cancelled",
     "trackDelivery": "Live Tracking",
     "viewDetails": "View Details",
-    "reorder": "Order Again"
+    "reorder": "Order Again",
+    "mapTitle": "Real-Time Delivery Map",
+    "mapSubtitle": "Live GPS tracking in Phnom Penh",
+    "restaurantLocation": "BiteCraft Kitchen",
+    "deliveryLocation": "Delivery Address",
+    "driverOnTheWay": "Rider Sok Dara is on the way!",
+    "driverDelivered": "Order delivered successfully!",
+    "driverVehicle": "Honda Scoopy • Plate 1BG-8899",
+    "recenterMap": "Recenter Map",
+    "gpsConnected": "Live GPS Connected",
+    "estimatedArrival": "Estimated Arrival",
+    "callRider": "Call Rider",
+    "riderMoving": "Moving towards you"
   },
   "auth": {
     "welcomeBack": "Welcome Back!",

@@ -4,6 +4,7 @@ import { container } from '../../core/di/container';
 import { socketService } from '../../core/services/socket_service';
 import { formatUsd, formatKhr, useTranslation } from '../../core';
 import { AppRoutes } from '../../routes/app_routes';
+import { DeliveryMapCard } from './components';
 
 const STATUS_STEPS = [
   { key: 'pending', labelKey: 'orders.statusPending', icon: '📝' },
@@ -380,28 +381,8 @@ export function OrdersView() {
                 </div>
               </div>
 
-              {/* Rider simulation card when Out for Delivery */}
-              {activeStepIdx === 2 && (
-                <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-transparent border border-blue-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-500 text-white flex items-center justify-center text-xl sm:text-2xl shadow-md shrink-0">
-                      🛵
-                    </div>
-                    <div>
-                      <p className="text-xs font-black text-slate-900 dark:text-white">
-                        Rider Sok Dara is on the way!
-                      </p>
-                      <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400">
-                        Honda Scoopy • Plate 1BG-8899
-                        {driverLoc && ` • GPS: ${driverLoc.lat?.toFixed(4)}, ${driverLoc.lng?.toFixed(4)}`}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 shrink-0">
-                    5 mins away
-                  </span>
-                </div>
-              )}
+              {/* Real-Time Interactive Delivery Map */}
+              <DeliveryMapCard order={selectedOrder} driverLoc={driverLoc} />
 
               {/* Order Items Breakdown */}
               <div className="space-y-3 pt-2">
