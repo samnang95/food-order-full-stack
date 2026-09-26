@@ -104,27 +104,27 @@ export function CheckoutModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-200">
-      <div className="w-full max-w-xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden my-8">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-200">
+      <div className="w-full max-w-xl bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-slate-200 dark:border-slate-800 flex flex-col max-h-[92vh] sm:max-h-[85vh] my-0 sm:my-8 overflow-hidden">
         {placedOrder ? (
           /* Order Success State */
-          <div className="p-8 text-center space-y-6">
-            <div className="w-20 h-20 mx-auto rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-4xl shadow-xl shadow-emerald-500/20 animate-bounce">
+          <div className="p-6 sm:p-8 text-center space-y-5 sm:space-y-6 overflow-y-auto">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-3xl sm:text-4xl shadow-xl shadow-emerald-500/20 animate-bounce">
               🎉
             </div>
             <div>
               <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300">
                 Order Received!
               </span>
-              <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-2">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-2">
                 Thank you, {customerName}!
               </h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
                 Your order is confirmed and sent directly to the kitchen.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 text-left space-y-2 text-xs">
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 text-left space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="text-slate-500 dark:text-slate-400">Order ID:</span>
                 <span className="font-bold text-slate-900 dark:text-white">
@@ -168,27 +168,28 @@ export function CheckoutModal() {
           </div>
         ) : (
           /* Checkout Form */
-          <form onSubmit={handlePlaceOrder}>
+          <form onSubmit={handlePlaceOrder} className="flex flex-col flex-1 min-h-0 overflow-hidden">
             {/* Modal Header */}
-            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
               <div>
-                <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                <div className="w-10 h-1 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-2 sm:hidden" />
+                <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
                   Checkout & Delivery
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Confirm your delivery address in Phnom Penh
                 </p>
               </div>
               <button
                 type="button"
                 onClick={closeCheckout}
-                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition-colors shrink-0"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
               {errorMsg && (
                 <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 text-xs font-semibold">
                   {errorMsg}
@@ -196,11 +197,11 @@ export function CheckoutModal() {
               )}
 
               {/* Contact Information */}
-              <div className="space-y-3">
+              <div className="space-y-2.5 sm:space-y-3">
                 <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                   1. Contact Information
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
                       Full Name
@@ -231,7 +232,7 @@ export function CheckoutModal() {
               </div>
 
               {/* Delivery Address */}
-              <div className="space-y-3">
+              <div className="space-y-2.5 sm:space-y-3">
                 <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                   2. Delivery Location (Phnom Penh)
                 </h3>
@@ -247,7 +248,7 @@ export function CheckoutModal() {
                         key={district}
                         type="button"
                         onClick={() => handleDistrictSelect(district)}
-                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                        className={`px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition-all ${
                           selectedDistrict === district
                             ? 'bg-orange-500 text-white shadow-xs'
                             : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
@@ -288,13 +289,13 @@ export function CheckoutModal() {
               </div>
 
               {/* Payment Method */}
-              <div className="space-y-3">
+              <div className="space-y-2.5 sm:space-y-3">
                 <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                   3. Payment Method
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   <label
-                    className={`p-3.5 rounded-2xl border-2 cursor-pointer flex items-center space-x-3 transition-all ${
+                    className={`p-3 sm:p-3.5 rounded-2xl border-2 cursor-pointer flex items-center space-x-3 transition-all ${
                       paymentMethod === 'cash'
                         ? 'border-orange-500 bg-orange-50/40 dark:bg-orange-950/20'
                         : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
@@ -308,7 +309,7 @@ export function CheckoutModal() {
                       onChange={() => setPaymentMethod('cash')}
                       className="sr-only"
                     />
-                    <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center text-xl">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center text-lg sm:text-xl shrink-0">
                       💵
                     </div>
                     <div>
@@ -320,7 +321,7 @@ export function CheckoutModal() {
                   </label>
 
                   <label
-                    className={`p-3.5 rounded-2xl border-2 cursor-pointer flex items-center space-x-3 transition-all ${
+                    className={`p-3 sm:p-3.5 rounded-2xl border-2 cursor-pointer flex items-center space-x-3 transition-all ${
                       paymentMethod === 'khqr'
                         ? 'border-orange-500 bg-orange-50/40 dark:bg-orange-950/20'
                         : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
@@ -334,7 +335,7 @@ export function CheckoutModal() {
                       onChange={() => setPaymentMethod('khqr')}
                       className="sr-only"
                     />
-                    <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-950/60 text-red-600 flex items-center justify-center text-xl">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-100 dark:bg-red-950/60 text-red-600 flex items-center justify-center text-lg sm:text-xl shrink-0">
                       📱
                     </div>
                     <div>
@@ -353,11 +354,11 @@ export function CheckoutModal() {
 
                 {/* KHQR Preview if selected */}
                 {paymentMethod === 'khqr' && (
-                  <div className="p-4 rounded-2xl bg-gradient-to-br from-red-500/5 to-red-600/10 border border-red-200 dark:border-red-900/60 text-center space-y-2">
+                  <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-red-500/5 to-red-600/10 border border-red-200 dark:border-red-900/60 text-center space-y-2">
                     <span className="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-red-600 text-white">
                       Scan to Pay with Bakong
                     </span>
-                    <div className="w-32 h-32 mx-auto bg-white p-2 rounded-xl shadow-md border border-slate-200 flex items-center justify-center">
+                    <div className="w-28 h-28 sm:w-32 sm:h-32 mx-auto bg-white p-2 rounded-xl shadow-md border border-slate-200 flex items-center justify-center">
                       <img
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://bakong.nbc.org.kh/pay?amount=${totalAmount}`}
                         alt="Bakong KHQR"
@@ -372,7 +373,7 @@ export function CheckoutModal() {
               </div>
 
               {/* Order Items Preview */}
-              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-2">
+              <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-2">
                 <span className="text-[11px] font-bold text-slate-500 uppercase">
                   Order Summary ({items.length} items)
                 </span>
@@ -420,18 +421,18 @@ export function CheckoutModal() {
             </div>
 
             {/* Footer Buttons */}
-            <div className="p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/60 flex items-center space-x-3">
+            <div className="p-3.5 sm:p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xs flex items-center space-x-2 sm:space-x-3 shrink-0">
               <button
                 type="button"
                 onClick={closeCheckout}
-                className="py-3 px-4 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="py-3 px-3 sm:px-4 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex-1 py-3.5 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-sm shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:opacity-95 active:scale-98 transition-all disabled:opacity-50 flex items-center justify-center space-x-2"
+                className="flex-1 py-3.5 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-xs sm:text-sm shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:opacity-95 active:scale-98 transition-all disabled:opacity-50 flex items-center justify-center space-x-1.5 sm:space-x-2"
               >
                 {submitting ? (
                   <span>Placing Order...</span>

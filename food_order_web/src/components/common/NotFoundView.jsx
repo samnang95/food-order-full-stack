@@ -3,7 +3,7 @@ import { AppRoutes } from '../../routes/app_routes';
 
 export function NotFoundView() {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-12 text-center max-w-md mx-auto my-12 shadow-xs transition-colors">
+    <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 sm:p-12 text-center max-w-md mx-auto my-8 sm:my-12 shadow-xs transition-colors">
       <div className="w-16 h-16 bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl font-extrabold">
         404
       </div>
@@ -12,10 +12,10 @@ export function NotFoundView() {
         The page you are looking for does not exist or has been moved.
       </p>
       <Link
-        to={AppRoutes.ORDERS}
-        className="inline-block bg-slate-900 dark:bg-orange-500 hover:bg-slate-800 dark:hover:bg-orange-600 text-white font-semibold text-xs py-2.5 px-5 rounded-xl transition-colors shadow-xs cursor-pointer"
+        to={AppRoutes.ROOT}
+        className="inline-block bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-95 text-white font-bold text-xs py-3 px-6 rounded-xl transition-all shadow-md shadow-orange-500/20 cursor-pointer"
       >
-        ← Return to Orders Board
+        ← Return to Home
       </Link>
     </div>
   );

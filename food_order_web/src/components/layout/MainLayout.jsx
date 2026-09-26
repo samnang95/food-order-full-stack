@@ -1,5 +1,6 @@
 import { Outlet, Link } from 'react-router-dom';
 import { Navbar } from './Navbar';
+import { MobileBottomNav } from './MobileBottomNav';
 import { CartDrawer } from '../../features/cart/components/CartDrawer';
 import { CheckoutModal } from '../../features/cart/components/CheckoutModal';
 import { AuthModal } from '../../features/auth/components/AuthModal';
@@ -13,9 +14,12 @@ export function MainLayout() {
       <Navbar />
 
       {/* Main Outlet */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 pb-24 md:pb-8">
         <Outlet />
       </main>
+
+      {/* Persistent Mobile Bottom Navigation */}
+      <MobileBottomNav />
 
       {/* Slide-out Cart Drawer */}
       <CartDrawer />
@@ -26,9 +30,11 @@ export function MainLayout() {
       {/* Authentication Modal */}
       <AuthModal />
 
+
       {/* Rich Customer Footer */}
-      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 transition-colors duration-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 transition-colors duration-200 mb-16 md:mb-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Brand column */}
             <div className="space-y-4 md:col-span-2">

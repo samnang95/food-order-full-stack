@@ -80,10 +80,10 @@ export function MenuView() {
     });
 
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-6 sm:space-y-8 pb-8">
       {/* Header Banner */}
-      <div className="rounded-3xl bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-transparent p-6 sm:p-8 border border-orange-500/20">
-        <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+      <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-transparent p-4 sm:p-8 border border-orange-500/20">
+        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
           Explore Our Delicious Menu 🍽️
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
@@ -92,9 +92,9 @@ export function MenuView() {
       </div>
 
       {/* Filter and Search Controls */}
-      <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+      <div className="bg-white dark:bg-slate-900 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 sm:space-y-4">
         {/* Search & Sort Controls */}
-        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 items-stretch sm:items-center justify-between">
           {/* Search Box */}
           <div className="relative flex-1">
             <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm">
@@ -105,7 +105,7 @@ export function MenuView() {
               value={searchQuery}
               onChange={handleSearchChange}
               placeholder="Search dishes by name or ingredients..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm focus:outline-hidden focus:border-orange-500"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm focus:outline-hidden focus:border-orange-500"
             />
             {searchQuery && (
               <button
@@ -120,12 +120,12 @@ export function MenuView() {
           {/* Sort Dropdown */}
           <div className="flex items-center space-x-2">
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap">
-              Sort by:
+              Sort:
             </span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-3.5 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-bold focus:outline-hidden focus:border-orange-500 cursor-pointer"
+              className="flex-1 sm:flex-none px-3 py-2 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-bold focus:outline-hidden focus:border-orange-500 cursor-pointer"
             >
               <option value="popular">⭐ Most Popular</option>
               <option value="price-low">💵 Price: Low to High</option>
@@ -136,16 +136,16 @@ export function MenuView() {
         </div>
 
         {/* Category Pills */}
-        <div className="flex items-center space-x-2 overflow-x-auto pt-2 pb-1 scrollbar-none">
+        <div className="flex items-center space-x-1.5 sm:space-x-2 overflow-x-auto pt-1 pb-1 -mx-3.5 px-3.5 sm:mx-0 sm:px-0 scrollbar-none">
           <button
             onClick={() => handleCategoryChange('ALL')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-1.5 ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-1.5 shrink-0 ${
               selectedCategory === 'ALL'
                 ? 'bg-orange-500 text-white shadow-xs'
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            <span>All Categories</span>
+            <span>All</span>
             <span className="text-[10px] opacity-75">({foods.length})</span>
           </button>
 
@@ -158,7 +158,7 @@ export function MenuView() {
               <button
                 key={cat._id || cat.id || cat.name}
                 onClick={() => handleCategoryChange(cat.name)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-1.5 ${
+                className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-1.5 shrink-0 ${
                   selectedCategory === cat.name
                     ? 'bg-orange-500 text-white shadow-xs'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
@@ -174,26 +174,26 @@ export function MenuView() {
 
       {/* Dishes Catalog Grid */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
             <div
               key={n}
-              className="bg-white dark:bg-slate-900 rounded-3xl p-4 border border-slate-200 dark:border-slate-800 space-y-4 animate-pulse"
+              className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200 dark:border-slate-800 space-y-3 sm:space-y-4 animate-pulse"
             >
-              <div className="h-44 bg-slate-200 dark:bg-slate-800 rounded-2xl" />
+              <div className="h-36 sm:h-44 bg-slate-200 dark:bg-slate-800 rounded-xl sm:rounded-2xl" />
               <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-3/4" />
               <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded-md w-1/2" />
               <div className="flex justify-between items-center pt-2">
-                <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded-md w-16" />
-                <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded-xl w-20" />
+                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-12" />
+                <div className="h-6 sm:h-8 bg-slate-200 dark:bg-slate-800 rounded-lg sm:rounded-xl w-14 sm:w-20" />
               </div>
             </div>
           ))}
         </div>
       ) : processedFoods.length === 0 ? (
-        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 space-y-3">
-          <span className="text-4xl">🍽️</span>
-          <h3 className="text-base font-bold text-slate-900 dark:text-white">
+        <div className="text-center py-12 sm:py-16 bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-3">
+          <span className="text-3xl sm:text-4xl">🍽️</span>
+          <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
             No items matched your filter
           </h3>
           <p className="text-xs text-slate-500">
@@ -205,10 +205,9 @@ export function MenuView() {
           >
             Clear All Filters
           </button>
-
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
           {processedFoods.map((food) => (
             <FoodCard
               key={food.id}
@@ -220,6 +219,7 @@ export function MenuView() {
       )}
 
       {/* Food Detail Modal */}
+
       {selectedFood && (
         <FoodDetailModal
           food={selectedFood}

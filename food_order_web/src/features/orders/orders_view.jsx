@@ -194,7 +194,7 @@ export function OrdersView() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
             My Orders & Live Tracker 📦
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -206,7 +206,7 @@ export function OrdersView() {
         <button
           onClick={handleSimulateNextStep}
           disabled={simulating}
-          className="px-4 py-2.5 rounded-2xl bg-slate-900 dark:bg-slate-800 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-md flex items-center space-x-2 self-start sm:self-auto"
+          className="w-full sm:w-auto px-4 py-2.5 rounded-2xl bg-slate-900 dark:bg-slate-800 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-md flex items-center justify-center space-x-2"
         >
           <span>⚡</span>
           <span>
@@ -219,9 +219,45 @@ export function OrdersView() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left: Orders List */}
-        <div className="lg:col-span-4 space-y-3">
+      {/* Mobile Quick Order Switcher */}
+      {orders.length > 1 && (
+        <div className="lg:hidden space-y-2">
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            Switch Order ({orders.length})
+          </p>
+          <div className="flex items-center space-x-2 overflow-x-auto pb-2 -mx-3.5 px-3.5">
+            {orders.map((order) => {
+              const isSelected = order.id === selectedOrderId;
+              return (
+                <button
+                  key={order.id}
+                  onClick={() => setSelectedOrderId(order.id)}
+                  className={`shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
+                    isSelected
+                      ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
+                      : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800'
+                  }`}
+                >
+                  <span>{order.orderNumber || `#${order.id?.slice(-6).toUpperCase()}`}</span>
+                  <span
+                    className={`text-[9px] uppercase px-1.5 py-0.2 rounded-full ${
+                      isSelected
+                        ? 'bg-white/20 text-white'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                    }`}
+                  >
+                    {order.status}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        {/* Left: Orders List (Desktop primary, Mobile secondary below live tracker) */}
+        <div className="order-2 lg:order-1 lg:col-span-4 space-y-3">
           <h2 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
             Order History ({orders.length})
           </h2>
@@ -235,14 +271,17 @@ export function OrdersView() {
               return (
                 <div
                   key={order.id}
-                  onClick={() => setSelectedOrderId(order.id)}
-                  className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                  onClick={() => {
+                    setSelectedOrderId(order.id);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className={`p-3.5 sm:p-4 rounded-2xl border transition-all cursor-pointer ${
                     isSelected
                       ? 'bg-orange-50/50 dark:bg-orange-950/20 border-orange-500 shadow-md shadow-orange-500/10'
                       : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-1.5 sm:mb-2">
                     <span className="text-xs font-black text-slate-900 dark:text-white">
                       {order.orderNumber || `#${order.id?.slice(-6).toUpperCase()}`}
                     </span>
@@ -277,31 +316,31 @@ export function OrdersView() {
           </div>
         </div>
 
-        {/* Right: Selected Order Detail & Live Timeline */}
+        {/* Right: Selected Order Detail & Live Timeline (Mobile primary, desktop secondary) */}
         {selectedOrder && (
-          <div className="lg:col-span-8 space-y-6">
+          <div className="order-1 lg:order-2 lg:col-span-8 space-y-6">
             {/* Live Status Tracker Card */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div className="p-4 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-5 sm:space-y-6">
+              <div className="flex flex-row items-center justify-between gap-2 pb-4 border-b border-slate-100 dark:border-slate-800">
                 <div>
-                  <span className="text-[11px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
+                  <span className="text-[10px] sm:text-[11px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
                     Live Tracking
                   </span>
-                  <h3 className="text-xl font-black text-slate-900 dark:text-white">
+                  <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
                     {selectedOrder.orderNumber || `#${selectedOrder.id?.slice(-6).toUpperCase()}`}
                   </h3>
                 </div>
-                <div className="text-right sm:text-right">
-                  <span className="text-xs text-slate-400 block">Estimated Arrival</span>
-                  <span className="text-sm font-black text-orange-600 dark:text-orange-400">
+                <div className="text-right">
+                  <span className="text-[10px] sm:text-xs text-slate-400 block">Estimated Arrival</span>
+                  <span className="text-xs sm:text-sm font-black text-orange-600 dark:text-orange-400">
                     {activeStepIdx >= 3 ? 'Delivered' : '⚡ 25 - 35 mins'}
                   </span>
                 </div>
               </div>
 
               {/* Step Timeline */}
-              <div className="relative py-4">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="relative py-2 sm:py-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                   {STATUS_STEPS.map((step, idx) => {
                     const isCompleted = activeStepIdx > idx;
                     const isCurrent = activeStepIdx === idx;
@@ -309,7 +348,7 @@ export function OrdersView() {
                     return (
                       <div
                         key={step.key}
-                        className={`p-4 rounded-2xl border text-center transition-all ${
+                        className={`p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border text-center transition-all ${
                           isCurrent
                             ? 'bg-orange-50 dark:bg-orange-950/40 border-orange-500 shadow-md ring-2 ring-orange-500/20'
                             : isCompleted
@@ -317,11 +356,11 @@ export function OrdersView() {
                             : 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 opacity-60'
                         }`}
                       >
-                        <div className="w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center text-xl bg-white dark:bg-slate-800 shadow-xs">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full mx-auto mb-1.5 sm:mb-2 flex items-center justify-center text-base sm:text-xl bg-white dark:bg-slate-800 shadow-xs">
                           {isCompleted ? '✓' : step.icon}
                         </div>
                         <p
-                          className={`text-xs font-bold ${
+                          className={`text-[11px] sm:text-xs font-bold leading-tight ${
                             isCurrent
                               ? 'text-orange-600 dark:text-orange-400'
                               : isCompleted
@@ -331,7 +370,7 @@ export function OrdersView() {
                         >
                           {step.label}
                         </p>
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-[9px] sm:text-[10px] text-slate-400 block mt-0.5">
                           {isCurrent ? 'In Progress' : isCompleted ? 'Completed' : 'Pending'}
                         </span>
                       </div>
@@ -342,22 +381,22 @@ export function OrdersView() {
 
               {/* Rider simulation card when Out for Delivery */}
               {activeStepIdx === 2 && (
-                <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-transparent border border-blue-500/30 flex items-center justify-between">
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-transparent border border-blue-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-500 text-white flex items-center justify-center text-2xl shadow-md">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-500 text-white flex items-center justify-center text-xl sm:text-2xl shadow-md shrink-0">
                       🛵
                     </div>
                     <div>
                       <p className="text-xs font-black text-slate-900 dark:text-white">
                         Rider Sok Dara is on the way!
                       </p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400">
                         Honda Scoopy • Plate 1BG-8899
                         {driverLoc && ` • GPS: ${driverLoc.lat?.toFixed(4)}, ${driverLoc.lng?.toFixed(4)}`}
                       </p>
                     </div>
                   </div>
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300">
+                  <span className="px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 shrink-0">
                     5 mins away
                   </span>
                 </div>
@@ -370,12 +409,12 @@ export function OrdersView() {
                 </h4>
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
                   {selectedOrder.items?.map((item) => (
-                    <div key={item.id} className="py-3 flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
+                    <div key={item.id} className="py-2.5 sm:py-3 flex items-center justify-between">
+                      <div className="flex items-center space-x-2.5 sm:space-x-3">
                         <img
                           src={item.foodImageUrl}
                           alt={item.foodName}
-                          className="w-12 h-12 rounded-xl object-cover"
+                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover shrink-0"
                           onError={(e) => {
                             e.currentTarget.src =
                               'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200';
@@ -399,16 +438,16 @@ export function OrdersView() {
               </div>
 
               {/* Delivery & Payment Info */}
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs">
                 <div>
-                  <span className="text-slate-400 text-[11px] block">Delivery Address:</span>
-                  <p className="font-semibold text-slate-900 dark:text-white mt-0.5">
+                  <span className="text-slate-400 text-[10px] sm:text-[11px] block">Delivery Address:</span>
+                  <p className="font-semibold text-slate-900 dark:text-white mt-0.5 break-words">
                     📍 {selectedOrder.deliveryAddress}
                   </p>
                 </div>
                 <div>
-                  <span className="text-slate-400 text-[11px] block">Payment Method:</span>
-                  <p className="font-semibold text-slate-900 dark:text-white mt-0.5 uppercase">
+                  <span className="text-slate-400 text-[10px] sm:text-[11px] block">Payment Method:</span>
+                  <p className="font-semibold text-slate-900 dark:text-white mt-0.5 uppercase break-words">
                     💳 {selectedOrder.paymentMethod} • Status: {selectedOrder.paymentStatus}
                   </p>
                 </div>
@@ -416,12 +455,12 @@ export function OrdersView() {
 
               {/* Total Summary */}
               <div className="flex justify-between items-baseline pt-4 border-t border-slate-100 dark:border-slate-800">
-                <span className="text-sm font-black text-slate-900 dark:text-white">Total Amount</span>
+                <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">Total Amount</span>
                 <div className="text-right">
-                  <span className="text-xl font-black text-orange-600 dark:text-orange-400">
+                  <span className="text-lg sm:text-xl font-black text-orange-600 dark:text-orange-400">
                     {formatUsd(selectedOrder.totalAmount)}
                   </span>
-                  <span className="block text-xs text-slate-400">
+                  <span className="block text-[10px] sm:text-xs text-slate-400">
                     ({formatKhr(selectedOrder.totalAmount)})
                   </span>
                 </div>

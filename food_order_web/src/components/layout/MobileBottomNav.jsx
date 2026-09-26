@@ -1,0 +1,84 @@
+import { NavLink } from 'react-router-dom';
+import { AppRoutes } from '../../routes/app_routes';
+import { useCart } from '../../features/cart/use_cart';
+import { useAuth } from '../../features/auth/use_auth';
+
+export function MobileBottomNav() {
+  const { totalCount, openCart } = useCart();
+  const { isAuthenticated, user, openAuthModal } = useAuth();
+
+  const getLinkClass = ({ isActive }) =>
+    `flex flex-col items-center justify-center flex-1 py-1.5 transition-all active:scale-95 ${
+      isActive
+        ? 'text-orange-600 dark:text-orange-400 font-bold'
+        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-medium'
+    }`;
+
+  return (
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 shadow-lg px-2 py-1 flex items-center justify-around transition-colors">
+      {/* 1. Home */}
+      <NavLink to={AppRoutes.ROOT} className={getLinkClass} end>
+        <span className="text-lg leading-tight">🏠</span>
+        <span className="text-[10px] tracking-tight mt-0.5">Home</span>
+      </NavLink>
+
+      {/* 2. Menu */}
+      <NavLink to={AppRoutes.MENU} className={getLinkClass}>
+        <span className="text-lg leading-tight">🍔</span>
+        <span className="text-[10px] tracking-tight mt-0.5">Menu</span>
+      </NavLink>
+
+      {/* 3. Floating Cart Action */}
+      <button
+        onClick={openCart}
+        className="flex flex-col items-center justify-center flex-1 py-1 text-slate-600 dark:text-slate-300 relative transition-transform active:scale-95"
+        aria-label="View Cart"
+      >
+        <div className="relative">
+          <div className="w-10 h-10 -mt-5 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white flex items-center justify-center text-lg shadow-lg shadow-orange-500/30">
+            🛍️
+          </div>
+          {totalCount > 0 && (
+            <span className="absolute -top-6 -right-1 px-1.5 py-0.2 rounded-full text-[10px] font-black bg-rose-500 text-white ring-2 ring-white dark:ring-slate-900 animate-pulse">
+              {totalCount}
+            </span>
+          )}
+        </div>
+        <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400 mt-1">
+          Cart
+        </span>
+      </button>
+
+      {/* 4. Orders */}
+      <NavLink to={AppRoutes.ORDERS} className={getLinkClass}>
+        <span className="text-lg leading-tight">📦</span>
+        <span className="text-[10px] tracking-tight mt-0.5">Orders</span>
+      </NavLink>
+
+      {/* 5. Profile / Auth */}
+      {isAuthenticated ? (
+        <button
+          onClick={() => openAuthModal('login')}
+          className="flex flex-col items-center justify-center flex-1 py-1.5 text-slate-500 dark:text-slate-400 active:scale-95"
+          aria-label="Account profile"
+        >
+          <div className="w-5 h-5 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center uppercase">
+            {user?.username?.[0] || 'U'}
+          </div>
+          <span className="text-[10px] font-medium tracking-tight mt-0.5 truncate max-w-[50px]">
+            {user?.username || 'Profile'}
+          </span>
+        </button>
+      ) : (
+        <button
+          onClick={() => openAuthModal('login')}
+          className="flex flex-col items-center justify-center flex-1 py-1.5 text-slate-500 dark:text-slate-400 active:scale-95"
+          aria-label="Sign in"
+        >
+          <span className="text-lg leading-tight">👤</span>
+          <span className="text-[10px] tracking-tight mt-0.5 font-medium">Sign In</span>
+        </button>
+      )}
+    </nav>
+  );
+}

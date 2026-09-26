@@ -60,32 +60,33 @@ export function AuthModal() {
 
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200">
       <div
-        className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden relative"
+        className="w-full max-w-md bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-slate-200 dark:border-slate-800 overflow-hidden relative max-h-[92vh] sm:max-h-[85vh] flex flex-col my-0 sm:my-8"
         role="dialog"
         aria-modal="true"
       >
         {/* Close Button */}
         <button
           onClick={closeAuthModal}
-          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition-colors"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition-colors z-10"
           aria-label="Close dialog"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
         {/* Modal Header */}
-        <div className="p-6 sm:p-8 bg-gradient-to-br from-orange-500/10 via-amber-500/5 to-transparent border-b border-slate-100 dark:border-slate-800/80">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white text-2xl shadow-lg shadow-orange-500/30 mb-4">
+        <div className="p-5 sm:p-8 bg-gradient-to-br from-orange-500/10 via-amber-500/5 to-transparent border-b border-slate-100 dark:border-slate-800/80 shrink-0">
+          <div className="w-10 h-1 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-3 sm:hidden" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white text-xl sm:text-2xl shadow-lg shadow-orange-500/30 mb-3 sm:mb-4">
             🍽️
           </div>
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
             {authModalMode === 'login' ? 'Welcome Back!' : 'Join BiteCraft'}
           </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             {authModalMode === 'login'
               ? 'Log in to view orders, track deliveries, and save favorites.'
               : 'Create an account for fast checkout and exclusive promo deals.'}
@@ -93,9 +94,9 @@ export function AuthModal() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-3.5 sm:space-y-4 overflow-y-auto flex-1">
           {(localError || authError) && (
-            <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center space-x-2">
+            <div className="p-3 sm:p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center space-x-2">
               <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>

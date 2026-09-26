@@ -44,13 +44,13 @@ export function CartDrawer() {
         onClick={closeCart}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white dark:bg-slate-900 shadow-2xl border-l border-slate-200 dark:border-slate-800 flex flex-col">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
+        <div className="w-full sm:w-screen sm:max-w-md bg-white dark:bg-slate-900 shadow-2xl border-l border-slate-200 dark:border-slate-800 flex flex-col">
           {/* Drawer Header */}
-          <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <span className="text-xl">🛍️</span>
-              <h2 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
+              <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
                 Your Order
               </h2>
               <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400">
@@ -59,7 +59,7 @@ export function CartDrawer() {
             </div>
             <button
               onClick={closeCart}
-              className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition-colors"
+              className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition-colors text-xs"
               aria-label="Close cart"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,7 +70,7 @@ export function CartDrawer() {
 
           {/* Free Delivery Bar */}
           {items.length > 0 && (
-            <div className="px-5 py-2.5 bg-orange-50/60 dark:bg-orange-950/20 border-b border-orange-100 dark:border-orange-950/40">
+            <div className="px-4 sm:px-5 py-2 sm:py-2.5 bg-orange-50/60 dark:bg-orange-950/20 border-b border-orange-100 dark:border-orange-950/40">
               <div className="flex justify-between items-center text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 <span>
                   {remainingForFreeDelivery === 0 ? (
@@ -97,7 +97,7 @@ export function CartDrawer() {
           )}
 
           {/* Items List */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          <div className="flex-1 overflow-y-auto p-3.5 sm:p-5 space-y-3 sm:space-y-4">
             {items.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4">
                 <div className="w-20 h-20 rounded-full bg-orange-100/60 dark:bg-orange-950/30 flex items-center justify-center text-4xl">
@@ -122,13 +122,13 @@ export function CartDrawer() {
               items.map((item) => (
                 <div
                   key={item.food.id}
-                  className="flex items-center space-x-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800"
+                  className="flex items-center space-x-2.5 sm:space-x-3 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800"
                 >
                   {/* Food Thumbnail */}
                   <img
                     src={item.food.imageUrl}
                     alt={item.food.name}
-                    className="w-16 h-16 rounded-xl object-cover shrink-0"
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover shrink-0"
                     onError={(e) => {
                       e.currentTarget.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200';
                     }}
@@ -136,7 +136,7 @@ export function CartDrawer() {
 
                   {/* Food Info */}
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
                       {item.food.name}
                     </h4>
                     <div className="flex items-baseline space-x-1.5 mt-0.5">
@@ -155,10 +155,10 @@ export function CartDrawer() {
                   </div>
 
                   {/* Quantity Stepper */}
-                  <div className="flex items-center space-x-1.5 bg-white dark:bg-slate-700/80 p-1 rounded-xl border border-slate-200 dark:border-slate-600 shrink-0">
+                  <div className="flex items-center space-x-1 sm:space-x-1.5 bg-white dark:bg-slate-700/80 p-0.5 sm:p-1 rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-600 shrink-0">
                     <button
                       onClick={() => updateQuantity(item.food.id, item.quantity - 1)}
-                      className="w-6 h-6 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-orange-100 hover:text-orange-600 text-slate-600 dark:text-slate-300 font-bold flex items-center justify-center text-xs transition-colors"
+                      className="w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-orange-100 hover:text-orange-600 text-slate-600 dark:text-slate-300 font-bold flex items-center justify-center text-xs transition-colors"
                       title="Decrease"
                     >
                       -
@@ -168,7 +168,7 @@ export function CartDrawer() {
                     </span>
                     <button
                       onClick={() => updateQuantity(item.food.id, item.quantity + 1)}
-                      className="w-6 h-6 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-orange-100 hover:text-orange-600 text-slate-600 dark:text-slate-300 font-bold flex items-center justify-center text-xs transition-colors"
+                      className="w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-orange-100 hover:text-orange-600 text-slate-600 dark:text-slate-300 font-bold flex items-center justify-center text-xs transition-colors"
                       title="Increase"
                     >
                       +
@@ -178,7 +178,7 @@ export function CartDrawer() {
                   {/* Remove Button */}
                   <button
                     onClick={() => removeItem(item.food.id)}
-                    className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors"
+                    className="p-1 text-slate-400 hover:text-rose-500 transition-colors shrink-0"
                     title="Remove item"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,7 +192,8 @@ export function CartDrawer() {
 
           {/* Footer Checkout Summary */}
           {items.length > 0 && (
-            <div className="p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/60 space-y-4">
+            <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/60 space-y-3 sm:space-y-4">
+
               {/* Voucher Input */}
               <div>
                 {voucherCode ? (
