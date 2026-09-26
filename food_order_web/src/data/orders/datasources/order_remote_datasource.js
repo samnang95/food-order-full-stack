@@ -16,8 +16,21 @@ export class OrderRemoteDataSource {
     return [];
   }
 
+  async fetchMyOrders() {
+    const response = await this.api.get('/orders');
+    if (Array.isArray(response)) return response;
+    if (Array.isArray(response?.data)) return response.data;
+    if (Array.isArray(response?.orders)) return response.orders;
+    return [];
+  }
+
   async fetchOrderById(orderId) {
     const response = await this.api.get(`/orders/${orderId}`);
+    return response?.order || response?.data || response;
+  }
+
+  async createOrder(orderData) {
+    const response = await this.api.post('/orders', orderData);
     return response?.order || response?.data || response;
   }
 
@@ -37,3 +50,4 @@ export class OrderRemoteDataSource {
     return response?.order || response?.data || response;
   }
 }
+

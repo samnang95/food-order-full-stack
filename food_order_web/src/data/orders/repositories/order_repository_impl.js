@@ -13,8 +13,18 @@ export class OrderRepositoryImpl extends IOrderRepository {
     return rawList.map((item) => OrderModel.fromJson(item));
   }
 
+  async getMyOrders() {
+    const rawList = await this.remoteDataSource.fetchMyOrders();
+    return rawList.map((item) => OrderModel.fromJson(item));
+  }
+
   async getOrderById(orderId) {
     const raw = await this.remoteDataSource.fetchOrderById(orderId);
+    return OrderModel.fromJson(raw);
+  }
+
+  async createOrder(orderData) {
+    const raw = await this.remoteDataSource.createOrder(orderData);
     return OrderModel.fromJson(raw);
   }
 

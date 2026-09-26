@@ -1,7 +1,8 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 import { MainLayout } from '../components/layout/MainLayout';
-import { OrdersView } from '../features/orders/orders_view';
+import { HomeView } from '../features/home/home_view';
 import { MenuView } from '../features/menu/menu_view';
+import { OrdersView } from '../features/orders/orders_view';
 import { NotFoundView } from '../components/common/NotFoundView';
 import { AppRoutes } from './app_routes';
 
@@ -12,15 +13,15 @@ export const appRouter = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to={AppRoutes.ORDERS} replace />,
-      },
-      {
-        path: 'orders',
-        element: <OrdersView />,
+        element: <HomeView />,
       },
       {
         path: 'menu',
         element: <MenuView />,
+      },
+      {
+        path: 'orders',
+        element: <OrdersView />,
       },
       {
         path: '*',

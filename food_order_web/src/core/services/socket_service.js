@@ -32,11 +32,30 @@ class SocketService {
   onOrderStatusChanged(callback) {
     if (!this.socket) this.connect();
     this.socket.on('order_status_changed', callback);
+    return () => this.socket?.off('order_status_changed', callback);
   }
 
   onPushNotification(callback) {
     if (!this.socket) this.connect();
     this.socket.on('push_notification', callback);
+    return () => this.socket?.off('push_notification', callback);
+  }
+
+  onDriverLocation(callback) {
+    if (!this.socket) this.connect();
+    this.socket.on('driver_location', callback);
+    return () => this.socket?.off('driver_location', callback);
+  }
+
+  joinOrder(orderId) {
+    if (!this.socket) this.connect();
+    this.socket.emit('join_order', { orderId });
+  }
+
+  leaveOrder(orderId) {
+    if (this.socket) {
+      this.socket.emit('leave_order', { orderId });
+    }
   }
 
   disconnect() {
@@ -49,3 +68,4 @@ class SocketService {
 }
 
 export const socketService = new SocketService();
+

@@ -3,8 +3,16 @@ export class IOrderRepository {
     throw new Error('Method getOrders() must be implemented.');
   }
 
+  async getMyOrders() {
+    throw new Error('Method getMyOrders() must be implemented.');
+  }
+
   async getOrderById() {
     throw new Error('Method getOrderById() must be implemented.');
+  }
+
+  async createOrder() {
+    throw new Error('Method createOrder() must be implemented.');
   }
 
   async updateOrderStatus() {
@@ -15,3 +23,4 @@ export class IOrderRepository {
     throw new Error('Method cancelOrder() must be implemented.');
   }
 }
+

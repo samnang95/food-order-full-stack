@@ -15,6 +15,10 @@ export function formatKHR(amount = 0) {
   return `${khr.toLocaleString()} ${Currency.KHR_SYMBOL}`;
 }
 
+export const formatUsd = formatUSD;
+export const formatKhr = formatKHR;
+
+
 export function formatTime(dateInput) {
   try {
     const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
