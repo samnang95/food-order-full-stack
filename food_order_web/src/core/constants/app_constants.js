@@ -1,7 +1,3 @@
-/**
- * Application Constants
- */
-
 export const OrderStatusLabels = Object.freeze({
   ALL: 'All Orders',
   PENDING: 'Pending',

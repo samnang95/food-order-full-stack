@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-primary-50: #fff7ed;
   --color-primary-100: #ffedd5;
@@ -29,5 +31,12 @@
     -moz-osx-font-smoothing: grayscale;
     background-color: #f8fafc;
     color: #0f172a;
+    transition-property: color, background-color, border-color;
+    transition-duration: 200ms;
+  }
+
+  .dark body {
+    background-color: #0f172a;
+    color: #f8fafc;
   }
 }
