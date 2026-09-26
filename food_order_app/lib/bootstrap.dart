@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localization/flutter_localization.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'core/config/app_environment.dart';
 import 'core/db/local_db.dart';
@@ -26,7 +27,8 @@ Future<void> runFoodOrderApp({
   required String envFile,
   required AppEnvironment environment,
 }) async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   AppConfig.environment = environment;
   await dotenv.load(fileName: envFile);
@@ -63,5 +65,6 @@ Future<void> runFoodOrderApp({
 
   await FirebaseNotificationService.instance.initialize();
 
+  FlutterNativeSplash.remove();
   runApp(const FoodOrderApp());
 }
