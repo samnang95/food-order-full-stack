@@ -1,5 +1,5 @@
 import { NavLink, Link } from 'react-router-dom';
-import { AppConfig } from '../../core';
+import { AppConfig, AppAssets } from '../../core';
 import { AppRoutes } from '../../routes/app_routes';
 
 export function Navbar() {
@@ -15,8 +15,15 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <Link to={AppRoutes.ORDERS} className="flex items-center space-x-3 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white text-xl font-bold shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
-            🍔
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white text-xl font-bold shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
+            <img
+              src={AppAssets.images.appIcon}
+              alt="BiteCraft"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
           </div>
           <div>
             <div className="flex items-center space-x-2">
