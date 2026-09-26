@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_images.dart';
 import '../../core/locale/translation_helper.dart';
+import '../../core/widgets/reorder_bottom_sheet.dart';
 import '../../routes/app_routes.dart';
 import '../notifications/notification_store.dart';
 import 'orders_intent.dart';
@@ -151,8 +152,9 @@ class OrdersView extends GetView<OrdersStore> {
                                           AppRoutes.orderDetail,
                                           arguments: order,
                                         ),
-                                        onReorder: () => currentStore.onIntent(
-                                          ReorderOrderIntent(order),
+                                        onReorder: () => ReorderBottomSheet.show(
+                                          context,
+                                          order: order,
                                         ),
                                       );
                                     },

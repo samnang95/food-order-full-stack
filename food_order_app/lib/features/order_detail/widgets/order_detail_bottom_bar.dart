@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/locale/translation_helper.dart';
+import '../../../../core/widgets/reorder_bottom_sheet.dart';
 import '../order_detail_intent.dart';
 import '../order_detail_store.dart';
 
@@ -169,7 +170,7 @@ class OrderDetailBottomBar extends GetView<OrderDetailStore> {
           child: SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => controller.onIntent(const ReorderItemsIntent()),
+              onPressed: () => ReorderBottomSheet.show(context, order: order),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,

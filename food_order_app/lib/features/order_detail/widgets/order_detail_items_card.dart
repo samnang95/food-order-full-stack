@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/services/cart_service.dart';
+import '../../../../domain/food/entities/food_entity.dart';
 import '../../../../domain/order/entities/order_entity.dart';
 
 class OrderDetailItemsCard extends StatelessWidget {
@@ -114,6 +117,46 @@ class OrderDetailItemsCard extends StatelessWidget {
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: isDark ? Colors.white : AppColors.neutral,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  InkWell(
+                    onTap: () {
+                      final cartService = Get.isRegistered<CartService>()
+                          ? Get.find<CartService>()
+                          : Get.put(CartService(), permanent: true);
+                      cartService.addItem(
+                        FoodEntity(
+                          id: item.foodId,
+                          name: item.foodName,
+                          price: item.price,
+                          imageUrl: item.foodImageUrl,
+                        ),
+                        quantity: 1,
+                      );
+                      Get.snackbar(
+                        'Added to Cart! 🛒',
+                        '${item.foodName} added to your cart',
+                        backgroundColor: AppColors.primary,
+                        colorText: Colors.white,
+                        snackPosition: SnackPosition.BOTTOM,
+                        margin: const EdgeInsets.all(16),
+                        borderRadius: 12,
+                        duration: const Duration(seconds: 2),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.add_shopping_cart_rounded,
+                        size: 16,
+                        color: AppColors.primary,
+                      ),
                     ),
                   ),
                 ],
