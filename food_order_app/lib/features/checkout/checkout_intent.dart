@@ -62,3 +62,28 @@ class DeleteSavedAddressIntent extends CheckoutIntent {
   const DeleteSavedAddressIntent(this.addressId);
 }
 
+class ToggleCutleryIntent extends CheckoutIntent {
+  final bool requestCutlery;
+  const ToggleCutleryIntent(this.requestCutlery);
+}
+
+class UpdateCutleryCountIntent extends CheckoutIntent {
+  final int count;
+  const UpdateCutleryCountIntent(this.count);
+}
+
+class ChangeKitchenNoteIntent extends CheckoutIntent {
+  final String note;
+  const ChangeKitchenNoteIntent(this.note);
+}
+
+class ToggleKitchenPreferenceIntent extends CheckoutIntent {
+  final String preference;
+  const ToggleKitchenPreferenceIntent(this.preference);
+}
+
+class ToggleCondimentIntent extends CheckoutIntent {
+  final String condiment;
+  const ToggleCondimentIntent(this.condiment);
+}
+

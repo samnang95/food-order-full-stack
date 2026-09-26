@@ -193,6 +193,28 @@ class CheckoutStore extends GetxController {
         _onSaveCurrentAddress(label, note, setAsDefault);
       case DeleteSavedAddressIntent(:final addressId):
         addressService.deleteAddress(addressId);
+      case ToggleCutleryIntent(:final requestCutlery):
+        state.value = state.value.copyWith(requestCutlery: requestCutlery);
+      case UpdateCutleryCountIntent(:final count):
+        state.value = state.value.copyWith(cutleryCount: count.clamp(1, 10));
+      case ChangeKitchenNoteIntent(:final note):
+        state.value = state.value.copyWith(kitchenNote: note);
+      case ToggleKitchenPreferenceIntent(:final preference):
+        final current = List<String>.from(state.value.kitchenPreferences);
+        if (current.contains(preference)) {
+          current.remove(preference);
+        } else {
+          current.add(preference);
+        }
+        state.value = state.value.copyWith(kitchenPreferences: current);
+      case ToggleCondimentIntent(:final condiment):
+        final current = List<String>.from(state.value.selectedCondiments);
+        if (current.contains(condiment)) {
+          current.remove(condiment);
+        } else {
+          current.add(condiment);
+        }
+        state.value = state.value.copyWith(selectedCondiments: current);
     }
   }
 
@@ -306,8 +328,26 @@ class CheckoutStore extends GetxController {
         };
       }).toList();
 
-      final fullAddress = state.value.deliveryNote.trim().isNotEmpty
-          ? '$address (Note: ${state.value.deliveryNote.trim()})'
+      final notes = <String>[];
+      if (state.value.deliveryNote.trim().isNotEmpty) {
+        notes.add(state.value.deliveryNote.trim());
+      }
+      if (state.value.requestCutlery) {
+        final count = state.value.cutleryCount;
+        notes.add('Cutlery: $count set${count > 1 ? "s" : ""}');
+      }
+      if (state.value.kitchenPreferences.isNotEmpty) {
+        notes.add('Prep: ${state.value.kitchenPreferences.join(", ")}');
+      }
+      if (state.value.kitchenNote.trim().isNotEmpty) {
+        notes.add('Kitchen: ${state.value.kitchenNote.trim()}');
+      }
+      if (state.value.selectedCondiments.isNotEmpty) {
+        notes.add('Extras: ${state.value.selectedCondiments.join(", ")}');
+      }
+
+      final fullAddress = notes.isNotEmpty
+          ? '$address (Note: ${notes.join(" • ")})'
           : address;
 
       final order = await orderRepository.placeOrder(

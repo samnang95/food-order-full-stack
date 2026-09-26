@@ -21,6 +21,13 @@ class CheckoutState {
   final String? voucherSuccessMessage;
   final List<Map<String, dynamic>> availableVouchers;
 
+  // Order Preferences & Cutlery
+  final bool requestCutlery;
+  final int cutleryCount;
+  final String kitchenNote;
+  final List<String> kitchenPreferences;
+  final List<String> selectedCondiments;
+
   const CheckoutState({
     this.deliveryAddress = 'Street 271, Boeng Tumpun, Phnom Penh',
     this.deliveryLat = 11.5385,
@@ -37,6 +44,11 @@ class CheckoutState {
     this.voucherError,
     this.voucherSuccessMessage,
     this.availableVouchers = const [],
+    this.requestCutlery = false,
+    this.cutleryCount = 1,
+    this.kitchenNote = '',
+    this.kitchenPreferences = const [],
+    this.selectedCondiments = const [],
   });
 
   CheckoutState copyWith({
@@ -57,6 +69,11 @@ class CheckoutState {
     String? voucherSuccessMessage,
     List<Map<String, dynamic>>? availableVouchers,
     bool clearVoucher = false,
+    bool? requestCutlery,
+    int? cutleryCount,
+    String? kitchenNote,
+    List<String>? kitchenPreferences,
+    List<String>? selectedCondiments,
   }) {
     return CheckoutState(
       deliveryAddress: deliveryAddress ?? this.deliveryAddress,
@@ -74,6 +91,11 @@ class CheckoutState {
       voucherError: voucherError,
       voucherSuccessMessage: clearVoucher ? null : (voucherSuccessMessage ?? this.voucherSuccessMessage),
       availableVouchers: availableVouchers ?? this.availableVouchers,
+      requestCutlery: requestCutlery ?? this.requestCutlery,
+      cutleryCount: cutleryCount ?? this.cutleryCount,
+      kitchenNote: kitchenNote ?? this.kitchenNote,
+      kitchenPreferences: kitchenPreferences ?? this.kitchenPreferences,
+      selectedCondiments: selectedCondiments ?? this.selectedCondiments,
     );
   }
 }
