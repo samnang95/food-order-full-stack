@@ -1,8 +1,8 @@
 import { useReducer, useEffect, useCallback, useRef } from 'react';
 import { initialOrdersState, computeFilteredOrders } from './orders_state';
 import { OrdersIntentType } from './orders_intent';
-import { ApiClient } from '../../services/api_client';
-import { socketService } from '../../services/socket_service';
+import { orderRepository } from '../../data';
+import { socketService } from '../../core';
 
 /**
  * Pure Reducer: receives current state and intent, returns new state
@@ -122,15 +122,7 @@ export function useOrdersStore() {
   const fetchOrders = useCallback(async () => {
     dispatch({ type: OrdersIntentType.FETCH_START });
     try {
-      const data = await ApiClient.get('/orders');
-      // Normalize orders array from API response structure
-      const ordersList = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.data)
-        ? data.data
-        : Array.isArray(data?.orders)
-        ? data.orders
-        : [];
+      const ordersList = await orderRepository.getOrders();
       dispatch({ type: OrdersIntentType.FETCH_SUCCESS, payload: ordersList });
     } catch (error) {
       dispatch({
@@ -147,12 +139,12 @@ export function useOrdersStore() {
       payload: { orderId, newStatus },
     });
 
-    // 2. Sync with backend API
+    // 2. Sync with backend API via Order Repository
     try {
       if (newStatus === 'cancelled') {
-        await ApiClient.put(`/orders/${orderId}/cancel`, { reason: 'Cancelled by kitchen admin' });
+        await orderRepository.cancelOrder(orderId, 'Cancelled by kitchen admin');
       } else {
-        await ApiClient.put(`/orders/${orderId}`, { status: newStatus });
+        await orderRepository.updateOrderStatus(orderId, newStatus);
       }
     } catch (error) {
       console.warn(`[OrdersStore] Backend status update warning: ${error.message}`);

@@ -1,12 +1,21 @@
-import { AppConfig } from '../../config/app_config';
+import { NavLink, Link } from 'react-router-dom';
+import { AppConfig } from '../../core';
+import { AppRoutes } from '../../routes/app_routes';
 
-export function Navbar({ activeRoute = 'orders', onRouteChange }) {
+export function Navbar() {
+  const getNavClass = ({ isActive }) =>
+    `px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+      isActive
+        ? 'bg-white text-slate-900 shadow-xs'
+        : 'text-slate-600 hover:text-slate-900'
+    }`;
+
   return (
     <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white text-xl font-bold shadow-md shadow-orange-500/20">
+        <Link to={AppRoutes.ORDERS} className="flex items-center space-x-3 group">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white text-xl font-bold shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
             🍔
           </div>
           <div>
@@ -18,30 +27,16 @@ export function Navbar({ activeRoute = 'orders', onRouteChange }) {
             </div>
             <p className="text-[11px] text-slate-500">Restaurant Operations & Kitchen Control</p>
           </div>
-        </div>
+        </Link>
 
         {/* Navigation Tabs */}
         <nav className="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-          <button
-            onClick={() => onRouteChange && onRouteChange('orders')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              activeRoute === 'orders'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
+          <NavLink to={AppRoutes.ORDERS} className={getNavClass}>
             🍳 Orders Board
-          </button>
-          <button
-            onClick={() => onRouteChange && onRouteChange('menu')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              activeRoute === 'menu'
-                ? 'bg-white text-slate-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
+          </NavLink>
+          <NavLink to={AppRoutes.MENU} className={getNavClass}>
             🍕 Food Menu
-          </button>
+          </NavLink>
         </nav>
 
         {/* Status & Environment indicator */}

@@ -1,6 +1,6 @@
 /**
- * Centralized Application Environment Configuration
- * Reads from Vite environment variables (VITE_*)
+ * Application Environment Configuration
+ * Central singleton managing Vite environment variables
  */
 export const AppConfig = {
   env: import.meta.env.VITE_APP_ENV || 'dev',
