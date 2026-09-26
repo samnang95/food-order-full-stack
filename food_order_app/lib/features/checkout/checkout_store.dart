@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../core/db/local_db.dart';
 import '../../core/services/api_client.dart';
 import '../../core/services/cart_service.dart';
+import '../../core/services/voucher_service.dart';
 import '../../domain/order/repositories/order_repository.dart';
 import '../../routes/app_routes.dart';
 import '../notifications/models/notification_item_model.dart';
@@ -31,6 +32,13 @@ class CheckoutStore extends GetxController {
     return Get.put(CartService(), permanent: true);
   }
 
+  VoucherService get voucherService {
+    if (Get.isRegistered<VoucherService>()) {
+      return Get.find<VoucherService>();
+    }
+    return Get.put(VoucherService(), permanent: true);
+  }
+
   double get deliveryFee => 1.50;
 
   double get finalTotal {
@@ -45,6 +53,34 @@ class CheckoutStore extends GetxController {
     super.onInit();
     _loadSavedAddress();
     _fetchAvailableVouchers();
+    _syncWithVoucherService();
+  }
+
+  void _syncWithVoucherService() {
+    // If a voucher is already applied in Cart, carry it over to Checkout
+    if (voucherService.appliedVoucher.value != null) {
+      state.value = state.value.copyWith(
+        appliedVoucherCode: voucherService.appliedVoucher.value!.code,
+        discountAmount: voucherService.discountAmount.value,
+        voucherSuccessMessage: voucherService.voucherSuccessMessage.value,
+      );
+    }
+
+    ever(voucherService.appliedVoucher, (v) {
+      if (v == null) {
+        state.value = state.value.copyWith(clearVoucher: true);
+      } else {
+        state.value = state.value.copyWith(
+          appliedVoucherCode: v.code,
+          discountAmount: voucherService.discountAmount.value,
+          voucherSuccessMessage: voucherService.voucherSuccessMessage.value,
+        );
+      }
+    });
+
+    ever(voucherService.discountAmount, (d) {
+      state.value = state.value.copyWith(discountAmount: d);
+    });
   }
 
   void _loadSavedAddress() {
@@ -121,43 +157,19 @@ class CheckoutStore extends GetxController {
     state.value = state.value.copyWith(isApplyingVoucher: true, voucherError: null);
 
     try {
-      final res = await ApiClient.post('/vouchers/validate', {
-        'code': cleanCode,
-        'subtotal': cartService.subtotal,
-      });
-
-      final json = jsonDecode(res.body);
-      if (res.statusCode == 200 && json['status'] == 'success') {
-        final data = json['data'] as Map<String, dynamic>;
-        final discount = (data['discountAmount'] as num?)?.toDouble() ?? 0.0;
-        final appliedCode = data['code'] as String? ?? cleanCode.toUpperCase();
-        final message = data['message'] as String? ?? 'Voucher applied!';
-
+      final res = await voucherService.applyVoucher(cleanCode, cartService.subtotal);
+      if (!res.valid) {
         state.value = state.value.copyWith(
           isApplyingVoucher: false,
-          appliedVoucherCode: appliedCode,
-          discountAmount: discount,
-          voucherSuccessMessage: message,
-          voucherError: null,
+          voucherError: res.message,
         );
-
-        if (Get.context != null) {
-          Get.snackbar(
-            '🎉 Promo Applied!',
-            message,
-            backgroundColor: const Color(0xFF10B981),
-            colorText: Colors.white,
-            snackPosition: SnackPosition.TOP,
-            margin: const EdgeInsets.all(16),
-            borderRadius: 12,
-            duration: const Duration(seconds: 3),
-          );
-        }
       } else {
-        final errMsg = json['message'] as String? ?? 'Invalid voucher code';
         state.value = state.value.copyWith(
           isApplyingVoucher: false,
-          voucherError: errMsg,
+          appliedVoucherCode: res.code,
+          discountAmount: res.discountAmount,
+          voucherSuccessMessage: res.message,
+          voucherError: null,
         );
       }
     } catch (e) {
@@ -169,6 +181,7 @@ class CheckoutStore extends GetxController {
   }
 
   void _onRemoveVoucher() {
+    voucherService.removeVoucher();
     state.value = state.value.copyWith(clearVoucher: true);
   }
 
@@ -224,7 +237,7 @@ class CheckoutStore extends GetxController {
         paymentMethod: state.value.paymentMethod,
         deliveryLat: state.value.deliveryLat,
         deliveryLng: state.value.deliveryLng,
-        voucherCode: state.value.appliedVoucherCode,
+        voucherCode: voucherService.appliedVoucher.value?.code ?? state.value.appliedVoucherCode,
       );
 
       // Save delivery address and coordinates for future orders
@@ -232,7 +245,8 @@ class CheckoutStore extends GetxController {
       await LocalDB.setString(_latKey, state.value.deliveryLat.toString());
       await LocalDB.setString(_lngKey, state.value.deliveryLng.toString());
 
-      // Clear cart
+      // Clear cart & voucher
+      voucherService.removeVoucher();
       cartService.clearCart();
 
       // Dispatch order confirmed in-app push notification

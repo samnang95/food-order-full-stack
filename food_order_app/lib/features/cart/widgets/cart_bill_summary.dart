@@ -130,6 +130,36 @@ class CartBillSummary extends GetView<CartStore> {
                     ),
                   ],
                 ),
+                if (controller.cartService.discountAmount > 0) ...[
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.discount_rounded, size: 14, color: Color(0xFF10B981)),
+                          const SizedBox(width: 5),
+                          Text(
+                            'Promo Discount (${controller.cartService.voucherService.appliedVoucher.value?.code ?? ""})',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF10B981),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        '-\$${controller.cartService.discountAmount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF10B981),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 14),
 
                 Divider(

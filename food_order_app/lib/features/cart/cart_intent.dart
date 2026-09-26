@@ -24,3 +24,13 @@ class CartClear extends CartIntent {
 class CartCheckout extends CartIntent {
   const CartCheckout();
 }
+
+class CartApplyVoucher extends CartIntent {
+  final String code;
+  const CartApplyVoucher(this.code);
+}
+
+class CartRemoveVoucher extends CartIntent {
+  const CartRemoveVoucher();
+}
+

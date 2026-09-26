@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../domain/cart/entities/cart_item_entity.dart';
 import '../../domain/food/entities/food_entity.dart';
 import '../db/local_db.dart';
+import 'voucher_service.dart';
 
 class CartService extends GetxService {
   static const String _keyCartItems = 'cart_items_data';
@@ -18,26 +19,23 @@ class CartService extends GetxService {
     _loadCart();
   }
 
+  VoucherService get voucherService {
+    if (Get.isRegistered<VoucherService>()) {
+      return Get.find<VoucherService>();
+    }
+    return Get.put(VoucherService(), permanent: true);
+  }
+
   // --- Computed Getters ---
-
   int get totalQuantity => items.fold(0, (sum, i) => sum + i.quantity);
-
   double get subtotal => items.fold(0.0, (sum, i) => sum + i.totalPrice);
-
-  double get deliveryFee =>
-      (subtotal >= freeDeliveryThreshold || items.isEmpty) ? 0.0 : standardDeliveryFee;
-
-  double get totalAmount => subtotal + deliveryFee;
-
+  double get discountAmount => voucherService.discountAmount.value;
+  double get deliveryFee => (subtotal >= freeDeliveryThreshold || items.isEmpty) ? 0.0 : standardDeliveryFee;
+  double get totalAmount => (subtotal - discountAmount + deliveryFee).clamp(0.0, double.infinity);
   bool get isEmpty => items.isEmpty;
-
   bool get isNotEmpty => items.isNotEmpty;
-
-  double get freeDeliveryRemaining =>
-      (freeDeliveryThreshold - subtotal).clamp(0.0, freeDeliveryThreshold);
-
-  double get freeDeliveryProgress =>
-      (subtotal / freeDeliveryThreshold).clamp(0.0, 1.0);
+  double get freeDeliveryRemaining => (freeDeliveryThreshold - subtotal).clamp(0.0, freeDeliveryThreshold);
+  double get freeDeliveryProgress => (subtotal / freeDeliveryThreshold).clamp(0.0, 1.0);
 
   // --- Actions ---
 
@@ -70,6 +68,7 @@ class CartService extends GetxService {
     }
 
     _persist();
+    voucherService.recalculateDiscount(subtotal);
     debugPrint('🛒 [CartService] Added ${food.name} (x$quantity). Total: ${items.length} items');
   }
 
@@ -80,6 +79,7 @@ class CartService extends GetxService {
       if (current.quantity < 99) {
         items[index] = current.copyWith(quantity: current.quantity + 1);
         _persist();
+        voucherService.recalculateDiscount(subtotal);
       }
     }
   }
@@ -91,6 +91,7 @@ class CartService extends GetxService {
       if (current.quantity > 1) {
         items[index] = current.copyWith(quantity: current.quantity - 1);
         _persist();
+        voucherService.recalculateDiscount(subtotal);
       } else {
         removeItem(foodId);
       }
@@ -100,10 +101,12 @@ class CartService extends GetxService {
   void removeItem(String foodId) {
     items.removeWhere((item) => item.food.id == foodId);
     _persist();
+    voucherService.recalculateDiscount(subtotal);
   }
 
   void clearCart() {
     items.clear();
+    voucherService.removeVoucher();
     _persist();
   }
 

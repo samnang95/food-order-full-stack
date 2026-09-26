@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/locale/translation_helper.dart';
+import '../../../../core/widgets/voucher_bottom_sheet.dart';
 import '../checkout_intent.dart';
 import '../checkout_store.dart';
 
@@ -153,6 +154,23 @@ class _CheckoutVoucherCardState extends State<CheckoutVoucherCard> {
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        VoucherBottomSheet.show(context, subtotal: store.cartService.subtotal);
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      ),
+                      child: const Text(
+                        'Change',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     TextButton(
@@ -324,6 +342,37 @@ class _CheckoutVoucherCardState extends State<CheckoutVoucherCard> {
                     ),
                   );
                 }).toList(),
+              ),
+
+              const SizedBox(height: 12),
+
+              Center(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () {
+                    VoucherBottomSheet.show(context, subtotal: store.cartService.subtotal);
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.confirmation_number_outlined, size: 14, color: AppColors.primary),
+                        SizedBox(width: 6),
+                        Text(
+                          'Browse all available vouchers',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        Icon(Icons.chevron_right_rounded, size: 16, color: AppColors.primary),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ],
           ],

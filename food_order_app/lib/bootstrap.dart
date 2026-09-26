@@ -12,6 +12,8 @@ import 'core/locale/locale_store.dart';
 import 'core/locale/translation_helper.dart';
 import 'core/services/cart_service.dart';
 import 'core/services/favorites_service.dart';
+import 'core/controllers/voucher_bottom_sheet_controller.dart';
+import 'core/services/voucher_service.dart';
 import 'core/services/firebase_notification_service.dart';
 import 'core/services/local_notification_service.dart';
 import 'core/services/services_network.dart';
@@ -54,6 +56,8 @@ Future<void> runFoodOrderApp({
   Get.put(ThemeStore(), permanent: true);
   Get.put(LocaleStore(), permanent: true);
   Get.put(FavoritesService(), permanent: true);
+  Get.put(VoucherService(), permanent: true);
+  Get.put(VoucherBottomSheetController(), permanent: true);
   Get.put(CartService(), permanent: true);
   Get.put(NotificationStore(), permanent: true);
 

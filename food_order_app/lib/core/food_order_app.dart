@@ -18,28 +18,25 @@ class FoodOrderApp extends StatelessWidget {
     final themeStore = Get.find<ThemeStore>();
     final localeStore = Get.find<LocaleStore>();
 
-    return Obx(() {
-      // Access both reactive values to trigger rebuild on change
-      final _ = localeStore.locale.value;
-      return GetMaterialApp(
-        supportedLocales: FlutterLocalization.instance.supportedLocales,
-        localizationsDelegates: FlutterLocalization.instance.localizationsDelegates,
-        title: 'BiteCraft',
-        scaffoldMessengerKey: scaffoldMessengerKey,
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: themeStore.themeMode,
-        initialBinding: InitialBinding(),
-        initialRoute: AppRouter.initialRoute,
-        getPages: AppRouter.pages,
-        builder: (context, child) {
-          return GestureDetector(
-            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-            child: child,
-          );
-        },
-      );
-    });
+    return GetMaterialApp(
+      supportedLocales: FlutterLocalization.instance.supportedLocales,
+      localizationsDelegates: FlutterLocalization.instance.localizationsDelegates,
+      locale: localeStore.locale.value,
+      title: 'BiteCraft',
+      scaffoldMessengerKey: scaffoldMessengerKey,
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeStore.themeMode,
+      initialBinding: InitialBinding(),
+      initialRoute: AppRouter.initialRoute,
+      getPages: AppRouter.pages,
+      builder: (context, child) {
+        return GestureDetector(
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: child,
+        );
+      },
+    );
   }
 }

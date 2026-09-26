@@ -28,5 +28,6 @@ class ThemeStore extends GetxController {
     
     _themeMode.value = newTheme;
     await LocalDB.setString(_themeKey, newTheme.name);
+    Get.changeThemeMode(newTheme);
   }
 }

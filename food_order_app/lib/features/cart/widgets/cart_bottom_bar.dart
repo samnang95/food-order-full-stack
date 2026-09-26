@@ -50,13 +50,31 @@ class CartBottomBar extends GetView<CartStore> {
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      '\$${total.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.primary,
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          '\$${total.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        if (controller.cartService.discountAmount > 0) ...[
+                          const SizedBox(width: 6),
+                          Text(
+                            '\$${(controller.cartService.subtotal + controller.cartService.deliveryFee).toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              decoration: TextDecoration.lineThrough,
+                              color: textMuted,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),

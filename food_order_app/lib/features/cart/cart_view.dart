@@ -67,6 +67,10 @@ class CartView extends GetView<CartStore> {
             ),
             const SizedBox(height: 12),
 
+            // Promo Code & Voucher
+            const CartVoucherCard(),
+            const SizedBox(height: 16),
+
             // Bill Summary
             const CartBillSummary(),
 

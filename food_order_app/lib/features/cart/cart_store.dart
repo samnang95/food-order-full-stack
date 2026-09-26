@@ -24,6 +24,10 @@ class CartStore extends GetxController {
         _onClearCart();
       case CartCheckout():
         _onCheckout();
+      case CartApplyVoucher(:final code):
+        cartService.voucherService.applyVoucher(code, cartService.subtotal);
+      case CartRemoveVoucher():
+        cartService.voucherService.removeVoucher();
     }
   }
 
