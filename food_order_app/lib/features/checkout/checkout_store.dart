@@ -15,6 +15,7 @@ import '../orders/orders_intent.dart';
 import '../orders/orders_store.dart';
 import 'checkout_intent.dart';
 import 'checkout_state.dart';
+import 'widgets/widgets.dart';
 
 class CheckoutStore extends GetxController {
   final OrderRepository orderRepository;
@@ -339,6 +340,32 @@ class CheckoutStore extends GetxController {
       return;
     }
 
+    final paymentMethod = state.value.paymentMethod;
+    if (Get.context != null && !Get.testMode) {
+      final orderRef = 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+      if (paymentMethod == 'khqr') {
+        await AbaKhqrPaymentSheet.show(
+          context: Get.context!,
+          amount: finalTotal,
+          orderId: orderRef,
+          onPaymentSuccess: () => _executeOrderPlacement(address),
+        );
+        return;
+      } else if (paymentMethod == 'card') {
+        await CardPaymentSheet.show(
+          context: Get.context!,
+          amount: finalTotal,
+          orderId: orderRef,
+          onPaymentSuccess: () => _executeOrderPlacement(address),
+        );
+        return;
+      }
+    }
+
+    await _executeOrderPlacement(address);
+  }
+
+  Future<void> _executeOrderPlacement(String address) async {
     state.value = state.value.copyWith(isLoading: true, errorMessage: null);
 
     try {
