@@ -148,4 +148,34 @@ void main() {
     expect(find.text('Unable to Load Orders'), findsOneWidget);
     expect(find.text('Try Again'), findsOneWidget);
   });
+
+  testWidgets('OrdersView renders empty state when no orders match filter', (tester) async {
+    ordersStore.state.value = ordersStore.state.value.copyWith(
+      orders: [],
+      isLoading: false,
+      errorMessage: null,
+    );
+
+    await tester.pumpWidget(
+      const GetMaterialApp(
+        home: OrdersView(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('No orders yet'), findsOneWidget);
+    expect(find.text('Explore Menu'), findsOneWidget);
+  });
+
+  test('Reordering adds order items back to cart', () async {
+    final cart = ordersStore.cartService;
+    cart.clearCart();
+    expect(cart.isEmpty, true);
+
+    ordersStore.onIntent(ReorderOrderIntent(activeOrder));
+
+    expect(cart.items.length, 1);
+    expect(cart.items.first.food.name, 'Truffle Burger');
+    expect(cart.items.first.quantity, 2);
+  });
 }
