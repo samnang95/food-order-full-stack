@@ -8,6 +8,7 @@ import '../../data/order/repositories/order_repository_impl.dart';
 import '../../domain/category/usecases/get_categories_usecase.dart';
 import '../../domain/food/usecases/get_foods_usecase.dart';
 import '../../domain/order/repositories/order_repository.dart';
+import '../categories/categories_store.dart';
 import '../home/home_store.dart';
 import '../orders/orders_store.dart';
 import '../profile/profile_store.dart';
@@ -67,6 +68,14 @@ class MainNavBinding extends Bindings {
     if (!Get.isRegistered<ProfileStore>()) {
       Get.lazyPut(() => ProfileStore(
         orderRepository: Get.find<OrderRepository>(),
+      ));
+    }
+
+    // Categories Store
+    if (!Get.isRegistered<CategoriesStore>()) {
+      Get.lazyPut(() => CategoriesStore(
+        getCategoriesUseCase: Get.find<GetCategoriesUseCase>(),
+        getFoodsUseCase: Get.find<GetFoodsUseCase>(),
       ));
     }
 

@@ -18,6 +18,8 @@ import '../features/order_detail/order_detail_binding.dart';
 import '../features/order_detail/order_detail_view.dart';
 import '../features/notifications/notification_binding.dart';
 import '../features/notifications/notification_view.dart';
+import '../features/category_detail/category_detail_binding.dart';
+import '../features/category_detail/category_detail_view.dart';
 import 'app_routes.dart';
 
 class AppRouter {
@@ -70,6 +72,12 @@ class AppRouter {
       name: AppRoutes.notifications,
       page: () => const NotificationView(),
       binding: NotificationBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.categoryDetail,
+      page: () => const CategoryDetailView(),
+      binding: CategoryDetailBinding(),
       transition: Transition.rightToLeft,
     ),
   ];
