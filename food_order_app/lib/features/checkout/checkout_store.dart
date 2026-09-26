@@ -53,7 +53,8 @@ class CheckoutStore extends GetxController {
   double get finalTotal {
     final subtotal = cartService.subtotal;
     final discount = state.value.discountAmount;
-    final total = (subtotal - discount + deliveryFee).clamp(0.0, double.infinity);
+    final tip = state.value.driverTip;
+    final total = (subtotal - discount + deliveryFee + tip).clamp(0.0, double.infinity);
     return double.parse(total.toStringAsFixed(2));
   }
 
@@ -215,6 +216,26 @@ class CheckoutStore extends GetxController {
           current.add(condiment);
         }
         state.value = state.value.copyWith(selectedCondiments: current);
+      case SelectTipIntent(:final amount):
+        state.value = state.value.copyWith(driverTip: (amount >= 0 ? amount : 0.0));
+      case ClearTipIntent():
+        state.value = state.value.copyWith(driverTip: 0.0);
+      case SelectDeliveryModeIntent(:final isScheduled):
+        if (isScheduled && state.value.scheduledTimeSlot == null) {
+          state.value = state.value.copyWith(
+            isScheduled: true,
+            scheduledDate: 'Today',
+            scheduledTimeSlot: '12:30 PM - 1:00 PM',
+          );
+        } else {
+          state.value = state.value.copyWith(isScheduled: isScheduled);
+        }
+      case SelectScheduleTimeSlotIntent(:final date, :final timeSlot):
+        state.value = state.value.copyWith(
+          isScheduled: true,
+          scheduledDate: date,
+          scheduledTimeSlot: timeSlot,
+        );
     }
   }
 
@@ -344,6 +365,12 @@ class CheckoutStore extends GetxController {
       }
       if (state.value.selectedCondiments.isNotEmpty) {
         notes.add('Extras: ${state.value.selectedCondiments.join(", ")}');
+      }
+      if (state.value.driverTip > 0) {
+        notes.add('Tip: \$${state.value.driverTip.toStringAsFixed(2)}');
+      }
+      if (state.value.isScheduled && state.value.scheduledTimeSlot != null) {
+        notes.add('Schedule: ${state.value.scheduledDate ?? "Today"}, ${state.value.scheduledTimeSlot}');
       }
 
       final fullAddress = notes.isNotEmpty

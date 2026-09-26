@@ -111,6 +111,36 @@ class CheckoutBillBreakdown extends GetView<CheckoutStore> {
                 ],
               ),
             ],
+            if (state.driverTip > 0) ...[
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.favorite_rounded, size: 14, color: Color(0xFFF59E0B)),
+                      const SizedBox(width: 5),
+                      Text(
+                        'driverTip'.trOr(context, 'Driver Tip'),
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : AppColors.neutral,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '+\$${state.driverTip.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFF59E0B),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 12),
             Divider(color: isDark ? const Color(0xFF2A364F) : const Color(0xFFF3F4F6)),
             const SizedBox(height: 8),

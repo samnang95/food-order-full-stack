@@ -33,7 +33,11 @@ class CheckoutView extends GetView<CheckoutStore> {
               const CheckoutAddressCard(),
               const SizedBox(height: 16),
 
-              // 2. Payment Method Selector
+              // 2. Delivery Timing & Scheduling
+              const CheckoutDeliveryTimeCard(),
+              const SizedBox(height: 16),
+
+              // 3. Payment Method Selector
               const CheckoutPaymentSelector(),
               const SizedBox(height: 16),
 
@@ -45,11 +49,15 @@ class CheckoutView extends GetView<CheckoutStore> {
               const CheckoutPreferencesCard(),
               const SizedBox(height: 16),
 
-              // 5. Promo Code & Vouchers
+              // 5. Tip Your Rider
+              const CheckoutTipCard(),
+              const SizedBox(height: 16),
+
+              // 6. Promo Code & Vouchers
               const CheckoutVoucherCard(),
               const SizedBox(height: 16),
 
-              // 5. Bill Breakdown
+              // 7. Bill Breakdown
               const CheckoutBillBreakdown(),
               const SizedBox(height: 16),
             ],

@@ -87,3 +87,26 @@ class ToggleCondimentIntent extends CheckoutIntent {
   const ToggleCondimentIntent(this.condiment);
 }
 
+class SelectTipIntent extends CheckoutIntent {
+  final double amount;
+  const SelectTipIntent(this.amount);
+}
+
+class ClearTipIntent extends CheckoutIntent {
+  const ClearTipIntent();
+}
+
+class SelectDeliveryModeIntent extends CheckoutIntent {
+  final bool isScheduled;
+  const SelectDeliveryModeIntent({required this.isScheduled});
+}
+
+class SelectScheduleTimeSlotIntent extends CheckoutIntent {
+  final String date;
+  final String timeSlot;
+  const SelectScheduleTimeSlotIntent({
+    required this.date,
+    required this.timeSlot,
+  });
+}
+

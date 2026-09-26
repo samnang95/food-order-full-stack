@@ -28,6 +28,14 @@ class CheckoutState {
   final List<String> kitchenPreferences;
   final List<String> selectedCondiments;
 
+  // Driver Tip
+  final double driverTip;
+
+  // Delivery Scheduling
+  final bool isScheduled;
+  final String? scheduledDate;
+  final String? scheduledTimeSlot;
+
   const CheckoutState({
     this.deliveryAddress = 'Street 271, Boeng Tumpun, Phnom Penh',
     this.deliveryLat = 11.5385,
@@ -49,6 +57,10 @@ class CheckoutState {
     this.kitchenNote = '',
     this.kitchenPreferences = const [],
     this.selectedCondiments = const [],
+    this.driverTip = 0.0,
+    this.isScheduled = false,
+    this.scheduledDate,
+    this.scheduledTimeSlot,
   });
 
   CheckoutState copyWith({
@@ -74,6 +86,11 @@ class CheckoutState {
     String? kitchenNote,
     List<String>? kitchenPreferences,
     List<String>? selectedCondiments,
+    double? driverTip,
+    bool? isScheduled,
+    String? scheduledDate,
+    String? scheduledTimeSlot,
+    bool clearSchedule = false,
   }) {
     return CheckoutState(
       deliveryAddress: deliveryAddress ?? this.deliveryAddress,
@@ -96,6 +113,10 @@ class CheckoutState {
       kitchenNote: kitchenNote ?? this.kitchenNote,
       kitchenPreferences: kitchenPreferences ?? this.kitchenPreferences,
       selectedCondiments: selectedCondiments ?? this.selectedCondiments,
+      driverTip: driverTip ?? this.driverTip,
+      isScheduled: isScheduled ?? this.isScheduled,
+      scheduledDate: clearSchedule ? null : (scheduledDate ?? this.scheduledDate),
+      scheduledTimeSlot: clearSchedule ? null : (scheduledTimeSlot ?? this.scheduledTimeSlot),
     );
   }
 }
