@@ -5,6 +5,8 @@ class OrderDetailState {
   final bool isLoading;
   final bool isCancelling;
   final String? errorMessage;
+  final String? cancellationReason;
+  final double? refundedAmount;
 
   // Driver tracking fields
   final double? driverLat;
@@ -23,6 +25,8 @@ class OrderDetailState {
     this.isLoading = false,
     this.isCancelling = false,
     this.errorMessage,
+    this.cancellationReason,
+    this.refundedAmount,
     this.driverLat,
     this.driverLng,
     this.driverHeading,
@@ -40,6 +44,8 @@ class OrderDetailState {
     bool? isLoading,
     bool? isCancelling,
     String? errorMessage,
+    String? cancellationReason,
+    double? refundedAmount,
     double? driverLat,
     double? driverLng,
     double? driverHeading,
@@ -56,6 +62,8 @@ class OrderDetailState {
       isLoading: isLoading ?? this.isLoading,
       isCancelling: isCancelling ?? this.isCancelling,
       errorMessage: errorMessage,
+      cancellationReason: cancellationReason ?? this.cancellationReason,
+      refundedAmount: refundedAmount ?? this.refundedAmount,
       driverLat: driverLat ?? this.driverLat,
       driverLng: driverLng ?? this.driverLng,
       driverHeading: driverHeading ?? this.driverHeading,

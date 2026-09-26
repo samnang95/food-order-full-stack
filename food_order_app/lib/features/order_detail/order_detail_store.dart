@@ -13,6 +13,7 @@ import '../orders/orders_intent.dart';
 import '../orders/orders_store.dart';
 import 'order_detail_intent.dart';
 import 'order_detail_state.dart';
+import 'widgets/order_cancellation_bottom_sheet.dart';
 
 class OrderDetailStore extends GetxController {
   final OrderRepository orderRepository;
@@ -59,8 +60,10 @@ class OrderDetailStore extends GetxController {
     switch (intent) {
       case RefreshOrderDetailIntent():
         _onRefresh();
-      case CancelOrderIntent():
-        _onCancelOrder();
+      case CancelOrderIntent(:final reason):
+        _onCancelOrder(reason);
+      case ConfirmCancelOrderIntent(:final reason):
+        _confirmCancellation(reason);
       case ReorderItemsIntent():
         _onReorder();
       case SimulateDeliveryIntent():
@@ -187,7 +190,12 @@ class OrderDetailStore extends GetxController {
     }
   }
 
-  void _onCancelOrder() {
+  void _onCancelOrder([String? reason]) {
+    if (reason != null && reason.isNotEmpty) {
+      _confirmCancellation(reason);
+      return;
+    }
+
     if (state.value.order.status != 'pending') {
       if (Get.context != null) {
         Get.snackbar(
@@ -203,39 +211,37 @@ class OrderDetailStore extends GetxController {
       return;
     }
 
-    Get.dialog(
-      AlertDialog(
-        title: const Text('Cancel Order?'),
-        content: const Text(
-          'Are you sure you want to cancel this order? This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Keep Order'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () {
-              Get.back();
-              _confirmCancellation();
-            },
-            child: const Text('Yes, Cancel'),
-          ),
-        ],
-      ),
-    );
+    final context = Get.context;
+    if (context != null) {
+      OrderCancellationBottomSheet.show(
+        context: context,
+        order: state.value.order,
+        onConfirm: (selectedReason) {
+          _confirmCancellation(selectedReason);
+        },
+      );
+    } else {
+      _confirmCancellation('Changed mind');
+    }
   }
 
-  Future<void> _confirmCancellation() async {
+  Future<void> _confirmCancellation([String? reason]) async {
     state.value = state.value.copyWith(isCancelling: true, errorMessage: null);
 
     try {
       final cancelled = await orderRepository.cancelOrder(state.value.order.id);
-      state.value = state.value.copyWith(order: cancelled, isCancelling: false);
+      final refundAmount = state.value.order.totalAmount;
+      final paymentMethod = state.value.order.paymentMethod.toUpperCase();
+      final refundMsg = paymentMethod == 'CASH'
+          ? 'No payment charged. Cash order cancelled successfully.'
+          : 'Full refund of \$${refundAmount.toStringAsFixed(2)} initiated to $paymentMethod.';
+
+      state.value = state.value.copyWith(
+        order: cancelled,
+        isCancelling: false,
+        cancellationReason: reason,
+        refundedAmount: refundAmount,
+      );
 
       // Refresh Orders tab if active
       if (Get.isRegistered<OrdersStore>()) {
@@ -245,7 +251,7 @@ class OrderDetailStore extends GetxController {
       if (Get.context != null) {
         Get.snackbar(
           'Order Cancelled',
-          'Your order has been cancelled successfully.',
+          refundMsg,
           backgroundColor: const Color(0xFF10B981),
           colorText: Colors.white,
           snackPosition: SnackPosition.TOP,

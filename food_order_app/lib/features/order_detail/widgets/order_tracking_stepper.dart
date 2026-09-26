@@ -161,39 +161,92 @@ class _OrderTrackingStepperState extends State<OrderTrackingStepper>
             color: const Color(0xFFEF4444).withValues(alpha: 0.4),
           ),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEF4444).withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.cancel_rounded,
-                color: Color(0xFFEF4444),
-                size: 26,
-              ),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEF4444).withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.cancel_rounded,
+                    color: Color(0xFFEF4444),
+                    size: 26,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Order Cancelled',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFEF4444),
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'This order was cancelled and is no longer active.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 14),
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E2638) : Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
                 children: [
-                  Text(
-                    'Order Cancelled',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFEF4444),
+                  const Icon(
+                    Icons.currency_exchange_rounded,
+                    size: 16,
+                    color: Color(0xFF10B981),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      widget.order.paymentMethod.toLowerCase() == 'cash'
+                          ? 'No payment charged • \$0.00'
+                          : 'Full refund initiated • \$${widget.order.totalAmount.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white70 : AppColors.neutral,
+                      ),
                     ),
                   ),
-                  SizedBox(height: 2),
-                  Text(
-                    'This order was cancelled and is no longer active.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text(
+                      'REFUNDED',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF10B981),
+                      ),
                     ),
                   ),
                 ],

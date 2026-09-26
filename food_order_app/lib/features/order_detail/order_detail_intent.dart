@@ -7,7 +7,13 @@ class RefreshOrderDetailIntent extends OrderDetailIntent {
 }
 
 class CancelOrderIntent extends OrderDetailIntent {
-  const CancelOrderIntent();
+  final String? reason;
+  const CancelOrderIntent([this.reason]);
+}
+
+class ConfirmCancelOrderIntent extends OrderDetailIntent {
+  final String reason;
+  const ConfirmCancelOrderIntent({this.reason = 'Changed mind'});
 }
 
 class ReorderItemsIntent extends OrderDetailIntent {
