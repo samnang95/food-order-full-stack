@@ -56,6 +56,69 @@ class NotificationStore extends GetxController {
         debugPrint('⚠️ [NotificationStore] Error parsing socket notification: $e');
       }
     });
+
+    SocketService.instance.onOrderStatusChanged((data) {
+      try {
+        final orderId = data['orderId']?.toString() ?? '';
+        final status = data['status']?.toString() ?? '';
+        handleOrderStatusUpdate(orderId: orderId, status: status);
+      } catch (e) {
+        debugPrint('⚠️ [NotificationStore] Error handling socket order status: $e');
+      }
+    });
+  }
+
+  /// Automatically generate a push notification when an order status advances
+  void handleOrderStatusUpdate({required String orderId, required String status}) {
+    if (orderId.isEmpty || status.isEmpty) return;
+
+    final notifId = 'status_${orderId}_$status';
+    if (notifications.any((n) => n.id == notifId)) return;
+
+    final shortId = orderId.length > 6
+        ? orderId.substring(orderId.length - 6).toUpperCase()
+        : orderId;
+
+    String title;
+    String body;
+
+    switch (status.toLowerCase()) {
+      case 'confirmed':
+        title = '✅ Order #$shortId Confirmed!';
+        body = 'The restaurant has accepted your order and will start cooking soon.';
+        break;
+      case 'preparing':
+        title = '🍳 Order #$shortId Being Prepared';
+        body = 'Chef is now preparing your delicious meal with fresh ingredients.';
+        break;
+      case 'on_the_way':
+        title = '🛵 Order #$shortId Out for Delivery!';
+        body = 'Our delivery partner is on the way with your food.';
+        break;
+      case 'delivered':
+        title = '🎉 Order #$shortId Delivered!';
+        body = 'Your meal has arrived! Enjoy your food and have a great day.';
+        break;
+      case 'cancelled':
+        title = '❌ Order #$shortId Cancelled';
+        body = 'Your order has been cancelled and any paid funds have been refunded.';
+        break;
+      default:
+        title = '📦 Order #$shortId Updated';
+        body = 'Order status has been updated to $status.';
+    }
+
+    final notif = NotificationItemModel(
+      id: notifId,
+      type: 'order',
+      title: title,
+      body: body,
+      orderId: orderId,
+      timestamp: DateTime.now(),
+      isRead: false,
+    );
+
+    addNotification(notif, showBanner: true);
   }
 
   Future<void> loadNotifications() async {

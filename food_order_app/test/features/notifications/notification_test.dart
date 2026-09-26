@@ -172,6 +172,42 @@ void main() {
         expect(n.type, 'promo');
       }
     });
+
+    test('handleOrderStatusUpdate dispatches formatted notifications and prevents duplicates', () {
+      const orderId = '67890abcdef12345';
+      final initialCount = store.notifications.length;
+
+      // 1. Preparing
+      store.handleOrderStatusUpdate(orderId: orderId, status: 'preparing');
+      expect(store.notifications.length, initialCount + 1);
+      final prepNotif = store.notifications.first;
+      expect(prepNotif.title, contains('Being Prepared'));
+      expect(prepNotif.title, contains('F12345'));
+      expect(prepNotif.type, 'order');
+      expect(prepNotif.orderId, orderId);
+
+      // 2. Duplicate status ignored
+      store.handleOrderStatusUpdate(orderId: orderId, status: 'preparing');
+      expect(store.notifications.length, initialCount + 1);
+
+      // 3. Out for delivery
+      store.handleOrderStatusUpdate(orderId: orderId, status: 'on_the_way');
+      expect(store.notifications.length, initialCount + 2);
+      final deliveryNotif = store.notifications.first;
+      expect(deliveryNotif.title, contains('Out for Delivery'));
+
+      // 4. Delivered
+      store.handleOrderStatusUpdate(orderId: orderId, status: 'delivered');
+      expect(store.notifications.length, initialCount + 3);
+      final deliveredNotif = store.notifications.first;
+      expect(deliveredNotif.title, contains('Delivered!'));
+
+      // 5. Cancelled
+      store.handleOrderStatusUpdate(orderId: 'other_order_9999', status: 'cancelled');
+      expect(store.notifications.length, initialCount + 4);
+      final cancelNotif = store.notifications.first;
+      expect(cancelNotif.title, contains('Cancelled'));
+    });
   });
 
   group('NotificationView Widget Tests', () {

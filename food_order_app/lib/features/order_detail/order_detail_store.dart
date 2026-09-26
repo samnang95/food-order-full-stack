@@ -153,6 +153,11 @@ class OrderDetailStore extends GetxController {
             duration: const Duration(seconds: 4),
           );
         }
+      } else if (newStatus == 'cancelled') {
+        _stopTracking();
+        _onRefresh();
+      } else if (newStatus != null) {
+        _onRefresh();
       }
     });
   }
