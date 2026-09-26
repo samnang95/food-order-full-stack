@@ -108,39 +108,69 @@ class ProfileView extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
 
-                Material(
-                  color: cardBg,
-                  clipBehavior: Clip.antiAlias,
-                  shape: RoundedRectangleBorder(
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  decoration: BoxDecoration(
+                    color: cardBg,
                     borderRadius: BorderRadius.circular(20),
-                    side: BorderSide(color: borderColor),
+                    border: Border.all(color: borderColor),
                   ),
-                  child: Column(
-                    children: [
-                      // Dark Mode Switch
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.dark_mode_rounded, color: AppColors.primary, size: 20),
-                        ),
-                        title: Text(
-                          _loc(context, 'darkMode', 'Dark Mode'),
-                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                        ),
-                        trailing: Switch.adaptive(
-                          value: isDark,
-                          activeThumbColor: AppColors.primary,
-                          activeTrackColor: AppColors.primary.withValues(alpha: 0.5),
-                          onChanged: (_) {
+                  clipBehavior: Clip.antiAlias,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Column(
+                      children: [
+                        // Dark Mode Switch
+                        ListTile(
+                          onTap: () {
                             Get.find<ThemeStore>().toggleTheme(context);
                           },
+                          leading: Obx(() {
+                            final isDarkVal = Get.find<ThemeStore>().isDarkMode(context);
+                            return AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: isDarkVal
+                                    ? AppColors.primary.withValues(alpha: 0.15)
+                                    : Colors.amber.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 300),
+                                transitionBuilder: (child, anim) => RotationTransition(
+                                  turns: anim,
+                                  child: FadeTransition(opacity: anim, child: child),
+                                ),
+                                child: Icon(
+                                  isDarkVal ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                                  key: ValueKey(isDarkVal),
+                                  color: isDarkVal ? AppColors.primary : Colors.amber.shade700,
+                                  size: 20,
+                                ),
+                              ),
+                            );
+                          }),
+                          title: Text(
+                            _loc(context, 'darkMode', 'Dark Mode'),
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                          ),
+                          trailing: Obx(() {
+                            final themeStore = Get.find<ThemeStore>();
+                            final isDarkVal = themeStore.isDarkMode(context);
+                            return Switch.adaptive(
+                              value: isDarkVal,
+                              activeThumbColor: AppColors.primary,
+                              activeTrackColor: AppColors.primary.withValues(alpha: 0.5),
+                              onChanged: (_) {
+                                themeStore.toggleTheme(context);
+                              },
+                            );
+                          }),
                         ),
-                      ),
-                      Divider(height: 1, color: borderColor),
+                        Divider(height: 1, color: borderColor),
 
                       // Language Switcher
                       ListTile(
@@ -351,23 +381,33 @@ class ProfileView extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+              ),
+              const SizedBox(height: 24),
 
                 // 4. Sign Out Button
-                ElevatedButton.icon(
-                  onPressed: () => _confirmSignOut(context, store),
-                  icon: const Icon(Icons.logout_rounded, size: 18),
-                  label: Text(
-                    _loc(context, 'signOut', 'Sign Out'),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF2E3A52) : const Color(0xFFFEE2E2),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isDark ? const Color(0xFF2E3A52) : const Color(0xFFFEE2E2),
-                    foregroundColor: const Color(0xFFEF4444),
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                  child: ElevatedButton.icon(
+                    onPressed: () => _confirmSignOut(context, store),
+                    icon: const Icon(Icons.logout_rounded, size: 18),
+                    label: Text(
+                      _loc(context, 'signOut', 'Sign Out'),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: const Color(0xFFEF4444),
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
                   ),
                 ),

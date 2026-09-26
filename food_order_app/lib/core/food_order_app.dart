@@ -34,7 +34,12 @@ class FoodOrderApp extends StatelessWidget {
       builder: (context, child) {
         return GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          child: child,
+          child: AnimatedTheme(
+            data: Theme.of(context),
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            child: child ?? const SizedBox.shrink(),
+          ),
         );
       },
     );

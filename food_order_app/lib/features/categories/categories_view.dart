@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_images.dart';
 import '../../core/locale/translation_helper.dart';
 import '../../core/widgets/floating_cart_bar.dart';
+import '../../core/widgets/x_search_bar.dart';
 import '../../domain/category/entities/category_entity.dart';
 import '../../routes/app_routes.dart';
 import 'categories_intent.dart';
@@ -41,161 +42,149 @@ class CategoriesView extends GetView<CategoriesStore> {
       ),
       body: Stack(
         children: [
-          NotificationListener<ScrollNotification>(
-            onNotification: (info) {
-              currentStore.onIntent(CategoriesScrollChanged(info.metrics.pixels > 10));
-              return false;
-            },
-            child: RefreshIndicator(
-              color: AppColors.primary,
-              onRefresh: () async => currentStore.onIntent(const CategoriesRefreshData()),
-              child: CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. Search Bar (Fixed - does not scroll)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: XSearchBar(
+                  controller: currentStore.searchController,
+                  hintText: 'Search categories or foods...',
+                  onChanged: (val) => currentStore.onIntent(CategoriesSearchChanged(val)),
                 ),
-                slivers: [
-                  // 1. Search Bar
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF1E2638) : Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isDark ? const Color(0xFF2E3A52) : const Color(0xFFE2E8F0),
-                          ),
-                          boxShadow: [
+              ),
+
+              // 2. Quick Discovery Filter Chips / Tabbar (Fixed - does not scroll with products)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Obx(() {
+                    final selected = currentStore.state.value.selectedTag;
+                    return Row(
+                      children: [
+                        _buildDiscoveryChip(
+                          label: 'All',
+                          icon: Icons.grid_view_rounded,
+                          isSelected: selected == 'all',
+                          onTap: () => currentStore.onIntent(const CategoriesTagSelected('all')),
+                          isDark: isDark,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildDiscoveryChip(
+                          label: '🔥 Trending',
+                          isSelected: selected == 'trending',
+                          onTap: () => currentStore.onIntent(const CategoriesTagSelected('trending')),
+                          isDark: isDark,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildDiscoveryChip(
+                          label: '⚡ Under 20m',
+                          isSelected: selected == 'quick',
+                          onTap: () => currentStore.onIntent(const CategoriesTagSelected('quick')),
+                          isDark: isDark,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildDiscoveryChip(
+                          label: r'💰 Budget (<$6)',
+                          isSelected: selected == 'budget',
+                          onTap: () => currentStore.onIntent(const CategoriesTagSelected('budget')),
+                          isDark: isDark,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildDiscoveryChip(
+                          label: '⭐ Top Rated',
+                          isSelected: selected == 'top_rated',
+                          onTap: () => currentStore.onIntent(const CategoriesTagSelected('top_rated')),
+                          isDark: isDark,
+                        ),
+                      ],
+                    );
+                  }),
+                ),
+              ),
+
+              // 3. Animated Divider / Shadow Line — Shows when scrolled, hides when at top
+              Obx(() {
+                final isScrolled = currentStore.state.value.isScrolled;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  height: isScrolled ? 1.0 : 0.0,
+                  decoration: BoxDecoration(
+                    boxShadow: isScrolled
+                        ? [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                              blurRadius: 10,
-                              offset: const Offset(0, 3),
+                              color: isDark
+                                  ? Colors.black.withValues(alpha: 0.4)
+                                  : Colors.black.withValues(alpha: 0.08),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : [],
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.06)
+                        : Colors.black.withValues(alpha: 0.06),
+                  ),
+                );
+              }),
+
+              // 4. Products / Category Grid (Only this area scrolls!)
+              Expanded(
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (info) {
+                    final scrolledNow = info.metrics.pixels > 0;
+                    if (currentStore.state.value.isScrolled != scrolledNow) {
+                      currentStore.onIntent(CategoriesScrollChanged(scrolledNow));
+                    }
+                    return false;
+                  },
+                  child: RefreshIndicator(
+                    color: AppColors.primary,
+                    onRefresh: () async => currentStore.onIntent(const CategoriesRefreshData()),
+                    child: Obx(() {
+                      final list = currentStore.filteredCategories;
+
+                      if (list.isEmpty) {
+                        return CustomScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(
+                            parent: BouncingScrollPhysics(),
+                          ),
+                          slivers: [
+                            SliverFillRemaining(
+                              hasScrollBody: false,
+                              child: _buildEmptyState(context, isDark, currentStore.state.value.searchQuery),
                             ),
                           ],
+                        );
+                      }
+
+                      return GridView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
                         ),
-                        child: TextField(
-                          controller: currentStore.searchController,
-                          onChanged: (val) => currentStore.onIntent(CategoriesSearchChanged(val)),
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: isDark ? Colors.white : AppColors.neutral,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'Search categories or foods...',
-                            hintStyle: TextStyle(
-                              fontSize: 14,
-                              color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                            ),
-                            prefixIcon: Icon(
-                              Icons.search_rounded,
-                              size: 22,
-                              color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                            ),
-                            suffixIcon: Obx(() {
-                              if (currentStore.state.value.searchQuery.isEmpty) {
-                                return const SizedBox.shrink();
-                              }
-                              return IconButton(
-                                icon: const Icon(Icons.close_rounded, size: 18),
-                                onPressed: () => currentStore.onIntent(const CategoriesClearSearch()),
-                              );
-                            }),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // 2. Quick Discovery Filter Chips (Horizontal)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Obx(() {
-                          final selected = currentStore.state.value.selectedTag;
-                          return Row(
-                            children: [
-                              _buildDiscoveryChip(
-                                label: 'All',
-                                icon: Icons.grid_view_rounded,
-                                isSelected: selected == 'all',
-                                onTap: () => currentStore.onIntent(const CategoriesTagSelected('all')),
-                                isDark: isDark,
-                              ),
-                              const SizedBox(width: 8),
-                              _buildDiscoveryChip(
-                                label: '🔥 Trending',
-                                isSelected: selected == 'trending',
-                                onTap: () => currentStore.onIntent(const CategoriesTagSelected('trending')),
-                                isDark: isDark,
-                              ),
-                              const SizedBox(width: 8),
-                              _buildDiscoveryChip(
-                                label: '⚡ Under 20m',
-                                isSelected: selected == 'quick',
-                                onTap: () => currentStore.onIntent(const CategoriesTagSelected('quick')),
-                                isDark: isDark,
-                              ),
-                              const SizedBox(width: 8),
-                              _buildDiscoveryChip(
-                                label: r'💰 Budget (<$6)',
-                                isSelected: selected == 'budget',
-                                onTap: () => currentStore.onIntent(const CategoriesTagSelected('budget')),
-                                isDark: isDark,
-                              ),
-                              const SizedBox(width: 8),
-                              _buildDiscoveryChip(
-                                label: '⭐ Top Rated',
-                                isSelected: selected == 'top_rated',
-                                onTap: () => currentStore.onIntent(const CategoriesTagSelected('top_rated')),
-                                isDark: isDark,
-                              ),
-                            ],
-                          );
-                        }),
-                      ),
-                    ),
-                  ),
-
-                  // 3. Category Cards Grid
-                  Obx(() {
-                    final list = currentStore.filteredCategories;
-
-                    if (list.isEmpty) {
-                      return SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: _buildEmptyState(context, isDark, currentStore.state.value.searchQuery),
-                      );
-                    }
-
-                    return SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 96),
-                      sliver: SliverGrid(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           crossAxisSpacing: 14,
                           mainAxisSpacing: 14,
                           childAspectRatio: 1.12,
                         ),
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final cat = list[index];
-                            final count = currentStore.getItemCount(cat);
-                            return _buildCategoryCard(context, cat, count, isDark);
-                          },
-                          childCount: list.length,
-                        ),
-                      ),
-                    );
-                  }),
-                ],
+                        itemCount: list.length,
+                        itemBuilder: (context, index) {
+                          final cat = list[index];
+                          final count = currentStore.getItemCount(cat);
+                          return _buildCategoryCard(context, cat, count, isDark);
+                        },
+                      );
+                    }),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
 
           // Floating Cart Bar

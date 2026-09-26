@@ -23,7 +23,9 @@ class ProfileStatsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final borderColor = isDark ? const Color(0xFF2E3A52) : AppColors.borderColor;
 
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       decoration: BoxDecoration(
         color: cardBg,
@@ -143,7 +145,9 @@ class ProfileStatsCard extends StatelessWidget {
   }
 
   Widget _buildDivider(Color borderColor) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
       width: 1,
       height: 36,
       color: borderColor,

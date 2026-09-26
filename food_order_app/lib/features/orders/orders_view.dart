@@ -5,7 +5,6 @@ import '../../core/constants/app_images.dart';
 import '../../core/locale/translation_helper.dart';
 import '../../core/widgets/reorder_bottom_sheet.dart';
 import '../../routes/app_routes.dart';
-import '../notifications/notification_store.dart';
 import 'orders_intent.dart';
 import 'orders_store.dart';
 import 'widgets/widgets.dart';
@@ -19,7 +18,6 @@ class OrdersView extends GetView<OrdersStore> {
   @override
   Widget build(BuildContext context) {
     final currentStore = store;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final scaffoldBg = Theme.of(context).scaffoldBackgroundColor;
 
     return Scaffold(
@@ -42,55 +40,6 @@ class OrdersView extends GetView<OrdersStore> {
             ),
           ],
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Center(
-              child: GestureDetector(
-                onTap: () => Get.toNamed(AppRoutes.notifications),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    const Icon(Icons.notifications_outlined, size: 24),
-                    if (Get.isRegistered<NotificationStore>())
-                      Obx(() {
-                        final unread = Get.find<NotificationStore>().unreadCount;
-                        if (unread == 0) return const SizedBox.shrink();
-                        return Positioned(
-                          top: -4,
-                          right: -4,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 4.5,
-                              vertical: 1.5,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: isDark
-                                    ? const Color(0xFF141A29)
-                                    : Colors.white,
-                                width: 1.5,
-                              ),
-                            ),
-                            child: Text(
-                              '$unread',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: SafeArea(
         child: Obx(() {

@@ -15,7 +15,10 @@ import 'custom_themes/dark/dark_text_theme.dart';
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get lightTheme {
+  static final ThemeData lightTheme = _buildLightTheme();
+  static final ThemeData darkTheme = _buildDarkTheme();
+
+  static ThemeData _buildLightTheme() {
     return ThemeData(
       useMaterial3: true,
       fontFamily: AppFonts.roboto,
@@ -34,7 +37,7 @@ class AppTheme {
     );
   }
 
-  static ThemeData get darkTheme {
+  static ThemeData _buildDarkTheme() {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,

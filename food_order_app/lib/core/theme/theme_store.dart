@@ -15,19 +15,19 @@ class ThemeStore extends GetxController {
     return ThemeMode.system;
   }
 
-  Future<void> toggleTheme(BuildContext context) async {
-    ThemeMode newTheme;
-    if (_themeMode.value == ThemeMode.light) {
-      newTheme = ThemeMode.dark;
-    } else if (_themeMode.value == ThemeMode.dark) {
-      newTheme = ThemeMode.light;
-    } else {
-      final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
-      newTheme = isDark ? ThemeMode.light : ThemeMode.dark;
-    }
-    
+  bool isDarkMode(BuildContext context) {
+    if (_themeMode.value == ThemeMode.dark) return true;
+    if (_themeMode.value == ThemeMode.light) return false;
+    return MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+  }
+
+  void toggleTheme(BuildContext context) {
+    final currentIsDark = isDarkMode(context);
+    final newTheme = currentIsDark ? ThemeMode.light : ThemeMode.dark;
+
     _themeMode.value = newTheme;
-    await LocalDB.setString(_themeKey, newTheme.name);
     Get.changeThemeMode(newTheme);
+    // Persist asynchronously without blocking switch animation
+    LocalDB.setString(_themeKey, newTheme.name);
   }
 }

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../constants/app_colors.dart';
 
-class XSearchBar extends StatelessWidget {
+class XSearchBar extends StatefulWidget {
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
   final String? hintText;
@@ -19,10 +18,67 @@ class XSearchBar extends StatelessWidget {
   });
 
   @override
+  State<XSearchBar> createState() => _XSearchBarState();
+}
+
+class _XSearchBarState extends State<XSearchBar> {
+  late TextEditingController _controller;
+  bool _isInternalController = false;
+  late final ValueNotifier<bool> _hasText;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.controller != null) {
+      _controller = widget.controller!;
+    } else {
+      _controller = TextEditingController();
+      _isInternalController = true;
+    }
+    _hasText = ValueNotifier<bool>(_controller.text.isNotEmpty);
+    _controller.addListener(_textListener);
+  }
+
+  @override
+  void didUpdateWidget(covariant XSearchBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller?.removeListener(_textListener);
+      if (_isInternalController) {
+        _controller.dispose();
+        _isInternalController = false;
+      }
+      if (widget.controller != null) {
+        _controller = widget.controller!;
+      } else {
+        _controller = TextEditingController();
+        _isInternalController = true;
+      }
+      _hasText.value = _controller.text.isNotEmpty;
+      _controller.addListener(_textListener);
+    }
+  }
+
+  void _textListener() {
+    final has = _controller.text.isNotEmpty;
+    if (_hasText.value != has) {
+      _hasText.value = has;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_textListener);
+    if (_isInternalController) {
+      _controller.dispose();
+    }
+    _hasText.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textController = controller ?? TextEditingController();
-    final hasText = textController.text.isNotEmpty.obs;
 
     final bgColor = isDark ? const Color(0xFF1E2638) : const Color(0xFFF4F1EE);
     final borderColor = isDark
@@ -42,25 +98,27 @@ class XSearchBar extends StatelessWidget {
       child: Row(
         children: [
           const SizedBox(width: 14),
-          Obx(
-            () => Icon(
-              Icons.search_rounded,
-              color: hasText.value ? AppColors.primary : iconColor,
-              size: 22,
-            ),
+          ValueListenableBuilder<bool>(
+            valueListenable: _hasText,
+            builder: (context, hasText, _) {
+              return Icon(
+                Icons.search_rounded,
+                color: hasText ? AppColors.primary : iconColor,
+                size: 22,
+              );
+            },
           ),
           const SizedBox(width: 10),
           Expanded(
             child: TextField(
-              controller: textController,
-              readOnly: readOnly,
-              onTap: onTap,
+              controller: _controller,
+              readOnly: widget.readOnly,
+              onTap: widget.onTap,
               onChanged: (value) {
-                hasText.value = value.isNotEmpty;
-                onChanged?.call(value);
+                widget.onChanged?.call(value);
               },
               decoration: InputDecoration(
-                hintText: hintText ?? 'Search food, drinks...',
+                hintText: widget.hintText ?? 'Search food, drinks...',
                 hintStyle: TextStyle(
                   color: hintColor,
                   fontSize: 15,
@@ -81,44 +139,46 @@ class XSearchBar extends StatelessWidget {
             ),
           ),
           // Clear button — appears when typing
-          Obx(
-            () => AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              transitionBuilder: (child, animation) => FadeTransition(
-                opacity: animation,
-                child: ScaleTransition(scale: animation, child: child),
-              ),
-              child: hasText.value
-                  ? GestureDetector(
-                      key: const ValueKey('clear'),
-                      onTap: () {
-                        textController.clear();
-                        hasText.value = false;
-                        onChanged?.call('');
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? Colors.white.withValues(alpha: 0.1)
-                                : Colors.black.withValues(alpha: 0.06),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.close_rounded,
-                            size: 14,
-                            color: isDark
-                                ? Colors.white54
-                                : AppColors.subtitleColor,
+          ValueListenableBuilder<bool>(
+            valueListenable: _hasText,
+            builder: (context, hasText, _) {
+              return AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: ScaleTransition(scale: animation, child: child),
+                ),
+                child: hasText
+                    ? GestureDetector(
+                        key: const ValueKey('clear'),
+                        onTap: () {
+                          _controller.clear();
+                          widget.onChanged?.call('');
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 12),
+                          child: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.1)
+                                  : Colors.black.withValues(alpha: 0.06),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 14,
+                              color: isDark
+                                  ? Colors.white54
+                                  : AppColors.subtitleColor,
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                  : const SizedBox.shrink(key: ValueKey('empty')),
-            ),
+                      )
+                    : const SizedBox.shrink(key: ValueKey('empty')),
+              );
+            },
           ),
         ],
       ),
