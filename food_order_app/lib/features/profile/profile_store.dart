@@ -28,6 +28,12 @@ class ProfileStore extends GetxController {
   void onInit() {
     super.onInit();
     _loadInitialData();
+
+    if (Get.isRegistered<FavoritesService>()) {
+      ever(Get.find<FavoritesService>().favoriteIds, (ids) {
+        state.value = state.value.copyWith(favoritesCount: ids.length);
+      });
+    }
   }
 
   void onIntent(ProfileIntent intent) {

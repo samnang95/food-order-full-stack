@@ -222,6 +222,47 @@ class ProfileView extends StatelessWidget {
                       ),
                       Divider(height: 1, color: borderColor),
 
+                      // My Favorites Shortcut
+                      ListTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.favorite_rounded, color: Color(0xFFEF4444), size: 20),
+                        ),
+                        title: Text(
+                          _loc(context, 'favorites', 'My Favorites'),
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (state.favoritesCount > 0)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                margin: const EdgeInsets.only(right: 6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEF4444).withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  '${state.favoritesCount}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFEF4444),
+                                  ),
+                                ),
+                              ),
+                            const Icon(Icons.chevron_right_rounded, size: 20),
+                          ],
+                        ),
+                        onTap: () => Get.toNamed(AppRoutes.favorites),
+                      ),
+                      Divider(height: 1, color: borderColor),
+
                       // Notification Center Shortcut
                       ListTile(
                         leading: Container(

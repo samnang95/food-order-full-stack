@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../routes/app_routes.dart';
 import '../../main_navigation/main_nav_intent.dart';
 import '../../main_navigation/main_nav_store.dart';
 import '../profile_state.dart';
@@ -77,17 +78,23 @@ class ProfileStatsCard extends StatelessWidget {
           ),
           _buildDivider(borderColor),
 
-          // Favorites Stat
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            child: _buildItem(
-              context,
-              value: '${state.favoritesCount}',
-              label: 'favorites'.getString(context).isNotEmpty
-                  ? 'favorites'.getString(context)
-                  : 'Favorites',
-              icon: Icons.favorite_rounded,
-              iconColor: const Color(0xFFEF4444),
+          // Favorites Stat (clickable to open My Favorites)
+          InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () {
+              Get.toNamed(AppRoutes.favorites);
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              child: _buildItem(
+                context,
+                value: '${state.favoritesCount}',
+                label: 'favorites'.getString(context).isNotEmpty
+                    ? 'favorites'.getString(context)
+                    : 'Favorites',
+                icon: Icons.favorite_rounded,
+                iconColor: const Color(0xFFEF4444),
+              ),
             ),
           ),
         ],
