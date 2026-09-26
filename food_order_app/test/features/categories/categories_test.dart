@@ -123,8 +123,8 @@ void main() {
 
       expect(store.categories.length, 3);
       expect(store.allFoods.length, 4);
-      expect(store.isLoading.value, false);
-      expect(store.errorMessage.value, isNull);
+      expect(store.isLoading, false);
+      expect(store.errorMessage, isNull);
     });
 
     test('Computes live item counts per category accurately', () async {
@@ -209,7 +209,7 @@ void main() {
       await tester.tap(find.text('🔥 Trending'));
       await tester.pumpAndSettle();
 
-      expect(store.selectedTag.value, 'trending');
+      expect(store.selectedTag, 'trending');
     });
   });
 

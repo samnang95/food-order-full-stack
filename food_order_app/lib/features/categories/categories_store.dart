@@ -4,6 +4,8 @@ import '../../domain/category/entities/category_entity.dart';
 import '../../domain/category/usecases/get_categories_usecase.dart';
 import '../../domain/food/entities/food_entity.dart';
 import '../../domain/food/usecases/get_foods_usecase.dart';
+import 'categories_intent.dart';
+import 'categories_state.dart';
 
 class CategoriesStore extends GetxController {
   final GetCategoriesUseCase getCategoriesUseCase;
@@ -27,27 +29,8 @@ class CategoriesStore extends GetxController {
     );
   }
 
-  final categories = <CategoryEntity>[].obs;
-  final allFoods = <FoodEntity>[].obs;
-  final categoryItemCounts = <String, int>{}.obs;
-
-  final isLoading = false.obs;
-  final searchQuery = ''.obs;
-  final selectedTag = 'all'.obs; // 'all', 'trending', 'quick', 'budget', 'top_rated'
-  final errorMessage = RxnString();
-  final isScrolled = false.obs;
-  final searchController = TextEditingController();
-
-  void setIsScrolled(bool value) {
-    if (isScrolled.value != value) {
-      isScrolled.value = value;
-    }
-  }
-
-  void clearSearch() {
-    searchQuery.value = '';
-    searchController.clear();
-  }
+  final Rx<CategoriesState> state = const CategoriesState().obs;
+  final TextEditingController searchController = TextEditingController();
 
   static const List<CategoryEntity> defaultSeedCategories = [
     CategoryEntity(
@@ -106,9 +89,56 @@ class CategoriesStore extends GetxController {
     loadData();
   }
 
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
+  }
+
+  void onIntent(CategoriesIntent intent) {
+    switch (intent) {
+      case CategoriesLoadData():
+        loadData();
+      case CategoriesRefreshData():
+        loadData();
+      case CategoriesSearchChanged(:final query):
+        setSearchQuery(query);
+      case CategoriesClearSearch():
+        clearSearch();
+      case CategoriesTagSelected(:final tag):
+        setSelectedTag(tag);
+      case CategoriesScrollChanged(:final isScrolled):
+        setIsScrolled(isScrolled);
+    }
+  }
+
+  void setIsScrolled(bool value) {
+    if (state.value.isScrolled != value) {
+      state.value = state.value.copyWith(isScrolled: value);
+    }
+  }
+
+  void setSearchQuery(String query) {
+    state.value = state.value.copyWith(searchQuery: query);
+    if (searchController.text != query) {
+      searchController.text = query;
+    }
+  }
+
+  void clearSearch() {
+    state.value = state.value.copyWith(searchQuery: '');
+    searchController.clear();
+  }
+
+  void setSelectedTag(String tag) {
+    state.value = state.value.copyWith(selectedTag: tag);
+  }
+
   Future<void> loadData() async {
-    isLoading.value = true;
-    errorMessage.value = null;
+    state.value = state.value.copyWith(
+      isLoading: true,
+      errorMessage: null,
+    );
 
     try {
       final results = await Future.wait([
@@ -119,32 +149,44 @@ class CategoriesStore extends GetxController {
       final loadedCategories = results[0] as List<CategoryEntity>;
       final loadedFoods = results[1] as List<FoodEntity>;
 
-      if (loadedCategories.isNotEmpty) {
-        categories.assignAll(loadedCategories);
-      } else {
-        categories.assignAll(defaultSeedCategories);
-      }
+      final finalCategories = loadedCategories.isNotEmpty
+          ? loadedCategories
+          : defaultSeedCategories;
 
-      allFoods.assignAll(loadedFoods);
-      _computeItemCounts();
+      final counts = _computeCounts(finalCategories, loadedFoods);
 
-      debugPrint('🍔 [CategoriesStore] Loaded ${categories.length} categories, ${allFoods.length} foods');
+      state.value = state.value.copyWith(
+        categories: finalCategories,
+        allFoods: loadedFoods,
+        categoryItemCounts: counts,
+        isLoading: false,
+      );
+
+      debugPrint(
+        '🍔 [CategoriesStore] Loaded ${finalCategories.length} categories, ${loadedFoods.length} foods',
+      );
     } catch (e) {
       debugPrint('⚠️ [CategoriesStore] Error loading categories from API: $e');
-      if (categories.isEmpty) {
-        categories.assignAll(defaultSeedCategories);
-      }
-      errorMessage.value = e.toString().replaceFirst('Exception: ', '');
-    } finally {
-      isLoading.value = false;
+      final currentCats = state.value.categories.isNotEmpty
+          ? state.value.categories
+          : defaultSeedCategories;
+
+      state.value = state.value.copyWith(
+        categories: currentCats,
+        isLoading: false,
+        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+      );
     }
   }
 
-  void _computeItemCounts() {
+  Map<String, int> _computeCounts(
+    List<CategoryEntity> categories,
+    List<FoodEntity> foods,
+  ) {
     final counts = <String, int>{};
 
     for (final cat in categories) {
-      final count = allFoods.where((f) {
+      final count = foods.where((f) {
         if (f.categoryId.isNotEmpty && f.categoryId == cat.id) {
           return true;
         }
@@ -155,93 +197,23 @@ class CategoriesStore extends GetxController {
         return false;
       }).length;
 
-      // If backend has items, save real count; otherwise provide a realistic preview count
       counts[cat.id] = count > 0 ? count : (cat.name.length * 2 % 8 + 3);
     }
 
-    categoryItemCounts.assignAll(counts);
+    return counts;
   }
 
-  int getItemCount(CategoryEntity category) {
-    if (categoryItemCounts.containsKey(category.id)) {
-      return categoryItemCounts[category.id]!;
-    }
-    return 6;
-  }
+  // Getters for convenience and test compatibility
+  bool get isLoading => state.value.isLoading;
+  List<CategoryEntity> get categories => state.value.categories;
+  List<FoodEntity> get allFoods => state.value.allFoods;
+  String get searchQuery => state.value.searchQuery;
+  String get selectedTag => state.value.selectedTag;
+  String? get errorMessage => state.value.errorMessage;
+  bool get isScrolled => state.value.isScrolled;
 
-  List<FoodEntity> getFoodsForCategory(CategoryEntity category) {
-    final matched = allFoods.where((f) {
-      if (f.categoryId.isNotEmpty && f.categoryId == category.id) {
-        return true;
-      }
-      if (f.categoryName.isNotEmpty &&
-          f.categoryName.toLowerCase() == category.name.toLowerCase()) {
-        return true;
-      }
-      return false;
-    }).toList();
-
-    return matched;
-  }
-
-  void setSearchQuery(String query) {
-    searchQuery.value = query;
-    if (searchController.text != query) {
-      searchController.text = query;
-    }
-  }
-
-  @override
-  void onClose() {
-    searchController.dispose();
-    super.onClose();
-  }
-
-  void setSelectedTag(String tag) {
-    selectedTag.value = tag;
-  }
-
-  List<CategoryEntity> get filteredCategories {
-    var list = categories.toList();
-
-    // 1. Tag filtering
-    switch (selectedTag.value) {
-      case 'trending':
-        const trendingNames = ['burgers', 'pizza', 'asian cuisine'];
-        list = list.where((c) => trendingNames.contains(c.name.toLowerCase())).toList();
-        break;
-      case 'quick':
-        const quickNames = ['burgers', 'bakery', 'beverages'];
-        list = list.where((c) => quickNames.contains(c.name.toLowerCase())).toList();
-        break;
-      case 'budget':
-        // Categories containing dishes under $6
-        final budgetCatNames = allFoods
-            .where((f) => f.price <= 6.0)
-            .map((f) => f.categoryName.toLowerCase())
-            .toSet();
-        if (budgetCatNames.isNotEmpty) {
-          list = list.where((c) => budgetCatNames.contains(c.name.toLowerCase())).toList();
-        }
-        break;
-      case 'top_rated':
-        const topRated = ['asian cuisine', 'healthy bowls', 'pizza', 'desserts'];
-        list = list.where((c) => topRated.contains(c.name.toLowerCase())).toList();
-        break;
-      default:
-        break;
-    }
-
-    // 2. Search query filtering
-    final query = searchQuery.value.trim().toLowerCase();
-    if (query.isNotEmpty) {
-      list = list.where((c) {
-        final nameMatch = c.name.toLowerCase().contains(query);
-        final descMatch = c.description.toLowerCase().contains(query);
-        return nameMatch || descMatch;
-      }).toList();
-    }
-
-    return list;
-  }
+  List<CategoryEntity> get filteredCategories => state.value.filteredCategories;
+  int getItemCount(CategoryEntity category) => state.value.getItemCount(category);
+  List<FoodEntity> getFoodsForCategory(CategoryEntity category) =>
+      state.value.getFoodsForCategory(category);
 }

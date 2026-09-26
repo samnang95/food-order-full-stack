@@ -5,6 +5,7 @@ import '../../core/widgets/floating_cart_bar.dart';
 import '../../domain/category/entities/category_entity.dart';
 import '../../routes/app_routes.dart';
 import '../home/widgets/food_card.dart';
+import 'category_detail_intent.dart';
 import 'category_detail_store.dart';
 
 class CategoryDetailView extends GetView<CategoryDetailStore> {
@@ -24,7 +25,7 @@ class CategoryDetailView extends GetView<CategoryDetailStore> {
 
   CategoryEntity _resolveCategory(CategoryDetailStore store) {
     if (category != null) return category!;
-    if (store.category.value != null) return store.category.value!;
+    if (store.category != null) return store.category!;
     final args = Get.arguments;
     if (args is CategoryEntity) return args;
     if (args is Map && args['name'] != null) {
@@ -51,8 +52,8 @@ class CategoryDetailView extends GetView<CategoryDetailStore> {
     final catStore = store;
     final cat = _resolveCategory(catStore);
 
-    if (catStore.category.value == null || catStore.category.value?.id != cat.id) {
-      catStore.setCategory(cat);
+    if (catStore.category == null || catStore.category?.id != cat.id) {
+      catStore.onIntent(CategoryDetailInitialize(cat));
     }
 
     return Scaffold(
@@ -61,7 +62,7 @@ class CategoryDetailView extends GetView<CategoryDetailStore> {
         children: [
           NotificationListener<ScrollNotification>(
             onNotification: (info) {
-              catStore.setIsScrolled(info.metrics.pixels > 120);
+              catStore.onIntent(CategoryDetailScrollChanged(info.metrics.pixels > 120));
               return false;
             },
             child: CustomScrollView(
@@ -98,7 +99,7 @@ class CategoryDetailView extends GetView<CategoryDetailStore> {
                       end: 16,
                     ),
                     title: Obx(() {
-                      final scrolled = catStore.isScrolled.value;
+                      final scrolled = catStore.state.value.isScrolled;
                       return AnimatedOpacity(
                         duration: const Duration(milliseconds: 200),
                         opacity: scrolled ? 1.0 : 0.0,
@@ -152,7 +153,7 @@ class CategoryDetailView extends GetView<CategoryDetailStore> {
                             right: 20,
                             bottom: 18,
                             child: Obx(() {
-                              final scrolled = catStore.isScrolled.value;
+                              final scrolled = catStore.state.value.isScrolled;
                               return AnimatedOpacity(
                                 duration: const Duration(milliseconds: 150),
                                 opacity: scrolled ? 0.0 : 1.0,
@@ -206,13 +207,13 @@ class CategoryDetailView extends GetView<CategoryDetailStore> {
                       physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Obx(() {
-                        final sort = catStore.selectedSort.value;
+                        final sort = catStore.state.value.selectedSort;
                         return Row(
                           children: [
                             _buildSortChip(
                               label: 'All Items',
                               isSelected: sort == 'all',
-                              onTap: () => catStore.setSort('all'),
+                              onTap: () => catStore.onIntent(const CategoryDetailSortChanged('all')),
                               isDark: isDark,
                             ),
                             const SizedBox(width: 8),
@@ -220,7 +221,7 @@ class CategoryDetailView extends GetView<CategoryDetailStore> {
                               label: 'Price: Low to High',
                               icon: Icons.arrow_upward_rounded,
                               isSelected: sort == 'price_asc',
-                              onTap: () => catStore.setSort('price_asc'),
+                              onTap: () => catStore.onIntent(const CategoryDetailSortChanged('price_asc')),
                               isDark: isDark,
                             ),
                             const SizedBox(width: 8),
@@ -228,7 +229,7 @@ class CategoryDetailView extends GetView<CategoryDetailStore> {
                               label: 'Price: High to Low',
                               icon: Icons.arrow_downward_rounded,
                               isSelected: sort == 'price_desc',
-                              onTap: () => catStore.setSort('price_desc'),
+                              onTap: () => catStore.onIntent(const CategoryDetailSortChanged('price_desc')),
                               isDark: isDark,
                             ),
                           ],

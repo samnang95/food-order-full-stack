@@ -6,6 +6,7 @@ import '../../core/locale/translation_helper.dart';
 import '../../core/widgets/floating_cart_bar.dart';
 import '../../domain/category/entities/category_entity.dart';
 import '../../routes/app_routes.dart';
+import 'categories_intent.dart';
 import 'categories_store.dart';
 
 class CategoriesView extends GetView<CategoriesStore> {
@@ -42,12 +43,12 @@ class CategoriesView extends GetView<CategoriesStore> {
         children: [
           NotificationListener<ScrollNotification>(
             onNotification: (info) {
-              currentStore.setIsScrolled(info.metrics.pixels > 10);
+              currentStore.onIntent(CategoriesScrollChanged(info.metrics.pixels > 10));
               return false;
             },
             child: RefreshIndicator(
               color: AppColors.primary,
-              onRefresh: () => currentStore.loadData(),
+              onRefresh: () async => currentStore.onIntent(const CategoriesRefreshData()),
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(
                   parent: BouncingScrollPhysics(),
@@ -74,7 +75,7 @@ class CategoriesView extends GetView<CategoriesStore> {
                         ),
                         child: TextField(
                           controller: currentStore.searchController,
-                          onChanged: (val) => currentStore.setSearchQuery(val),
+                          onChanged: (val) => currentStore.onIntent(CategoriesSearchChanged(val)),
                           style: TextStyle(
                             fontSize: 14,
                             color: isDark ? Colors.white : AppColors.neutral,
@@ -91,12 +92,12 @@ class CategoriesView extends GetView<CategoriesStore> {
                               color: isDark ? Colors.white54 : const Color(0xFF64748B),
                             ),
                             suffixIcon: Obx(() {
-                              if (currentStore.searchQuery.value.isEmpty) {
+                              if (currentStore.state.value.searchQuery.isEmpty) {
                                 return const SizedBox.shrink();
                               }
                               return IconButton(
                                 icon: const Icon(Icons.close_rounded, size: 18),
-                                onPressed: () => currentStore.clearSearch(),
+                                onPressed: () => currentStore.onIntent(const CategoriesClearSearch()),
                               );
                             }),
                             border: InputBorder.none,
@@ -116,42 +117,42 @@ class CategoriesView extends GetView<CategoriesStore> {
                         physics: const BouncingScrollPhysics(),
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Obx(() {
-                          final selected = currentStore.selectedTag.value;
+                          final selected = currentStore.state.value.selectedTag;
                           return Row(
                             children: [
                               _buildDiscoveryChip(
                                 label: 'All',
                                 icon: Icons.grid_view_rounded,
                                 isSelected: selected == 'all',
-                                onTap: () => currentStore.setSelectedTag('all'),
+                                onTap: () => currentStore.onIntent(const CategoriesTagSelected('all')),
                                 isDark: isDark,
                               ),
                               const SizedBox(width: 8),
                               _buildDiscoveryChip(
                                 label: '🔥 Trending',
                                 isSelected: selected == 'trending',
-                                onTap: () => currentStore.setSelectedTag('trending'),
+                                onTap: () => currentStore.onIntent(const CategoriesTagSelected('trending')),
                                 isDark: isDark,
                               ),
                               const SizedBox(width: 8),
                               _buildDiscoveryChip(
                                 label: '⚡ Under 20m',
                                 isSelected: selected == 'quick',
-                                onTap: () => currentStore.setSelectedTag('quick'),
+                                onTap: () => currentStore.onIntent(const CategoriesTagSelected('quick')),
                                 isDark: isDark,
                               ),
                               const SizedBox(width: 8),
                               _buildDiscoveryChip(
                                 label: r'💰 Budget (<$6)',
                                 isSelected: selected == 'budget',
-                                onTap: () => currentStore.setSelectedTag('budget'),
+                                onTap: () => currentStore.onIntent(const CategoriesTagSelected('budget')),
                                 isDark: isDark,
                               ),
                               const SizedBox(width: 8),
                               _buildDiscoveryChip(
                                 label: '⭐ Top Rated',
                                 isSelected: selected == 'top_rated',
-                                onTap: () => currentStore.setSelectedTag('top_rated'),
+                                onTap: () => currentStore.onIntent(const CategoriesTagSelected('top_rated')),
                                 isDark: isDark,
                               ),
                             ],
@@ -168,7 +169,7 @@ class CategoriesView extends GetView<CategoriesStore> {
                     if (list.isEmpty) {
                       return SliverFillRemaining(
                         hasScrollBody: false,
-                        child: _buildEmptyState(context, isDark, currentStore.searchQuery.value),
+                        child: _buildEmptyState(context, isDark, currentStore.state.value.searchQuery),
                       );
                     }
 

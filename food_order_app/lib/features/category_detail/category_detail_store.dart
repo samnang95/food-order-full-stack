@@ -4,23 +4,15 @@ import '../../domain/category/entities/category_entity.dart';
 import '../../domain/food/entities/food_entity.dart';
 import '../../domain/food/usecases/get_foods_usecase.dart';
 import '../categories/categories_store.dart';
+import 'category_detail_intent.dart';
+import 'category_detail_state.dart';
 
 class CategoryDetailStore extends GetxController {
   final GetFoodsUseCase? getFoodsUseCase;
 
   CategoryDetailStore({this.getFoodsUseCase});
 
-  final category = Rxn<CategoryEntity>();
-  final selectedSort = 'all'.obs; // 'all', 'price_asc', 'price_desc'
-  final foods = <FoodEntity>[].obs;
-  final isLoading = false.obs;
-  final isScrolled = false.obs;
-
-  void setIsScrolled(bool value) {
-    if (isScrolled.value != value) {
-      isScrolled.value = value;
-    }
-  }
+  final Rx<CategoryDetailState> state = const CategoryDetailState().obs;
 
   @override
   void onInit() {
@@ -40,13 +32,34 @@ class CategoryDetailStore extends GetxController {
     }
   }
 
+  void onIntent(CategoryDetailIntent intent) {
+    switch (intent) {
+      case CategoryDetailInitialize(:final category):
+        setCategory(category);
+      case CategoryDetailSortChanged(:final sort):
+        setSort(sort);
+      case CategoryDetailScrollChanged(:final isScrolled):
+        setIsScrolled(isScrolled);
+      case CategoryDetailRefreshFoods():
+        if (state.value.category != null) {
+          loadFoodsForCategory(state.value.category!);
+        }
+    }
+  }
+
+  void setIsScrolled(bool value) {
+    if (state.value.isScrolled != value) {
+      state.value = state.value.copyWith(isScrolled: value);
+    }
+  }
+
   void setCategory(CategoryEntity cat) {
-    category.value = cat;
+    state.value = state.value.copyWith(category: cat);
     loadFoodsForCategory(cat);
   }
 
   void setSort(String sort) {
-    selectedSort.value = sort;
+    state.value = state.value.copyWith(selectedSort: sort);
   }
 
   Future<void> loadFoodsForCategory(CategoryEntity cat) async {
@@ -55,19 +68,20 @@ class CategoryDetailStore extends GetxController {
       final catStore = Get.find<CategoriesStore>();
       final matched = catStore.getFoodsForCategory(cat);
       if (matched.isNotEmpty) {
-        foods.assignAll(matched);
+        state.value = state.value.copyWith(foods: matched);
+        return;
       }
     }
 
     // 2. If foods are still empty and getFoodsUseCase is available, fetch from API
-    if (foods.isEmpty) {
+    if (state.value.foods.isEmpty) {
       final useCase = getFoodsUseCase ??
           (Get.isRegistered<GetFoodsUseCase>()
               ? Get.find<GetFoodsUseCase>()
               : null);
       if (useCase != null) {
         try {
-          isLoading.value = true;
+          state.value = state.value.copyWith(isLoading: true);
           final all = await useCase.execute();
           final matched = all.where((f) {
             if (f.categoryId.isNotEmpty && f.categoryId == cat.id) return true;
@@ -77,28 +91,21 @@ class CategoryDetailStore extends GetxController {
             }
             return false;
           }).toList();
-          foods.assignAll(matched);
+          state.value = state.value.copyWith(foods: matched);
         } catch (e) {
           debugPrint('⚠️ [CategoryDetailStore] Error loading foods: $e');
         } finally {
-          isLoading.value = false;
+          state.value = state.value.copyWith(isLoading: false);
         }
       }
     }
   }
 
-  List<FoodEntity> get sortedFoods {
-    final list = List<FoodEntity>.from(foods);
-    switch (selectedSort.value) {
-      case 'price_asc':
-        list.sort((a, b) => a.price.compareTo(b.price));
-        break;
-      case 'price_desc':
-        list.sort((a, b) => b.price.compareTo(a.price));
-        break;
-      default:
-        break;
-    }
-    return list;
-  }
+  // Getters for convenience and test backward-compatibility
+  CategoryEntity? get category => state.value.category;
+  String get selectedSort => state.value.selectedSort;
+  List<FoodEntity> get foods => state.value.foods;
+  bool get isLoading => state.value.isLoading;
+  bool get isScrolled => state.value.isScrolled;
+  List<FoodEntity> get sortedFoods => state.value.sortedFoods;
 }

@@ -9,6 +9,7 @@ import 'package:food_order_app/domain/food/entities/food_entity.dart';
 import 'package:food_order_app/domain/food/repositories/food_repository.dart';
 import 'package:food_order_app/domain/food/usecases/get_foods_usecase.dart';
 import 'package:food_order_app/features/category_detail/category_detail_binding.dart';
+import 'package:food_order_app/features/category_detail/category_detail_intent.dart';
 import 'package:food_order_app/features/category_detail/category_detail_store.dart';
 import 'package:food_order_app/features/category_detail/category_detail_view.dart';
 
@@ -101,6 +102,17 @@ void main() {
       store.setSort('price_desc');
       expect(store.sortedFoods.first.name, 'Double Bacon Burger');
       expect(store.sortedFoods.last.name, 'Budget Slider');
+    });
+
+    test('Processes CategoryDetailIntent correctly', () async {
+      store.onIntent(const CategoryDetailInitialize(testCategory));
+      expect(store.category?.id, testCategory.id);
+
+      store.onIntent(const CategoryDetailSortChanged('price_asc'));
+      expect(store.selectedSort, 'price_asc');
+
+      store.onIntent(const CategoryDetailScrollChanged(true));
+      expect(store.isScrolled, true);
     });
   });
 
