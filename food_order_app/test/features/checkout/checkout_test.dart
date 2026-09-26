@@ -11,6 +11,7 @@ import 'package:food_order_app/features/checkout/checkout_intent.dart';
 import 'package:food_order_app/features/checkout/checkout_store.dart';
 import 'package:food_order_app/features/checkout/checkout_view.dart';
 import 'package:food_order_app/features/checkout/order_success_view.dart';
+import 'package:food_order_app/routes/app_routes.dart';
 
 class MockOrderRepository implements OrderRepository {
   List<Map<String, dynamic>>? lastItems;
@@ -269,5 +270,55 @@ void main() {
     expect(find.text('Track My Order'), findsOneWidget);
     expect(find.text('Back to Explore'), findsOneWidget);
     expect(find.text('\$24.00'), findsOneWidget);
+    expect(find.text('Live Delivery Status'), findsOneWidget);
+    expect(find.text('Order Received & Confirmed'), findsOneWidget);
+  });
+
+  testWidgets('OrderSuccessView Track My Order navigates to AppRoutes.orderDetail with order', (tester) async {
+    final sampleOrder = OrderEntity(
+      id: 'abcde12345',
+      userId: 'user1',
+      items: const [
+        OrderItemEntity(
+          id: 'i1',
+          foodId: 'f1',
+          foodName: 'Truffle Burger',
+          foodImageUrl: '',
+          price: 12.00,
+          quantity: 2,
+        ),
+      ],
+      totalAmount: 24.00,
+      deliveryAddress: 'Street 271, Phnom Penh',
+      status: 'pending',
+      paymentMethod: 'cash',
+      paymentStatus: 'pending',
+      createdAt: DateTime.now(),
+    );
+
+    await tester.pumpWidget(
+      GetMaterialApp(
+        initialRoute: '/success',
+        getPages: [
+          GetPage(
+            name: '/success',
+            page: () => const OrderSuccessView(),
+          ),
+          GetPage(
+            name: AppRoutes.orderDetail,
+            page: () => const Scaffold(body: Text('OrderDetailScreen')),
+          ),
+        ],
+      ),
+    );
+
+    Get.to(() => const OrderSuccessView(), arguments: sampleOrder);
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Track My Order'));
+    await tester.tap(find.text('Track My Order'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('OrderDetailScreen'), findsOneWidget);
   });
 }

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../core/constants/app_colors.dart';
 import '../../domain/order/entities/order_entity.dart';
 import '../../routes/app_routes.dart';
+import '../order_detail/widgets/order_tracking_stepper.dart';
 
 class OrderSuccessView extends StatelessWidget {
   const OrderSuccessView({super.key});
@@ -24,17 +25,17 @@ class OrderSuccessView extends StatelessWidget {
       },
       child: Scaffold(
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Spacer(),
+                const SizedBox(height: 12),
 
                 // Animated Success Checkmark
                 Container(
-                  width: 100,
-                  height: 100,
+                  width: 88,
+                  height: 88,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [Color(0xFF10B981), Color(0xFF059669)],
@@ -54,11 +55,11 @@ class OrderSuccessView extends StatelessWidget {
                     child: Icon(
                       Icons.check_rounded,
                       color: Colors.white,
-                      size: 56,
+                      size: 50,
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
                 // Success Title & Subtitle
                 Text(
@@ -79,7 +80,13 @@ class OrderSuccessView extends StatelessWidget {
                     height: 1.5,
                   ),
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 22),
+
+                // Compact Live Tracking Progress Bar
+                if (order != null) ...[
+                  OrderTrackingStepper(order: order, isCompact: true),
+                  const SizedBox(height: 18),
+                ],
 
                 // Order Details Card
                 Container(
@@ -130,13 +137,19 @@ class OrderSuccessView extends StatelessWidget {
                   ),
                 ),
 
-                const Spacer(),
+                const SizedBox(height: 28),
 
                 // Action Buttons
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () => _goToHome(2), // Orders Tab
+                    onPressed: () {
+                      if (order != null) {
+                        Get.toNamed(AppRoutes.orderDetail, arguments: order);
+                      } else {
+                        _goToHome(2); // Orders Tab fallback
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
@@ -149,7 +162,7 @@ class OrderSuccessView extends StatelessWidget {
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.receipt_long_rounded, size: 20),
+                        Icon(Icons.radar_rounded, size: 20),
                         SizedBox(width: 8),
                         Text(
                           'Track My Order',
@@ -174,6 +187,7 @@ class OrderSuccessView extends StatelessWidget {
                     ),
                   ),
                 ),
+                const SizedBox(height: 12),
               ],
             ),
           ),
