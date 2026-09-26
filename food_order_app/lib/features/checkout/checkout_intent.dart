@@ -41,3 +41,24 @@ class RemoveVoucherIntent extends CheckoutIntent {
   const RemoveVoucherIntent();
 }
 
+class SelectSavedAddressIntent extends CheckoutIntent {
+  final String addressId;
+  const SelectSavedAddressIntent(this.addressId);
+}
+
+class SaveCurrentAddressIntent extends CheckoutIntent {
+  final String label;
+  final String? note;
+  final bool setAsDefault;
+  const SaveCurrentAddressIntent({
+    required this.label,
+    this.note,
+    this.setAsDefault = false,
+  });
+}
+
+class DeleteSavedAddressIntent extends CheckoutIntent {
+  final String addressId;
+  const DeleteSavedAddressIntent(this.addressId);
+}
+

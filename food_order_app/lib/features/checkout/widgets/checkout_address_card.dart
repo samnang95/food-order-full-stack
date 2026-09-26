@@ -7,9 +7,37 @@ import '../../../../core/locale/translation_helper.dart';
 import '../checkout_intent.dart';
 import '../checkout_store.dart';
 import 'location_picker_sheet.dart';
+import 'saved_address_picker_sheet.dart';
 
-class CheckoutAddressCard extends GetView<CheckoutStore> {
+class CheckoutAddressCard extends StatefulWidget {
   const CheckoutAddressCard({super.key});
+
+  @override
+  State<CheckoutAddressCard> createState() => _CheckoutAddressCardState();
+}
+
+class _CheckoutAddressCardState extends State<CheckoutAddressCard> {
+  final CheckoutStore controller = Get.find<CheckoutStore>();
+  late final TextEditingController _noteController;
+  Worker? _noteWorker;
+
+  @override
+  void initState() {
+    super.initState();
+    _noteController = TextEditingController(text: controller.state.value.deliveryNote);
+    _noteWorker = ever(controller.state, (state) {
+      if (_noteController.text != state.deliveryNote) {
+        _noteController.text = state.deliveryNote;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _noteWorker?.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
 
   void _openLocationPicker(BuildContext context, String currentAddress, double currentLat, double currentLng) {
     LocationPickerSheet.show(
@@ -27,6 +55,14 @@ class CheckoutAddressCard extends GetView<CheckoutStore> {
     );
   }
 
+  void _openSavedAddresses(BuildContext context, {bool addNew = false}) {
+    SavedAddressPickerSheet.show(
+      context: context,
+      store: controller,
+      initialAddNew: addNew,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -38,6 +74,14 @@ class CheckoutAddressCard extends GetView<CheckoutStore> {
       final address = state.deliveryAddress;
       final lat = state.deliveryLat;
       final lng = state.deliveryLng;
+      final savedAddresses = state.savedAddresses;
+      final selectedId = state.selectedAddressId;
+
+      final matchedSavedAddress = savedAddresses.firstWhereOrNull((a) =>
+          (selectedId != null && a.id == selectedId) ||
+          (a.address == address &&
+              (a.lat - lat).abs() < 0.0001 &&
+              (a.lng - lng).abs() < 0.0001));
 
       return Container(
         padding: const EdgeInsets.all(16),
@@ -109,6 +153,102 @@ class CheckoutAddressCard extends GetView<CheckoutStore> {
                 ),
               ],
             ),
+
+            // Quick-switch address pills row
+            if (savedAddresses.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: Row(
+                  children: [
+                    ...savedAddresses.map((addr) {
+                      final isSelected = matchedSavedAddress?.id == addr.id;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: InkWell(
+                          onTap: () => controller.onIntent(SelectSavedAddressIntent(addr.id)),
+                          borderRadius: BorderRadius.circular(20),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.primary.withValues(alpha: 0.12)
+                                  : (isDark ? const Color(0xFF141A29) : const Color(0xFFF8FAFC)),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : (isDark ? const Color(0xFF2E3A52) : const Color(0xFFE2E8F0)),
+                                width: isSelected ? 1.5 : 1.0,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  addr.icon,
+                                  size: 13.5,
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : (isDark ? Colors.white60 : const Color(0xFF64748B)),
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  addr.label,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                    color: isSelected
+                                        ? AppColors.primary
+                                        : (isDark ? Colors.white70 : const Color(0xFF475569)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                    // Manage Saved Addresses action pill
+                    InkWell(
+                      onTap: () => _openSavedAddresses(context),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF141A29).withValues(alpha: 0.6) : const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: isDark ? const Color(0xFF2E3A52) : const Color(0xFFCBD5E1),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.tune_rounded,
+                              size: 13,
+                              color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'manage'.trOr(context, 'Manage'),
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
 
             const SizedBox(height: 12),
 
@@ -205,40 +345,109 @@ class CheckoutAddressCard extends GetView<CheckoutStore> {
 
             const SizedBox(height: 12),
 
-            // Address Text & Pin Coordinates Badge
+            // Address Text & Pin Coordinates Badge & Save Location Button
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: Text(
-                    address,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : const Color(0xFF1E293B),
-                      height: 1.4,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (matchedSavedAddress != null) ...[
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                matchedSavedAddress.icon,
+                                size: 11.5,
+                                color: AppColors.primary,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                matchedSavedAddress.label,
+                                style: const TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      Text(
+                        address,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : const Color(0xFF1E293B),
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF141A29) : const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                      color: isDark ? const Color(0xFF2E3A52) : const Color(0xFFE2E8F0),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF141A29) : const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF2E3A52) : const Color(0xFFE2E8F0),
+                        ),
+                      ),
+                      child: Text(
+                        '${lat.toStringAsFixed(3)}, ${lng.toStringAsFixed(3)}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontFamily: 'monospace',
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                        ),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    '${lat.toStringAsFixed(3)}, ${lng.toStringAsFixed(3)}',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontFamily: 'monospace',
-                      fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.white60 : const Color(0xFF64748B),
-                    ),
-                  ),
+                    if (matchedSavedAddress == null) ...[
+                      const SizedBox(height: 6),
+                      InkWell(
+                        onTap: () => _openSavedAddresses(context, addNew: true),
+                        borderRadius: BorderRadius.circular(6),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.bookmark_add_outlined, size: 12, color: AppColors.primary),
+                              const SizedBox(width: 3),
+                              Text(
+                                'saveLocation'.trOr(context, 'Save pin'),
+                                style: const TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),
@@ -247,6 +456,7 @@ class CheckoutAddressCard extends GetView<CheckoutStore> {
 
             // Note for Rider Input
             TextField(
+              controller: _noteController,
               onChanged: (val) => controller.onIntent(ChangeDeliveryNote(val)),
               decoration: InputDecoration(
                 hintText: 'noteForRider'.trOr(

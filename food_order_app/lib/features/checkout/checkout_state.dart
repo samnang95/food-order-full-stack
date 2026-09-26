@@ -1,3 +1,5 @@
+import '../../domain/address/entities/saved_address_entity.dart';
+
 class CheckoutState {
   final String deliveryAddress;
   final double deliveryLat;
@@ -6,6 +8,10 @@ class CheckoutState {
   final String paymentMethod; // 'cash', 'khqr', 'card'
   final bool isLoading;
   final String? errorMessage;
+
+  // Saved Addresses
+  final List<SavedAddressEntity> savedAddresses;
+  final String? selectedAddressId;
 
   // Voucher / Promo Code fields
   final String? appliedVoucherCode;
@@ -23,6 +29,8 @@ class CheckoutState {
     this.paymentMethod = 'cash',
     this.isLoading = false,
     this.errorMessage,
+    this.savedAddresses = const [],
+    this.selectedAddressId,
     this.appliedVoucherCode,
     this.discountAmount = 0.0,
     this.isApplyingVoucher = false,
@@ -39,6 +47,9 @@ class CheckoutState {
     String? paymentMethod,
     bool? isLoading,
     String? errorMessage,
+    List<SavedAddressEntity>? savedAddresses,
+    String? selectedAddressId,
+    bool clearSelectedAddress = false,
     String? appliedVoucherCode,
     double? discountAmount,
     bool? isApplyingVoucher,
@@ -55,6 +66,8 @@ class CheckoutState {
       paymentMethod: paymentMethod ?? this.paymentMethod,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
+      savedAddresses: savedAddresses ?? this.savedAddresses,
+      selectedAddressId: clearSelectedAddress ? null : (selectedAddressId ?? this.selectedAddressId),
       appliedVoucherCode: clearVoucher ? null : (appliedVoucherCode ?? this.appliedVoucherCode),
       discountAmount: clearVoucher ? 0.0 : (discountAmount ?? this.discountAmount),
       isApplyingVoucher: isApplyingVoucher ?? this.isApplyingVoucher,

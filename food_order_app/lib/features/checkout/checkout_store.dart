@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/db/local_db.dart';
+import '../../core/services/address_service.dart';
 import '../../core/services/api_client.dart';
 import '../../core/services/cart_service.dart';
 import '../../core/services/voucher_service.dart';
+import '../../domain/address/entities/saved_address_entity.dart';
 import '../../domain/order/repositories/order_repository.dart';
 import '../../routes/app_routes.dart';
 import '../notifications/models/notification_item_model.dart';
@@ -24,6 +26,13 @@ class CheckoutStore extends GetxController {
   static const String _lngKey = 'user_delivery_lng';
 
   final Rx<CheckoutState> state = const CheckoutState().obs;
+
+  AddressService get addressService {
+    if (Get.isRegistered<AddressService>()) {
+      return Get.find<AddressService>();
+    }
+    return Get.put(AddressService(), permanent: true);
+  }
 
   CartService get cartService {
     if (Get.isRegistered<CartService>()) {
@@ -52,8 +61,42 @@ class CheckoutStore extends GetxController {
   void onInit() {
     super.onInit();
     _loadSavedAddress();
+    _syncWithAddressService();
     _fetchAvailableVouchers();
     _syncWithVoucherService();
+  }
+
+  void _syncWithAddressService() {
+    state.value = state.value.copyWith(
+      savedAddresses: addressService.addresses.toList(),
+    );
+
+    if (addressService.selectedAddress.value != null) {
+      final selected = addressService.selectedAddress.value!;
+      state.value = state.value.copyWith(
+        deliveryAddress: selected.address,
+        deliveryLat: selected.lat,
+        deliveryLng: selected.lng,
+        deliveryNote: selected.note,
+        selectedAddressId: selected.id,
+      );
+    }
+
+    ever(addressService.addresses, (List<SavedAddressEntity> list) {
+      state.value = state.value.copyWith(savedAddresses: list.toList());
+    });
+
+    ever(addressService.selectedAddress, (SavedAddressEntity? selected) {
+      if (selected != null) {
+        state.value = state.value.copyWith(
+          deliveryAddress: selected.address,
+          deliveryLat: selected.lat,
+          deliveryLng: selected.lng,
+          deliveryNote: selected.note,
+          selectedAddressId: selected.id,
+        );
+      }
+    });
   }
 
   void _syncWithVoucherService() {
@@ -144,7 +187,43 @@ class CheckoutStore extends GetxController {
         _onRemoveVoucher();
       case SubmitOrder():
         _onSubmitOrder();
+      case SelectSavedAddressIntent(:final addressId):
+        _onSelectSavedAddress(addressId);
+      case SaveCurrentAddressIntent(:final label, :final note, :final setAsDefault):
+        _onSaveCurrentAddress(label, note, setAsDefault);
+      case DeleteSavedAddressIntent(:final addressId):
+        addressService.deleteAddress(addressId);
     }
+  }
+
+  void _onSelectSavedAddress(String addressId) {
+    final addr = addressService.addresses.firstWhereOrNull((a) => a.id == addressId);
+    if (addr != null) {
+      addressService.selectAddress(addr);
+      state.value = state.value.copyWith(
+        deliveryAddress: addr.address,
+        deliveryLat: addr.lat,
+        deliveryLng: addr.lng,
+        deliveryNote: addr.note,
+        selectedAddressId: addr.id,
+      );
+    }
+  }
+
+  void _onSaveCurrentAddress(String label, String? note, bool setAsDefault) {
+    final newAddr = SavedAddressEntity(
+      id: 'addr_${DateTime.now().millisecondsSinceEpoch}',
+      label: label,
+      address: state.value.deliveryAddress,
+      lat: state.value.deliveryLat,
+      lng: state.value.deliveryLng,
+      note: note ?? state.value.deliveryNote,
+      isDefault: setAsDefault,
+    );
+    addressService.saveAddress(newAddr);
+    state.value = state.value.copyWith(
+      selectedAddressId: newAddr.id,
+    );
   }
 
   Future<void> _onApplyVoucher(String code) async {
