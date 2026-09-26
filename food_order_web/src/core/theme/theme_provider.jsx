@@ -1,16 +1,13 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { ThemeContext } from './theme_context';
 import { ThemeMode, THEME_STORAGE_KEY } from './theme_constants';
+import { LocalDB } from '../db';
 
 export function ThemeProvider({ children }) {
   const [theme, setThemeState] = useState(() => {
-    try {
-      const saved = localStorage.getItem(THEME_STORAGE_KEY);
-      if (saved && Object.values(ThemeMode).includes(saved)) {
-        return saved;
-      }
-    } catch {
-      // LocalStorage access fallback
+    const saved = LocalDB.getString(THEME_STORAGE_KEY);
+    if (saved && Object.values(ThemeMode).includes(saved)) {
+      return saved;
     }
     return ThemeMode.SYSTEM;
   });
@@ -33,6 +30,15 @@ export function ThemeProvider({ children }) {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
+  // Listen for cross-tab theme changes via LocalDB
+  useEffect(() => {
+    return LocalDB.addListener(THEME_STORAGE_KEY, (newTheme) => {
+      if (newTheme && Object.values(ThemeMode).includes(newTheme)) {
+        setThemeState(newTheme);
+      }
+    });
+  }, []);
+
   // Compute effective dark state
   const isDark = useMemo(() => {
     if (theme === ThemeMode.DARK) return true;
@@ -50,23 +56,24 @@ export function ThemeProvider({ children }) {
     }
   }, [isDark]);
 
-  const setTheme = useCallback((newTheme) => {
-    setThemeState(newTheme);
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, newTheme);
-    } catch {
-      // Ignore storage error
-    }
+  const setTheme = useCallback((themeOrUpdater) => {
+    setThemeState((prev) => {
+      const nextTheme =
+        typeof themeOrUpdater === 'function' ? themeOrUpdater(prev) : themeOrUpdater;
+      LocalDB.setString(THEME_STORAGE_KEY, nextTheme);
+      return nextTheme;
+    });
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setTheme((prev) => {
-      if (prev === ThemeMode.LIGHT) return ThemeMode.DARK;
-      if (prev === ThemeMode.DARK) return ThemeMode.LIGHT;
-      // If currently system, toggle opposite to current system state
-      return isDark ? ThemeMode.LIGHT : ThemeMode.DARK;
+    setThemeState((prev) => {
+      const currentlyDark =
+        prev === ThemeMode.DARK || (prev === ThemeMode.SYSTEM && systemIsDark);
+      const nextTheme = currentlyDark ? ThemeMode.LIGHT : ThemeMode.DARK;
+      LocalDB.setString(THEME_STORAGE_KEY, nextTheme);
+      return nextTheme;
     });
-  }, [isDark, setTheme]);
+  }, [systemIsDark]);
 
   const value = useMemo(
     () => ({

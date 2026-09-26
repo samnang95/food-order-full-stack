@@ -1,20 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { AuthContext } from './auth_context';
-import { ApiClient } from '../../core';
-
-const USER_STORAGE_KEY = 'bitecraft_user_profile';
+import { ApiClient, LocalDB, DBKeys } from '../../core';
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    try {
-      const saved = localStorage.getItem(USER_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : null;
-    } catch (err) {
-      console.debug('Failed to parse cached user:', err);
-      return null;
-    }
-  });
+  const [user, setUser] = useState(() => LocalDB.getJSON(DBKeys.USER_PROFILE));
 
   const [token, setToken] = useState(() => ApiClient.getToken());
   const [loading, setLoading] = useState(false);
@@ -34,11 +24,7 @@ export function AuthProvider({ children }) {
     setToken(tokenStr);
     setUser(userData);
     ApiClient.setToken(tokenStr);
-    try {
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
-    } catch (err) {
-      console.debug('Failed to save user session:', err);
-    }
+    LocalDB.setJSON(DBKeys.USER_PROFILE, userData);
   }, []);
 
 
@@ -80,6 +66,26 @@ export function AuthProvider({ children }) {
     [saveAuthSession]
   );
 
+  const loginWithGoogle = useCallback(
+    async (idToken) => {
+      setLoading(true);
+      setAuthError(null);
+      try {
+        const res = await ApiClient.post('/auth/google', { token: idToken });
+        saveAuthSession(res.token, res.user);
+        setIsAuthModalOpen(false);
+        return res;
+      } catch (err) {
+        const msg = err.message || 'Google Sign-In failed. Please try again.';
+        setAuthError(msg);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [saveAuthSession]
+  );
+
   const ensureCustomerSession = useCallback(async () => {
     if (token && user) return { token, user };
 
@@ -105,11 +111,7 @@ export function AuthProvider({ children }) {
     setToken(null);
     setUser(null);
     ApiClient.clearToken();
-    try {
-      localStorage.removeItem(USER_STORAGE_KEY);
-    } catch (err) {
-      console.debug('Failed to clear user storage:', err);
-    }
+    LocalDB.remove(DBKeys.USER_PROFILE);
   }, []);
 
 
@@ -132,6 +134,7 @@ export function AuthProvider({ children }) {
     authError,
     login,
     register,
+    loginWithGoogle,
     logout,
     ensureCustomerSession,
     isAuthModalOpen,

@@ -1,23 +1,23 @@
 import { AppConfig } from '../config/app_config';
+import { LocalDB, DBKeys } from '../db';
 
 const BASE_URL = AppConfig.apiBaseUrl;
-const TOKEN_KEY = 'bitecraft_auth_token';
 
 export const ApiClient = {
   getToken() {
-    return localStorage.getItem(TOKEN_KEY) || null;
+    return LocalDB.getString(DBKeys.AUTH_TOKEN);
   },
 
   setToken(token) {
     if (token) {
-      localStorage.setItem(TOKEN_KEY, token);
+      LocalDB.setString(DBKeys.AUTH_TOKEN, token);
     } else {
-      localStorage.removeItem(TOKEN_KEY);
+      LocalDB.remove(DBKeys.AUTH_TOKEN);
     }
   },
 
   clearToken() {
-    localStorage.removeItem(TOKEN_KEY);
+    LocalDB.remove(DBKeys.AUTH_TOKEN);
   },
 
   getHeaders(customHeaders = {}) {

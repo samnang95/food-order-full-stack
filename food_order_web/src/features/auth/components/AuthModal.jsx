@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../use_auth';
+import { GoogleSignInButton } from './GoogleSignInButton';
 
 export function AuthModal() {
   const {
@@ -9,6 +10,7 @@ export function AuthModal() {
     setAuthModalMode,
     login,
     register,
+    loginWithGoogle,
     loading,
     authError,
   } = useAuth();
@@ -19,6 +21,15 @@ export function AuthModal() {
   const [localError, setLocalError] = useState('');
 
   if (!isAuthModalOpen) return null;
+
+  const handleGoogleCredential = async (credential) => {
+    setLocalError('');
+    try {
+      await loginWithGoogle(credential);
+    } catch (err) {
+      console.debug('Google login error handled:', err);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,7 +69,6 @@ export function AuthModal() {
     }
   };
 
-
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200">
       <div
@@ -93,8 +103,9 @@ export function AuthModal() {
           </p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-3.5 sm:space-y-4 overflow-y-auto flex-1">
+        {/* Modal Body */}
+        <div className="p-5 sm:p-8 space-y-4 overflow-y-auto flex-1">
+          {/* Error Message */}
           {(localError || authError) && (
             <div className="p-3 sm:p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center space-x-2">
               <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,19 +115,39 @@ export function AuthModal() {
             </div>
           )}
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Username
-            </label>
-            <input
-              type="text"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="e.g. foodlover"
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-hidden focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
-            />
+          {/* 1. Google Sign-In Button */}
+          <GoogleSignInButton
+            onCredential={handleGoogleCredential}
+            disabled={loading}
+          />
+
+          {/* Divider */}
+          <div className="relative py-1">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white dark:bg-slate-900 px-3 text-slate-400 font-semibold tracking-wider text-[10px]">
+                or with credentials
+              </span>
+            </div>
           </div>
+
+          {/* 2. Credentials Form */}
+          <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                Username
+              </label>
+              <input
+                type="text"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="e.g. foodlover"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-hidden focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+              />
+            </div>
 
           {authModalMode === 'register' && (
             <div>
@@ -202,6 +233,7 @@ export function AuthModal() {
             )}
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

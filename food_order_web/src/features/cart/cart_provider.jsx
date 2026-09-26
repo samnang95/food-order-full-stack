@@ -1,34 +1,22 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { CartContext } from './cart_context';
+import { LocalDB, DBKeys } from '../../core';
 
-const CART_STORAGE_KEY = 'bitecraft_cart_items';
 const DELIVERY_FEE_STANDARD = 1.5; // $1.50 (approx 6,000 KHR)
 const FREE_DELIVERY_THRESHOLD = 25.0; // Free delivery over $25
 
 export function CartProvider({ children }) {
-  const [items, setItems] = useState(() => {
-    try {
-      const saved = localStorage.getItem(CART_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
-    } catch (err) {
-      console.debug('Failed to parse cart storage:', err);
-      return [];
-    }
-  });
+  const [items, setItems] = useState(() => LocalDB.getJSON(DBKeys.CART_ITEMS, []));
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [voucherCode, setVoucherCode] = useState('');
   const [voucherDiscount, setVoucherDiscount] = useState(0);
 
-  // Sync to localStorage
+  // Sync to LocalDB
   useEffect(() => {
-    try {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
-    } catch (err) {
-      console.debug('Failed to save cart to storage:', err);
-    }
+    LocalDB.setJSON(DBKeys.CART_ITEMS, items);
   }, [items]);
 
 
@@ -67,11 +55,7 @@ export function CartProvider({ children }) {
     setItems([]);
     setVoucherCode('');
     setVoucherDiscount(0);
-    try {
-      localStorage.removeItem(CART_STORAGE_KEY);
-    } catch (err) {
-      console.debug('Failed to clear cart storage:', err);
-    }
+    LocalDB.remove(DBKeys.CART_ITEMS);
   }, []);
 
 

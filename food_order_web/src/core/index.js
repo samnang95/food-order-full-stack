@@ -5,5 +5,6 @@ export * from './constants/app_constants';
 export * from './constants/app_assets';
 export * from './constants/app_fonts';
 export * from './theme';
+export * from './db';
 export * from './utils/formatters';
 export * from './di/container';
