@@ -4,8 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite --mode dev",
+    "dev:staging": "vite --mode staging",
+    "dev:prod": "vite --mode prod",
+    "build": "vite build --mode prod",
+    "build:dev": "vite build --mode dev",
+    "build:staging": "vite build --mode staging",
+    "build:prod": "vite build --mode prod",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -14,6 +19,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.4",
+    "socket.io-client": "^4.8.4",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
