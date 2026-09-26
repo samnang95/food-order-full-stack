@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { container } from '../../core/di/container';
+import { useTranslation } from '../../core';
 import { FoodCard } from './components/FoodCard';
 import { FoodDetailModal } from './components/FoodDetailModal';
 
 export function MenuView() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get('q') || '';
   const selectedCategory = searchParams.get('category') || 'ALL';
@@ -84,10 +86,10 @@ export function MenuView() {
       {/* Header Banner */}
       <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-transparent p-4 sm:p-8 border border-orange-500/20">
         <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-          Explore Our Delicious Menu 🍽️
+          {t('menu.menuTitle')}
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
-          From smash burgers and wood-fired pizzas to fresh matcha and Asian bowls, find your favorite meal handcrafted daily.
+          {t('menu.menuSubtitle')}
         </p>
       </div>
 
@@ -104,7 +106,7 @@ export function MenuView() {
               type="text"
               value={searchQuery}
               onChange={handleSearchChange}
-              placeholder="Search dishes by name or ingredients..."
+              placeholder={t('menu.searchPlaceholder')}
               className="w-full pl-10 pr-4 py-2.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm focus:outline-hidden focus:border-orange-500"
             />
             {searchQuery && (
@@ -120,17 +122,17 @@ export function MenuView() {
           {/* Sort Dropdown */}
           <div className="flex items-center space-x-2">
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap">
-              Sort:
+              {t('menu.sortBy')}
             </span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="flex-1 sm:flex-none px-3 py-2 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-bold focus:outline-hidden focus:border-orange-500 cursor-pointer"
             >
-              <option value="popular">⭐ Most Popular</option>
-              <option value="price-low">💵 Price: Low to High</option>
-              <option value="price-high">💎 Price: High to Low</option>
-              <option value="name">🔤 Alphabetical (A-Z)</option>
+              <option value="popular">{t('menu.sortPopular')}</option>
+              <option value="price-low">{t('menu.sortPriceLow')}</option>
+              <option value="price-high">{t('menu.sortPriceHigh')}</option>
+              <option value="name">{t('menu.sortName')}</option>
             </select>
           </div>
         </div>
@@ -145,7 +147,7 @@ export function MenuView() {
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            <span>All</span>
+            <span>{t('menu.allFoods')}</span>
             <span className="text-[10px] opacity-75">({foods.length})</span>
           </button>
 
@@ -194,16 +196,16 @@ export function MenuView() {
         <div className="text-center py-12 sm:py-16 bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-3">
           <span className="text-3xl sm:text-4xl">🍽️</span>
           <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-            No items matched your filter
+            {t('menu.noFoodsFound')}
           </h3>
           <p className="text-xs text-slate-500">
-            Try adjusting your search query or selecting &quot;All Categories&quot;.
+            {t('menu.noFoodsSubtitle')}
           </p>
           <button
             onClick={() => setSearchParams({})}
             className="mt-2 px-4 py-2 rounded-xl bg-orange-500 text-white font-bold text-xs"
           >
-            Clear All Filters
+            {t('menu.clearFilters')}
           </button>
         </div>
       ) : (

@@ -2,8 +2,10 @@ import { NavLink } from 'react-router-dom';
 import { AppRoutes } from '../../routes/app_routes';
 import { useCart } from '../../features/cart/use_cart';
 import { useAuth } from '../../features/auth/use_auth';
+import { useTranslation } from '../../core';
 
 export function MobileBottomNav() {
+  const { t } = useTranslation();
   const { totalCount, openCart } = useCart();
   const { isAuthenticated, user, openAuthModal } = useAuth();
 
@@ -19,13 +21,13 @@ export function MobileBottomNav() {
       {/* 1. Home */}
       <NavLink to={AppRoutes.ROOT} className={getLinkClass} end>
         <span className="text-lg leading-tight">🏠</span>
-        <span className="text-[10px] tracking-tight mt-0.5">Home</span>
+        <span className="text-[10px] tracking-tight mt-0.5">{t('navigation.home')}</span>
       </NavLink>
 
       {/* 2. Menu */}
       <NavLink to={AppRoutes.MENU} className={getLinkClass}>
         <span className="text-lg leading-tight">🍔</span>
-        <span className="text-[10px] tracking-tight mt-0.5">Menu</span>
+        <span className="text-[10px] tracking-tight mt-0.5">{t('navigation.menu')}</span>
       </NavLink>
 
       {/* 3. Floating Cart Action */}
@@ -45,14 +47,14 @@ export function MobileBottomNav() {
           )}
         </div>
         <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400 mt-1">
-          Cart
+          {t('navigation.cart')}
         </span>
       </button>
 
       {/* 4. Orders */}
       <NavLink to={AppRoutes.ORDERS} className={getLinkClass}>
         <span className="text-lg leading-tight">📦</span>
-        <span className="text-[10px] tracking-tight mt-0.5">Orders</span>
+        <span className="text-[10px] tracking-tight mt-0.5">{t('navigation.orders')}</span>
       </NavLink>
 
       {/* 5. Profile / Auth */}
@@ -76,7 +78,7 @@ export function MobileBottomNav() {
           aria-label="Sign in"
         >
           <span className="text-lg leading-tight">👤</span>
-          <span className="text-[10px] tracking-tight mt-0.5 font-medium">Sign In</span>
+          <span className="text-[10px] tracking-tight mt-0.5 font-medium">{t('navigation.signIn')}</span>
         </button>
       )}
     </nav>

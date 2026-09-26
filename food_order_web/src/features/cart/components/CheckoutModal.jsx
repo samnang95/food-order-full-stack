@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../use_cart';
 import { useAuth } from '../../auth/use_auth';
 import { container } from '../../../core/di/container';
-import { formatUsd, formatKhr } from '../../../core';
+import { formatUsd, formatKhr, useTranslation } from '../../../core';
 import { AppRoutes } from '../../../routes/app_routes';
 
 const DISTRICTS = [
@@ -17,6 +17,7 @@ const DISTRICTS = [
 ];
 
 export function CheckoutModal() {
+  const { t } = useTranslation();
   const {
     items,
     subtotal,
@@ -66,10 +67,8 @@ export function CheckoutModal() {
 
     setSubmitting(true);
     try {
-      // 1. Ensure user has an authenticated session
       await ensureCustomerSession();
 
-      // 2. Format order payload matching backend orderService expectations
       const fullDeliveryAddress = `${streetAddress}, ${selectedDistrict}, Phnom Penh${
         deliveryNote ? ` (${deliveryNote})` : ''
       }`;
@@ -114,19 +113,19 @@ export function CheckoutModal() {
             </div>
             <div>
               <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300">
-                Order Received!
+                {t('checkout.orderSuccessTitle')}
               </span>
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-2">
                 Thank you, {customerName}!
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
-                Your order is confirmed and sent directly to the kitchen.
+                {t('checkout.orderSuccessSubtitle')}
               </p>
             </div>
 
             <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 text-left space-y-2 text-xs">
               <div className="flex justify-between">
-                <span className="text-slate-500 dark:text-slate-400">Order ID:</span>
+                <span className="text-slate-500 dark:text-slate-400">{t('orders.orderId')}:</span>
                 <span className="font-bold text-slate-900 dark:text-white">
                   {placedOrder.orderNumber || `#${placedOrder.id?.slice(-6).toUpperCase()}`}
                 </span>
@@ -134,17 +133,17 @@ export function CheckoutModal() {
               <div className="flex justify-between">
                 <span className="text-slate-500 dark:text-slate-400">Estimated Delivery:</span>
                 <span className="font-bold text-orange-600 dark:text-orange-400">
-                  ⚡ 25 - 35 mins
+                  ⚡ 25 - 35 {t('common.mins')}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500 dark:text-slate-400">Payment:</span>
+                <span className="text-slate-500 dark:text-slate-400">{t('checkout.paymentMethod')}:</span>
                 <span className="font-semibold text-slate-900 dark:text-white uppercase">
-                  {paymentMethod === 'khqr' ? 'Bakong KHQR' : 'Cash on Delivery'}
+                  {paymentMethod === 'khqr' ? 'Bakong KHQR' : t('checkout.cashOnDelivery')}
                 </span>
               </div>
               <div className="flex justify-between pt-1 border-t border-slate-200 dark:border-slate-700">
-                <span className="font-bold text-slate-700 dark:text-slate-300">Total Paid:</span>
+                <span className="font-bold text-slate-700 dark:text-slate-300">{t('cart.total')}:</span>
                 <span className="font-black text-slate-900 dark:text-white">
                   {formatUsd(totalAmount || placedOrder.totalAmount)} ({formatKhr(totalAmount || placedOrder.totalAmount)})
                 </span>
@@ -156,13 +155,13 @@ export function CheckoutModal() {
                 onClick={handleTrackOrder}
                 className="flex-1 py-3.5 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-sm shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all"
               >
-                🛵 Track Order Live
+                🛵 {t('checkout.trackOrder')}
               </button>
               <button
                 onClick={closeCheckout}
                 className="py-3.5 px-5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-sm transition-colors"
               >
-                Back to Home
+                {t('checkout.continueBrowsing')}
               </button>
             </div>
           </div>
@@ -174,10 +173,10 @@ export function CheckoutModal() {
               <div>
                 <div className="w-10 h-1 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-2 sm:hidden" />
                 <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
-                  Checkout & Delivery
+                  {t('checkout.checkoutTitle')}
                 </h2>
                 <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Confirm your delivery address in Phnom Penh
+                  {t('checkout.deliveryDetails')}
                 </p>
               </div>
               <button
@@ -199,12 +198,12 @@ export function CheckoutModal() {
               {/* Contact Information */}
               <div className="space-y-2.5 sm:space-y-3">
                 <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                  1. Contact Information
+                  1. {t('checkout.contactInfo')}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                      Full Name
+                      {t('auth.username')}
                     </label>
                     <input
                       type="text"
@@ -217,7 +216,7 @@ export function CheckoutModal() {
                   </div>
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                      Phone Number
+                      {t('checkout.phoneNumber')}
                     </label>
                     <input
                       type="tel"
@@ -234,7 +233,7 @@ export function CheckoutModal() {
               {/* Delivery Address */}
               <div className="space-y-2.5 sm:space-y-3">
                 <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                  2. Delivery Location (Phnom Penh)
+                  2. {t('checkout.deliveryAddress')}
                 </h3>
 
                 {/* Quick District Selector */}
@@ -262,21 +261,21 @@ export function CheckoutModal() {
 
                 <div>
                   <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                    Street & House / Condo Number
+                    {t('checkout.deliveryAddress')}
                   </label>
                   <input
                     type="text"
                     required
                     value={streetAddress}
                     onChange={(e) => setStreetAddress(e.target.value)}
-                    placeholder="House #12, St 302, Sangkat BKK1"
+                    placeholder={t('checkout.enterAddressPlaceholder')}
                     className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:border-orange-500"
                   />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                    Notes for Rider (Optional)
+                    {t('checkout.noteForRider')}
                   </label>
                   <input
                     type="text"
@@ -291,7 +290,7 @@ export function CheckoutModal() {
               {/* Payment Method */}
               <div className="space-y-2.5 sm:space-y-3">
                 <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                  3. Payment Method
+                  3. {t('checkout.paymentMethod')}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   <label
@@ -314,9 +313,9 @@ export function CheckoutModal() {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-slate-900 dark:text-white">
-                        Cash on Delivery
+                        {t('checkout.cashOnDelivery')}
                       </p>
-                      <p className="text-[10px] text-slate-500">Pay cash when rider arrives</p>
+                      <p className="text-[10px] text-slate-500">{t('checkout.cashOnDeliveryDesc')}</p>
                     </div>
                   </label>
 
@@ -375,7 +374,7 @@ export function CheckoutModal() {
               {/* Order Items Preview */}
               <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-2">
                 <span className="text-[11px] font-bold text-slate-500 uppercase">
-                  Order Summary ({items.length} items)
+                  {t('checkout.orderSummary')} ({items.length} {t('common.items')})
                 </span>
                 <div className="space-y-1">
                   {items.map((i) => (
@@ -391,21 +390,21 @@ export function CheckoutModal() {
                 </div>
                 <div className="border-t border-slate-200 dark:border-slate-700 pt-2 space-y-1 text-xs">
                   <div className="flex justify-between text-slate-500">
-                    <span>Subtotal</span>
+                    <span>{t('cart.subtotal')}</span>
                     <span>{formatUsd(subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-slate-500">
-                    <span>Delivery Fee</span>
-                    <span>{deliveryFee === 0 ? 'FREE' : formatUsd(deliveryFee)}</span>
+                    <span>{t('cart.deliveryFee')}</span>
+                    <span>{deliveryFee === 0 ? t('cart.free') : formatUsd(deliveryFee)}</span>
                   </div>
                   {discountAmount > 0 && (
                     <div className="flex justify-between text-emerald-600 font-semibold">
-                      <span>Discount</span>
+                      <span>{t('cart.discount')}</span>
                       <span>-{formatUsd(discountAmount)}</span>
                     </div>
                   )}
                   <div className="border-t border-slate-200 dark:border-slate-700 pt-2 flex justify-between items-baseline">
-                    <span className="font-bold text-xs text-slate-900 dark:text-white">Total Amount</span>
+                    <span className="font-bold text-xs text-slate-900 dark:text-white">{t('cart.total')}</span>
                     <div className="text-right">
                       <span className="text-sm font-black text-orange-600 dark:text-orange-400">
                         {formatUsd(totalAmount)}
@@ -427,7 +426,7 @@ export function CheckoutModal() {
                 onClick={closeCheckout}
                 className="py-3 px-3 sm:px-4 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 type="submit"
@@ -435,10 +434,10 @@ export function CheckoutModal() {
                 className="flex-1 py-3.5 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-xs sm:text-sm shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:opacity-95 active:scale-98 transition-all disabled:opacity-50 flex items-center justify-center space-x-1.5 sm:space-x-2"
               >
                 {submitting ? (
-                  <span>Placing Order...</span>
+                  <span>{t('checkout.placingOrder')}</span>
                 ) : (
                   <>
-                    <span>Place Order</span>
+                    <span>{t('checkout.placeOrder')}</span>
                     <span>•</span>
                     <span>{formatUsd(totalAmount)}</span>
                   </>

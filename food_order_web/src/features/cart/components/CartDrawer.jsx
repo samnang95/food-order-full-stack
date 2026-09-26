@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useCart } from '../use_cart';
-import { formatUsd, formatKhr } from '../../../core';
+import { formatUsd, formatKhr, useTranslation } from '../../../core';
 
 export function CartDrawer() {
+  const { t } = useTranslation();
   const {
     items,
     totalCount,
@@ -51,10 +52,10 @@ export function CartDrawer() {
             <div className="flex items-center space-x-2">
               <span className="text-xl">🛍️</span>
               <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                Your Order
+                {t('cart.cartTitle')}
               </h2>
               <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400">
-                {totalCount} items
+                {totalCount} {t('common.items')}
               </span>
             </div>
             <button
@@ -75,12 +76,12 @@ export function CartDrawer() {
                 <span>
                   {remainingForFreeDelivery === 0 ? (
                     <span className="text-emerald-600 dark:text-emerald-400 font-bold">
-                      🎉 Free Delivery unlocked!
+                      {t('cart.freeDeliveryMsg')}
                     </span>
                   ) : (
-                    <>
-                      Add <span className="text-orange-600 font-bold">{formatUsd(remainingForFreeDelivery)}</span> more for Free Delivery
-                    </>
+                    <span>
+                      {t('cart.addMoreForFree', { amount: formatUsd(remainingForFreeDelivery) })}
+                    </span>
                   )}
                 </span>
                 <span className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -105,17 +106,17 @@ export function CartDrawer() {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                    Your cart is feeling hungry
+                    {t('cart.emptyCartTitle')}
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs">
-                    Explore our chef-crafted burgers, artisan noodles, and fresh bowls to get started!
+                    {t('cart.emptyCartSubtitle')}
                   </p>
                 </div>
                 <button
                   onClick={closeCart}
                   className="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs shadow-md shadow-orange-500/20 transition-all"
                 >
-                  Browse Menu
+                  {t('cart.browseMenu')}
                 </button>
               </div>
             ) : (
@@ -206,7 +207,7 @@ export function CartDrawer() {
                       onClick={removeVoucher}
                       className="text-xs text-rose-500 font-semibold hover:underline"
                     >
-                      Remove
+                      {t('cart.remove')}
                     </button>
                   </div>
                 ) : (
@@ -214,7 +215,7 @@ export function CartDrawer() {
                     <div className="flex space-x-2">
                       <input
                         type="text"
-                        placeholder="Voucher code (e.g. WELCOME20)"
+                        placeholder={t('cart.promoPlaceholder')}
                         value={inputCode}
                         onChange={(e) => setInputCode(e.target.value)}
                         className="flex-1 px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white uppercase focus:outline-hidden focus:border-orange-500"
@@ -223,7 +224,7 @@ export function CartDrawer() {
                         type="submit"
                         className="px-3.5 py-2 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 text-white font-bold text-xs transition-colors"
                       >
-                        Apply
+                        {t('cart.apply')}
                       </button>
                     </div>
                     {voucherMsg && (
@@ -244,16 +245,16 @@ export function CartDrawer() {
               {/* Price Breakdown */}
               <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
                 <div className="flex justify-between">
-                  <span>Subtotal</span>
+                  <span>{t('cart.subtotal')}</span>
                   <span className="font-semibold text-slate-900 dark:text-white">
                     {formatUsd(subtotal)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Delivery Fee</span>
+                  <span>{t('cart.deliveryFee')}</span>
                   <span className="font-semibold text-slate-900 dark:text-white">
                     {deliveryFee === 0 ? (
-                      <span className="text-emerald-600 dark:text-emerald-400">FREE</span>
+                      <span className="text-emerald-600 dark:text-emerald-400">{t('cart.free')}</span>
                     ) : (
                       formatUsd(deliveryFee)
                     )}
@@ -261,13 +262,13 @@ export function CartDrawer() {
                 </div>
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-semibold">
-                    <span>Discount</span>
+                    <span>{t('cart.discount')}</span>
                     <span>-{formatUsd(discountAmount)}</span>
                   </div>
                 )}
                 <div className="border-t border-slate-200 dark:border-slate-800 pt-2 flex justify-between items-baseline">
                   <div>
-                    <span className="text-sm font-black text-slate-900 dark:text-white">Total</span>
+                    <span className="text-sm font-black text-slate-900 dark:text-white">{t('cart.total')}</span>
                     <span className="block text-[11px] text-slate-400 font-medium">
                       {formatKhr(totalAmount)}
                     </span>
@@ -283,7 +284,7 @@ export function CartDrawer() {
                 onClick={openCheckout}
                 className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-sm shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:opacity-95 active:scale-98 transition-all flex items-center justify-center space-x-2"
               >
-                <span>Proceed to Checkout</span>
+                <span>{t('cart.proceedToCheckout')}</span>
                 <span>→</span>
               </button>
             </div>

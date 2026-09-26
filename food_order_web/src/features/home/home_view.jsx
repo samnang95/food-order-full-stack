@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { container } from '../../core/di/container';
-import { AppAssets } from '../../core';
+import { AppAssets, useTranslation } from '../../core';
 import { AppRoutes } from '../../routes/app_routes';
 import { FoodCard } from '../menu/components/FoodCard';
 import { FoodDetailModal } from '../menu/components/FoodDetailModal';
 
 export function HomeView() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [foods, setFoods] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('ALL');
@@ -71,15 +72,15 @@ export function HomeView() {
             <div className="inline-flex items-center space-x-1.5 sm:space-x-2 bg-white/20 backdrop-blur-md px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-100 border border-white/25">
               <span>🏷️ Promo</span>
               <span className="w-1.5 h-1.5 rounded-full bg-amber-200" />
-              <span>Use code <strong>WELCOME20</strong> for 20% OFF</span>
+              <span>{t('home.promoBadge')}</span>
             </div>
 
             <h1 className="text-2xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
-              Artisan Flavors Delivered Hot in <span className="underline decoration-amber-300">Phnom Penh</span>
+              {t('home.heroTitle')}
             </h1>
 
             <p className="text-xs sm:text-base text-orange-50/90 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-              Handcrafted smash burgers, authentic noodles, wood-fired pizza & fresh bowls prepared by top local chefs and delivered to your doorstep in 25-35 minutes.
+              {t('home.heroSubtitle')}
             </p>
 
             {/* Hero Search Bar */}
@@ -89,14 +90,14 @@ export function HomeView() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Craving something? (Burger, Ramen...)"
+                placeholder={t('home.searchPlaceholder')}
                 className="flex-1 min-w-0 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-hidden"
               />
               <button
                 type="submit"
                 className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-black text-xs sm:text-sm transition-colors shadow-md shrink-0"
               >
-                Search
+                {t('common.search')}
               </button>
             </form>
 
@@ -104,15 +105,15 @@ export function HomeView() {
             <div className="pt-1 sm:pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-2 sm:gap-4 text-[11px] sm:text-xs font-bold text-orange-100">
               <div className="flex items-center space-x-1.5 bg-white/10 backdrop-blur-md px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full">
                 <span>⚡</span>
-                <span>Avg 28 Mins</span>
+                <span>{t('home.avgDeliveryTime')}</span>
               </div>
               <div className="flex items-center space-x-1.5 bg-white/10 backdrop-blur-md px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full">
                 <span>⭐</span>
-                <span>4.9 / 5 Rating</span>
+                <span>{t('home.ratingBadge')}</span>
               </div>
               <div className="flex items-center space-x-1.5 bg-white/10 backdrop-blur-md px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full">
                 <span>🇰🇭</span>
-                <span>Bakong & Cash</span>
+                <span>{t('home.paymentBadge')}</span>
               </div>
             </div>
           </div>
@@ -135,8 +136,8 @@ export function HomeView() {
               <div className="absolute -bottom-2 left-2 sm:-left-4 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-2.5 sm:p-3.5 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white flex items-center space-x-2.5 sm:space-x-3 max-w-[90%] sm:max-w-none">
                 <span className="text-xl sm:text-2xl shrink-0">🔥</span>
                 <div className="min-w-0">
-                  <p className="text-[11px] sm:text-xs font-bold truncate">10,000+ Orders</p>
-                  <p className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 truncate">Delivered Across Phnom Penh</p>
+                  <p className="text-[11px] sm:text-xs font-bold truncate">{t('home.ordersCount')}</p>
+                  <p className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 truncate">{t('home.ordersDelivered')}</p>
                 </div>
               </div>
             </div>
@@ -150,17 +151,17 @@ export function HomeView() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
           <div>
             <span className="text-xs font-black uppercase tracking-wider text-orange-600 dark:text-orange-400">
-              Browse by Cuisine
+              {t('home.browseByCuisine')}
             </span>
             <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-              Explore Our Categories
+              {t('home.exploreCategories')}
             </h2>
           </div>
           <button
             onClick={() => navigate(AppRoutes.MENU)}
             className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline flex items-center space-x-1"
           >
-            <span>View Full Menu</span>
+            <span>{t('home.viewFullMenu')}</span>
             <span>→</span>
           </button>
         </div>
@@ -176,7 +177,7 @@ export function HomeView() {
             }`}
           >
             <span>✨</span>
-            <span>All Dishes ({foods.length})</span>
+            <span>{t('home.all')} ({foods.length})</span>
           </button>
 
           {categories.map((cat) => (
@@ -201,14 +202,14 @@ export function HomeView() {
         <div className="flex items-center justify-between">
           <div>
             <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-orange-600 dark:text-orange-400">
-              Freshly Prepared
+              {t('home.freshlyPrepared')}
             </span>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-              {selectedCategory === 'ALL' ? 'Popular & Recommended' : `${selectedCategory} Dishes`}
+              {selectedCategory === 'ALL' ? t('home.popularAndRecommended') : `${selectedCategory}`}
             </h2>
           </div>
           <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-            {filteredFoods.length} items
+            {filteredFoods.length} {t('common.items')}
           </span>
         </div>
 
@@ -233,10 +234,10 @@ export function HomeView() {
           <div className="text-center py-12 sm:py-16 bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-3">
             <span className="text-3xl sm:text-4xl">🔍</span>
             <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-              No matching dishes found
+              {t('home.noDishesFound')}
             </h3>
             <p className="text-xs text-slate-500">
-              Try selecting another category or searching for something else!
+              {t('home.noDishesSubtitle')}
             </p>
             <button
               onClick={() => {
@@ -245,7 +246,7 @@ export function HomeView() {
               }}
               className="mt-2 px-4 py-2 rounded-xl bg-orange-500 text-white font-bold text-xs"
             >
-              Reset Filters
+              {t('common.resetFilters')}
             </button>
           </div>
         ) : (
@@ -269,10 +270,10 @@ export function HomeView() {
           </div>
           <div>
             <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-              Lightning Fast Delivery
+              {t('home.featureFastTitle')}
             </h3>
             <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1 leading-relaxed">
-              Dispatched with live GPS updates. Hot food arrives in an average of 28 minutes.
+              {t('home.featureFastDesc')}
             </p>
           </div>
         </div>
@@ -283,10 +284,10 @@ export function HomeView() {
           </div>
           <div>
             <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-              Artisan & Fresh Daily
+              {t('home.featureFreshTitle')}
             </h3>
             <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1 leading-relaxed">
-              Every burger, pizza, and noodle bowl is crafted upon ordering with fresh ingredients.
+              {t('home.featureFreshDesc')}
             </p>
           </div>
         </div>
@@ -297,10 +298,10 @@ export function HomeView() {
           </div>
           <div>
             <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-              Seamless Local Payments
+              {t('home.featurePaymentTitle')}
             </h3>
             <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1 leading-relaxed">
-              Pay with Bakong KHQR scan from any Cambodian banking app or standard Cash on Delivery.
+              {t('home.featurePaymentDesc')}
             </p>
           </div>
         </div>

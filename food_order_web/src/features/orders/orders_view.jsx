@@ -2,17 +2,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { container } from '../../core/di/container';
 import { socketService } from '../../core/services/socket_service';
-import { formatUsd, formatKhr } from '../../core';
+import { formatUsd, formatKhr, useTranslation } from '../../core';
 import { AppRoutes } from '../../routes/app_routes';
 
 const STATUS_STEPS = [
-  { key: 'pending', label: 'Order Placed', icon: '📝' },
-  { key: 'preparing', label: 'Kitchen Cooking', icon: '🍳' },
-  { key: 'out_for_delivery', label: 'Rider on the Way', icon: '🛵' },
-  { key: 'delivered', label: 'Delivered', icon: '🎉' },
+  { key: 'pending', labelKey: 'orders.statusPending', icon: '📝' },
+  { key: 'preparing', labelKey: 'orders.statusPreparing', icon: '🍳' },
+  { key: 'out_for_delivery', labelKey: 'orders.statusOnTheWay', icon: '🛵' },
+  { key: 'delivered', labelKey: 'orders.statusDelivered', icon: '🎉' },
 ];
 
 export function OrdersView() {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
@@ -140,7 +141,7 @@ export function OrdersView() {
       <div className="py-20 text-center space-y-4">
         <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto" />
         <p className="text-sm font-bold text-slate-600 dark:text-slate-400">
-          Loading your orders...
+          {t('common.loading')}
         </p>
       </div>
     );
@@ -153,16 +154,16 @@ export function OrdersView() {
           📦
         </div>
         <h2 className="text-xl font-black text-slate-900 dark:text-white">
-          No Orders Placed Yet
+          {t('orders.noOrdersTitle')}
         </h2>
         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-          Craving something tasty? Browse our handcrafted smash burgers, noodles, and drinks to place your first order.
+          {t('orders.noOrdersSubtitle')}
         </p>
         <Link
           to={AppRoutes.MENU}
           className="inline-block px-5 py-3 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs shadow-lg shadow-orange-500/25 transition-all"
         >
-          Explore Delicious Menu
+          {t('orders.startOrdering')}
         </Link>
       </div>
     );
@@ -195,10 +196,10 @@ export function OrdersView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-            My Orders & Live Tracker 📦
+            {t('orders.ordersTitle')} 📦
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Track real-time delivery status, rider updates, and order history.
+            {t('orders.ordersSubtitle')}
           </p>
         </div>
 
@@ -368,7 +369,7 @@ export function OrdersView() {
                               : 'text-slate-600 dark:text-slate-400'
                           }`}
                         >
-                          {step.label}
+                          {t(step.labelKey)}
                         </p>
                         <span className="text-[9px] sm:text-[10px] text-slate-400 block mt-0.5">
                           {isCurrent ? 'In Progress' : isCompleted ? 'Completed' : 'Pending'}

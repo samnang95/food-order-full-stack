@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useAuth } from '../use_auth';
 import { GoogleSignInButton } from './GoogleSignInButton';
+import { useTranslation } from '../../../core';
 
 export function AuthModal() {
+  const { t } = useTranslation();
   const {
     isAuthModalOpen,
     authModalMode,
@@ -94,12 +96,12 @@ export function AuthModal() {
             🍽️
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-            {authModalMode === 'login' ? 'Welcome Back!' : 'Join BiteCraft'}
+            {authModalMode === 'login' ? t('auth.welcomeBack') : t('auth.joinBiteCraft')}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             {authModalMode === 'login'
-              ? 'Log in to view orders, track deliveries, and save favorites.'
-              : 'Create an account for fast checkout and exclusive promo deals.'}
+              ? t('auth.welcomeSubtitle')
+              : t('auth.joinSubtitle')}
           </p>
         </div>
 
@@ -128,7 +130,7 @@ export function AuthModal() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-white dark:bg-slate-900 px-3 text-slate-400 font-semibold tracking-wider text-[10px]">
-                or with credentials
+                {t('auth.orWithCredentials')}
               </span>
             </div>
           </div>
@@ -137,7 +139,7 @@ export function AuthModal() {
           <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                Username
+                {t('auth.username')}
               </label>
               <input
                 type="text"
@@ -152,7 +154,7 @@ export function AuthModal() {
           {authModalMode === 'register' && (
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                Email Address
+                {t('auth.email')}
               </label>
               <input
                 type="email"
@@ -167,7 +169,7 @@ export function AuthModal() {
 
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-              Password
+              {t('auth.password')}
             </label>
             <input
               type="password"
@@ -184,7 +186,7 @@ export function AuthModal() {
             disabled={loading}
             className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-sm shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:opacity-95 active:scale-98 transition-all disabled:opacity-50"
           >
-            {loading ? 'Please wait...' : authModalMode === 'login' ? 'Sign In' : 'Create Account'}
+            {loading ? t('auth.pleaseWait') : authModalMode === 'login' ? t('auth.signIn') : t('auth.createAccount')}
           </button>
 
           {/* Quick Demo Button */}
@@ -203,31 +205,31 @@ export function AuthModal() {
             disabled={loading}
             className="w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs border border-slate-200 dark:border-slate-700 transition-colors"
           >
-            ⚡ Instant 1-Click Guest Sign In
+            {t('auth.guestSignIn')}
           </button>
 
           {/* Toggle Login / Register */}
           <div className="text-center pt-2">
             {authModalMode === 'login' ? (
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Don&apos;t have an account?{' '}
+                {t('auth.dontHaveAccount')}{' '}
                 <button
                   type="button"
                   onClick={() => setAuthModalMode('register')}
                   className="font-bold text-orange-600 dark:text-orange-400 hover:underline"
                 >
-                  Create one now
+                  {t('auth.createOneNow')}
                 </button>
               </p>
             ) : (
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Already have an account?{' '}
+                {t('auth.alreadyHaveAccount')}{' '}
                 <button
                   type="button"
                   onClick={() => setAuthModalMode('login')}
                   className="font-bold text-orange-600 dark:text-orange-400 hover:underline"
                 >
-                  Sign In
+                  {t('auth.signIn')}
                 </button>
               </p>
             )}
