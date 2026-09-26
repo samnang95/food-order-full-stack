@@ -121,9 +121,8 @@ class HomeView extends GetView<HomeStore> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: XSearchBar(
-                onChanged: (query) {
-                  controller.onIntent(HomeSearchChanged(query));
-                },
+                readOnly: true,
+                onTap: () => Get.toNamed(AppRoutes.search),
               ),
             ),
 

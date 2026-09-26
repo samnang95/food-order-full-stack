@@ -12,4 +12,5 @@ class AppRoutes {
   static const String notifications = '/notifications';
   static const String categoryDetail = '/category-detail';
   static const String favorites = '/favorites';
+  static const String search = '/search';
 }

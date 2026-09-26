@@ -22,6 +22,8 @@ import '../features/category_detail/category_detail_binding.dart';
 import '../features/category_detail/category_detail_view.dart';
 import '../features/favorites/favorites_binding.dart';
 import '../features/favorites/favorites_view.dart';
+import '../features/search/search_binding.dart';
+import '../features/search/search_view.dart';
 import 'app_routes.dart';
 
 class AppRouter {
@@ -87,6 +89,12 @@ class AppRouter {
       page: () => const FavoritesView(),
       binding: FavoritesBinding(),
       transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.search,
+      page: () => const SearchView(),
+      binding: SearchBinding(),
+      transition: Transition.fadeIn,
     ),
   ];
 
