@@ -3,6 +3,7 @@ import { appRouter } from './routes';
 import { ThemeProvider, LanguageProvider } from './core';
 import { AuthProvider } from './features/auth/auth_provider';
 import { CartProvider } from './features/cart/cart_provider';
+import { FavoritesProvider } from './features/favorites';
 
 export default function App() {
   return (
@@ -10,7 +11,9 @@ export default function App() {
       <LanguageProvider>
         <AuthProvider>
           <CartProvider>
-            <RouterProvider router={appRouter} />
+            <FavoritesProvider>
+              <RouterProvider router={appRouter} />
+            </FavoritesProvider>
           </CartProvider>
         </AuthProvider>
       </LanguageProvider>

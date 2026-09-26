@@ -23,6 +23,7 @@
     "home": "Home",
     "menu": "Food Menu",
     "orders": "My Orders",
+    "favorites": "Favorites",
     "cart": "Cart",
     "signIn": "Sign In",
     "logOut": "Log out"
@@ -162,5 +163,16 @@
     "createOneNow": "Create one now",
     "alreadyHaveAccount": "Already have an account?",
     "pleaseWait": "Please wait..."
+  },
+  "favorites": {
+    "favoritesTitle": "Saved & Favorite Dishes",
+    "favoritesSubtitle": "Quickly reorder and keep track of all your favorite meals in one place.",
+    "emptyFavoritesTitle": "No favorite dishes yet",
+    "emptyFavoritesSubtitle": "Tap the heart icon on any dish to save it here for quick access and reordering.",
+    "clearAll": "Clear All",
+    "confirmClear": "Are you sure you want to remove all dishes from your favorites?",
+    "searchFavorites": "Search in favorites...",
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites"
   }
 }

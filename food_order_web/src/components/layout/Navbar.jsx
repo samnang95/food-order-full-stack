@@ -5,11 +5,13 @@ import { AppRoutes } from '../../routes/app_routes';
 import { ThemeToggle, LanguageToggle } from '../common';
 import { useCart } from '../../features/cart/use_cart';
 import { useAuth } from '../../features/auth/use_auth';
+import { useFavorites } from '../../features/favorites';
 
 export function Navbar() {
   const { t } = useTranslation();
   const { totalCount, openCart } = useCart();
   const { isAuthenticated, user, openAuthModal, logout } = useAuth();
+  const { favoritesCount } = useFavorites();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const getNavClass = ({ isActive }) =>
@@ -66,6 +68,17 @@ export function Navbar() {
           </NavLink>
           <NavLink to={AppRoutes.ORDERS} className={getNavClass}>
             📦 {t('navigation.orders')}
+          </NavLink>
+          <NavLink to={AppRoutes.FAVORITES} className={getNavClass}>
+            <span className="flex items-center space-x-1.5">
+              <span>❤️</span>
+              <span>{t('navigation.favorites')}</span>
+              {favoritesCount > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-rose-500 text-white">
+                  {favoritesCount}
+                </span>
+              )}
+            </span>
           </NavLink>
         </nav>
 
@@ -160,6 +173,20 @@ export function Navbar() {
             className={getMobileNavClass}
           >
             📦 {t('navigation.orders')}
+          </NavLink>
+          <NavLink
+            to={AppRoutes.FAVORITES}
+            onClick={() => setMobileMenuOpen(false)}
+            className={getMobileNavClass}
+          >
+            <div className="flex items-center justify-between">
+              <span>❤️ {t('navigation.favorites')}</span>
+              {favoritesCount > 0 && (
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500 text-white">
+                  {favoritesCount}
+                </span>
+              )}
+            </div>
           </NavLink>
 
           {isAuthenticated ? (

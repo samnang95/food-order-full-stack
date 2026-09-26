@@ -2,6 +2,7 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useCart } from '../../cart/use_cart';
 import { formatUsd, formatKhr } from '../../../core';
+import { FavoriteButton } from '../../favorites';
 
 export function FoodDetailModal({ food, onClose }) {
   const { addItem, openCart } = useCart();
@@ -28,14 +29,17 @@ export function FoodDetailModal({ food, onClose }) {
         className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden relative max-h-[92vh] flex flex-col"
         role="dialog"
       >
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-900/60 backdrop-blur-md text-white hover:bg-slate-900 flex items-center justify-center transition-colors text-xs sm:text-sm"
-          aria-label="Close details"
-        >
-          ✕
-        </button>
+        {/* Actions (Favorite & Close) */}
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 flex items-center space-x-2">
+          <FavoriteButton food={food} size="sm" />
+          <button
+            onClick={onClose}
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-900/60 backdrop-blur-md text-white hover:bg-slate-900 flex items-center justify-center transition-colors text-xs sm:text-sm"
+            aria-label="Close details"
+          >
+            ✕
+          </button>
+        </div>
 
         {/* Hero Food Photo */}
         <div className="h-44 sm:h-64 w-full relative overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">

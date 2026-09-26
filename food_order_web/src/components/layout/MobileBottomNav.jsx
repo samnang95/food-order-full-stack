@@ -1,13 +1,13 @@
 import { NavLink } from 'react-router-dom';
 import { AppRoutes } from '../../routes/app_routes';
 import { useCart } from '../../features/cart/use_cart';
-import { useAuth } from '../../features/auth/use_auth';
+import { useFavorites } from '../../features/favorites';
 import { useTranslation } from '../../core';
 
 export function MobileBottomNav() {
   const { t } = useTranslation();
   const { totalCount, openCart } = useCart();
-  const { isAuthenticated, user, openAuthModal } = useAuth();
+  const { favoritesCount } = useFavorites();
 
   const getLinkClass = ({ isActive }) =>
     `flex flex-col items-center justify-center flex-1 py-1.5 transition-all active:scale-95 ${
@@ -51,36 +51,24 @@ export function MobileBottomNav() {
         </span>
       </button>
 
-      {/* 4. Orders */}
+      {/* 4. Favorites */}
+      <NavLink to={AppRoutes.FAVORITES} className={getLinkClass}>
+        <div className="relative">
+          <span className="text-lg leading-tight">❤️</span>
+          {favoritesCount > 0 && (
+            <span className="absolute -top-1 -right-2 px-1 py-0.2 rounded-full text-[9px] font-black bg-rose-500 text-white animate-pulse">
+              {favoritesCount}
+            </span>
+          )}
+        </div>
+        <span className="text-[10px] tracking-tight mt-0.5">{t('navigation.favorites')}</span>
+      </NavLink>
+
+      {/* 5. Orders */}
       <NavLink to={AppRoutes.ORDERS} className={getLinkClass}>
         <span className="text-lg leading-tight">📦</span>
         <span className="text-[10px] tracking-tight mt-0.5">{t('navigation.orders')}</span>
       </NavLink>
-
-      {/* 5. Profile / Auth */}
-      {isAuthenticated ? (
-        <button
-          onClick={() => openAuthModal('login')}
-          className="flex flex-col items-center justify-center flex-1 py-1.5 text-slate-500 dark:text-slate-400 active:scale-95"
-          aria-label="Account profile"
-        >
-          <div className="w-5 h-5 rounded-full bg-orange-500 text-white font-black text-[10px] flex items-center justify-center uppercase">
-            {user?.username?.[0] || 'U'}
-          </div>
-          <span className="text-[10px] font-medium tracking-tight mt-0.5 truncate max-w-[50px]">
-            {user?.username || 'Profile'}
-          </span>
-        </button>
-      ) : (
-        <button
-          onClick={() => openAuthModal('login')}
-          className="flex flex-col items-center justify-center flex-1 py-1.5 text-slate-500 dark:text-slate-400 active:scale-95"
-          aria-label="Sign in"
-        >
-          <span className="text-lg leading-tight">👤</span>
-          <span className="text-[10px] tracking-tight mt-0.5 font-medium">{t('navigation.signIn')}</span>
-        </button>
-      )}
     </nav>
   );
 }

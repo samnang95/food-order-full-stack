@@ -2,6 +2,7 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useCart } from '../../cart/use_cart';
 import { formatUsd, formatKhr } from '../../../core';
+import { FavoriteButton } from '../../favorites';
 
 export function FoodCard({ food, onSelect }) {
   const { addItem } = useCart();
@@ -37,6 +38,11 @@ export function FoodCard({ food, onSelect }) {
             {food.categoryName}
           </span>
         )}
+
+        {/* Favorite Button Overlay */}
+        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10">
+          <FavoriteButton food={food} size="sm" />
+        </div>
 
         {/* Prep Time / Rating */}
         <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 flex items-center space-x-1 sm:space-x-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-[9px] sm:text-[11px] font-bold text-slate-800 dark:text-slate-200 shadow-xs">

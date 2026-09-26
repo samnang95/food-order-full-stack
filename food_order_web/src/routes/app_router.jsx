@@ -3,6 +3,7 @@ import { MainLayout } from '../components/layout/MainLayout';
 import { HomeView } from '../features/home/home_view';
 import { MenuView } from '../features/menu/menu_view';
 import { OrdersView } from '../features/orders/orders_view';
+import { FavoritesView } from '../features/favorites';
 import { NotFoundView } from '../components/common/NotFoundView';
 import { AppRoutes } from './app_routes';
 
@@ -22,6 +23,10 @@ export const appRouter = createBrowserRouter([
       {
         path: 'orders',
         element: <OrdersView />,
+      },
+      {
+        path: 'favorites',
+        element: <FavoritesView />,
       },
       {
         path: '*',
