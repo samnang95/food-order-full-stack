@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { CartContext } from './cart_context';
-import { LocalDB, DBKeys } from '../../core';
+import { LocalDB, DBKeys, VoucherService } from '../../core';
 
 const DELIVERY_FEE_STANDARD = 1.5; // $1.50 (approx 6,000 KHR)
 const FREE_DELIVERY_THRESHOLD = 25.0; // Free delivery over $25
@@ -12,13 +12,27 @@ export function CartProvider({ children }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [voucherCode, setVoucherCode] = useState('');
-  const [voucherDiscount, setVoucherDiscount] = useState(0);
+  const [appliedVoucher, setAppliedVoucher] = useState(null);
+  const [availableVouchers, setAvailableVouchers] = useState([]);
+  const [tipAmount, setTipAmount] = useState(0);
 
   // Sync to LocalDB
   useEffect(() => {
     LocalDB.setJSON(DBKeys.CART_ITEMS, items);
   }, [items]);
 
+  // Load available vouchers
+  useEffect(() => {
+    let isMounted = true;
+    VoucherService.getAvailableVouchers().then((vouchers) => {
+      if (isMounted && Array.isArray(vouchers)) {
+        setAvailableVouchers(vouchers);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const addItem = useCallback((food, quantity = 1, notes = '') => {
     if (!food || !food.id) return;
@@ -54,10 +68,10 @@ export function CartProvider({ children }) {
   const clearCart = useCallback(() => {
     setItems([]);
     setVoucherCode('');
-    setVoucherDiscount(0);
+    setAppliedVoucher(null);
+    setTipAmount(0);
     LocalDB.remove(DBKeys.CART_ITEMS);
   }, []);
-
 
   const openCart = useCallback(() => setIsCartOpen(true), []);
   const closeCart = useCallback(() => setIsCartOpen(false), []);
@@ -69,47 +83,46 @@ export function CartProvider({ children }) {
   }, []);
   const closeCheckout = useCallback(() => setIsCheckoutOpen(false), []);
 
-  const applyVoucher = useCallback((code) => {
-    const clean = (code || '').trim().toUpperCase();
-    if (clean === 'BITECRAFT20' || clean === 'WELCOME20') {
-      setVoucherCode(clean);
-      setVoucherDiscount(0.2); // 20% discount
-      return { success: true, message: '🎉 20% discount applied!' };
-    } else if (clean === 'FREEDELIVERY') {
-      setVoucherCode(clean);
-      setVoucherDiscount('FREE_DELIVERY');
-      return { success: true, message: '🛵 Free delivery voucher applied!' };
-    } else {
-      return { success: false, message: 'Invalid or expired voucher code' };
-    }
-  }, []);
-
-  const removeVoucher = useCallback(() => {
-    setVoucherCode('');
-    setVoucherDiscount(0);
-  }, []);
-
   const subtotal = useMemo(() => {
     return items.reduce((acc, item) => acc + (Number(item.food.price) || 0) * item.quantity, 0);
   }, [items]);
 
+  const applyVoucher = useCallback(
+    async (code) => {
+      const res = await VoucherService.validateVoucher(code, subtotal);
+      if (res.valid) {
+        setVoucherCode(res.code);
+        setAppliedVoucher(res);
+        return { success: true, message: res.message || `Voucher ${res.code} applied!` };
+      } else {
+        return { success: false, message: res.message || 'Invalid or expired voucher' };
+      }
+    },
+    [subtotal]
+  );
+
+  const removeVoucher = useCallback(() => {
+    setVoucherCode('');
+    setAppliedVoucher(null);
+  }, []);
+
   const deliveryFee = useMemo(() => {
     if (items.length === 0) return 0;
-    if (subtotal >= FREE_DELIVERY_THRESHOLD || voucherDiscount === 'FREE_DELIVERY') return 0;
+    if (subtotal >= FREE_DELIVERY_THRESHOLD || appliedVoucher?.code === 'FREESHIP') return 0;
     return DELIVERY_FEE_STANDARD;
-  }, [items.length, subtotal, voucherDiscount]);
+  }, [items.length, subtotal, appliedVoucher]);
 
   const discountAmount = useMemo(() => {
-    if (typeof voucherDiscount === 'number') {
-      return subtotal * voucherDiscount;
+    if (appliedVoucher?.discountAmount) {
+      return Number(appliedVoucher.discountAmount) || 0;
     }
     return 0;
-  }, [subtotal, voucherDiscount]);
+  }, [appliedVoucher]);
 
   const totalAmount = useMemo(() => {
-    const rawTotal = subtotal + deliveryFee - discountAmount;
-    return Math.max(0, rawTotal);
-  }, [subtotal, deliveryFee, discountAmount]);
+    const rawTotal = subtotal + deliveryFee - discountAmount + tipAmount;
+    return Math.max(0, Math.round(rawTotal * 100) / 100);
+  }, [subtotal, deliveryFee, discountAmount, tipAmount]);
 
   const totalCount = useMemo(() => {
     return items.reduce((acc, item) => acc + item.quantity, 0);
@@ -121,8 +134,12 @@ export function CartProvider({ children }) {
     subtotal,
     deliveryFee,
     discountAmount,
+    tipAmount,
+    setTipAmount,
     totalAmount,
     voucherCode,
+    appliedVoucher,
+    availableVouchers,
     isCartOpen,
     isCheckoutOpen,
     addItem,

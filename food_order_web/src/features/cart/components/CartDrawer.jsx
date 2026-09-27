@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../use_cart';
 import { formatUsd, formatKhr, useTranslation } from '../../../core';
+import { AppRoutes } from '../../../routes/app_routes';
 
 export function CartDrawer() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const {
     items,
     totalCount,
@@ -16,7 +19,6 @@ export function CartDrawer() {
     closeCart,
     updateQuantity,
     removeItem,
-    openCheckout,
     applyVoucher,
     removeVoucher,
   } = useCart();
@@ -281,7 +283,10 @@ export function CartDrawer() {
 
               {/* Checkout Button */}
               <button
-                onClick={openCheckout}
+                onClick={() => {
+                  closeCart();
+                  navigate(AppRoutes.CHECKOUT);
+                }}
                 className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-sm shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:opacity-95 active:scale-98 transition-all flex items-center justify-center space-x-2"
               >
                 <span>{t('cart.proceedToCheckout')}</span>

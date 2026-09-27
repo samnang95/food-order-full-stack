@@ -4,6 +4,7 @@ import { HomeView } from '../features/home/home_view';
 import { MenuView } from '../features/menu/menu_view';
 import { OrdersView } from '../features/orders/orders_view';
 import { FavoritesView } from '../features/favorites';
+import { CheckoutView } from '../features/checkout';
 import { NotFoundView } from '../components/common/NotFoundView';
 import { AppRoutes } from './app_routes';
 
@@ -27,6 +28,10 @@ export const appRouter = createBrowserRouter([
       {
         path: 'favorites',
         element: <FavoritesView />,
+      },
+      {
+        path: 'checkout',
+        element: <CheckoutView />,
       },
       {
         path: '*',
