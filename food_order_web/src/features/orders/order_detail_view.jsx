@@ -6,6 +6,7 @@ import { formatUsd, formatKhr, useTranslation, AppAssets } from '../../core';
 import { useCart } from '../cart/use_cart';
 import { AppRoutes } from '../../routes/app_routes';
 import { DeliveryMapCard } from './components';
+import { OrderRatingModal, useReviews } from '../reviews';
 
 const STATUS_STEPS = [
   { key: 'pending', labelKey: 'orders.statusPending', icon: '📝' },
@@ -27,6 +28,10 @@ export function OrderDetailView() {
   const [copied, setCopied] = useState(false);
   const [reordering, setReordering] = useState(false);
   const [showMap, setShowMap] = useState(true);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+
+  const { getReviewForOrder } = useReviews();
+  const existingReview = id ? getReviewForOrder(id) : null;
 
   // Fetch Order Details via Clean Architecture Use Case
   useEffect(() => {
@@ -256,6 +261,17 @@ export function OrderDetailView() {
             <span>{t('orders.reorder') || 'Reorder All'}</span>
           </button>
 
+          {isDelivered && (
+            <button
+              type="button"
+              onClick={() => setShowRatingModal(true)}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold shadow-md shadow-amber-500/20 active:scale-95 transition-all flex items-center space-x-1.5"
+            >
+              <span>⭐</span>
+              <span>{existingReview ? 'Update Review' : t('reviews.rateOrder')}</span>
+            </button>
+          )}
+
           {isPending && (
             <button
               type="button"
@@ -310,6 +326,96 @@ export function OrderDetailView() {
             </div>
           </div>
         </div>
+
+        {/* Customer Review Section when delivered */}
+        {isDelivered && (
+          <div className="no-print p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-amber-500/5 via-orange-500/5 to-transparent">
+            {existingReview ? (
+              <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-amber-500/30 shadow-xs space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xl">⭐</span>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                        Your Order Review
+                      </h4>
+                      <span className="text-[10px] text-slate-400">
+                        Submitted on {existingReview.formattedDate}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowRatingModal(true)}
+                    className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline"
+                  >
+                    Edit Review
+                  </button>
+                </div>
+
+                <div className="flex items-center space-x-3 text-xs font-bold">
+                  <span className="text-amber-500">
+                    ★ {existingReview.overallRating}/5 Overall
+                  </span>
+                  {existingReview.foodRating && (
+                    <span className="text-slate-500">
+                      🍲 Food: {existingReview.foodRating}/5
+                    </span>
+                  )}
+                  {existingReview.deliveryRating && (
+                    <span className="text-slate-500">
+                      🛵 Rider: {existingReview.deliveryRating}/5
+                    </span>
+                  )}
+                </div>
+
+                {existingReview.comment && (
+                  <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 italic">
+                    "{existingReview.comment}"
+                  </p>
+                )}
+
+                {existingReview.tags?.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {existingReview.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-0.5 rounded-md text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl shadow-xs">
+                    ⭐
+                  </div>
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                      {t('reviews.howWasYourMeal')}
+                    </h4>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      {t('reviews.rateMealPrompt')}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowRatingModal(true)}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs shadow-md shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center space-x-1.5 self-start sm:self-auto shrink-0"
+                >
+                  <span>⭐</span>
+                  <span>{t('reviews.rateOrder')}</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Live Delivery Progress Stepper (Visible if order is not cancelled) */}
         {!isCancelled && (
@@ -579,6 +685,13 @@ export function OrderDetailView() {
           </p>
         </div>
       </div>
+
+      {/* Order Rating Modal */}
+      <OrderRatingModal
+        isOpen={showRatingModal}
+        onClose={() => setShowRatingModal(false)}
+        order={order}
+      />
     </div>
   );
 }

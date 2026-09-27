@@ -14,8 +14,10 @@ export * from './foods/repositories/food_repository_impl';
 export * from './vouchers/models/voucher_model';
 export * from './vouchers/datasources/voucher_remote_datasource';
 export * from './vouchers/repositories/voucher_repository_impl';
+export * from './reviews';
 
 // Default Singleton Repositories (Service Locator / DI)
 export const orderRepository = new OrderRepositoryImpl();
 export const foodRepository = new FoodRepositoryImpl();
 export const voucherRepository = new VoucherRepositoryImpl();
+

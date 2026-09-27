@@ -5,6 +5,7 @@ import { socketService } from '../../core/services/socket_service';
 import { formatUsd, formatKhr, useTranslation } from '../../core';
 import { AppRoutes } from '../../routes/app_routes';
 import { DeliveryMapCard } from './components';
+import { OrderRatingModal, useReviews } from '../reviews';
 
 const STATUS_STEPS = [
   { key: 'pending', labelKey: 'orders.statusPending', icon: '📝' },
@@ -21,6 +22,10 @@ export function OrdersView() {
   const [driverLoc, setDriverLoc] = useState(null);
   const [notification, setNotification] = useState(null);
   const [simulating, setSimulating] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingTargetOrder, setRatingTargetOrder] = useState(null);
+
+  const { getReviewForOrder, hasReviewedOrder } = useReviews();
 
   const refetchOrders = useCallback(async () => {
     try {
@@ -309,6 +314,24 @@ export function OrdersView() {
                       {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'Today'}
                     </span>
                     <div className="flex items-center space-x-2.5">
+                      {isDelivered && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRatingTargetOrder(order);
+                            setShowRatingModal(true);
+                          }}
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center space-x-1 transition-all ${
+                            hasReviewedOrder(order.id)
+                              ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400'
+                              : 'bg-orange-500 text-white shadow-xs hover:bg-orange-600'
+                          }`}
+                        >
+                          <span>⭐</span>
+                          <span>{hasReviewedOrder(order.id) ? 'Reviewed' : 'Rate'}</span>
+                        </button>
+                      )}
                       <Link
                         to={`/orders/${order.id}`}
                         onClick={(e) => e.stopPropagation()}
@@ -404,6 +427,41 @@ export function OrdersView() {
               {/* Real-Time Interactive Delivery Map */}
               <DeliveryMapCard order={selectedOrder} driverLoc={driverLoc} />
 
+              {/* Delivered Order Review Showcase / CTA */}
+              {selectedOrder.status === 'delivered' && (
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-transparent border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-xl shadow-md shadow-amber-500/25 shrink-0">
+                      ⭐
+                    </div>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                        {hasReviewedOrder(selectedOrder.id)
+                          ? 'You Rated This Order!'
+                          : t('reviews.howWasYourMeal')}
+                      </h4>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        {hasReviewedOrder(selectedOrder.id)
+                          ? `★ ${getReviewForOrder(selectedOrder.id)?.overallRating}/5 Stars • "${getReviewForOrder(selectedOrder.id)?.comment || 'Thank you for your feedback!'}"`
+                          : t('reviews.rateMealPrompt')}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRatingTargetOrder(selectedOrder);
+                      setShowRatingModal(true);
+                    }}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs shadow-md shadow-amber-500/25 active:scale-95 transition-all flex items-center space-x-1.5 self-start sm:self-auto shrink-0"
+                  >
+                    <span>⭐</span>
+                    <span>{hasReviewedOrder(selectedOrder.id) ? 'Update Review' : t('reviews.rateOrder')}</span>
+                  </button>
+                </div>
+              )}
+
               {/* Order Items Breakdown */}
               <div className="space-y-3 pt-2">
                 <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
@@ -471,6 +529,16 @@ export function OrdersView() {
           </div>
         )}
       </div>
+
+      {/* Order Rating Modal */}
+      <OrderRatingModal
+        isOpen={showRatingModal}
+        onClose={() => {
+          setShowRatingModal(false);
+          setRatingTargetOrder(null);
+        }}
+        order={ratingTargetOrder || selectedOrder}
+      />
     </div>
   );
 }

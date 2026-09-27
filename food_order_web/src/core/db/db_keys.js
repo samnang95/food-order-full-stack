@@ -14,4 +14,5 @@ export const DBKeys = {
   CACHED_VOUCHERS: 'bitecraft_cached_vouchers',
   NOTIFICATIONS: 'bitecraft_notifications',
   FCM_TOKEN: 'bitecraft_fcm_token',
+  ORDER_REVIEWS: 'bitecraft_order_reviews',
 };

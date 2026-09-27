@@ -1,14 +1,19 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useCart } from '../../cart/use_cart';
-import { formatUsd, formatKhr } from '../../../core';
+import { formatUsd, formatKhr, useTranslation } from '../../../core';
 import { FavoriteButton } from '../../favorites';
+import { useReviews, RatingStars } from '../../reviews';
 
 export function FoodDetailModal({ food, onClose }) {
+  const { t } = useTranslation();
   const { addItem, openCart } = useCart();
+  const { getReviewsForFood } = useReviews();
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
   const [added, setAdded] = useState(false);
+
+  const foodReviews = food ? getReviewsForFood(food.id) : [];
 
   if (!food) return null;
 
@@ -97,6 +102,55 @@ export function FoodDetailModal({ food, onClose }) {
               placeholder="e.g. Extra spicy, sauce on the side, no onions"
               className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:border-orange-500 resize-none"
             />
+          </div>
+
+          {/* Customer Reviews Section */}
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                  {t('reviews.reviewsTitle')}
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400">
+                  ★ {food.rating || 4.9}
+                </span>
+              </div>
+              <span className="text-[11px] text-slate-400">
+                {foodReviews.length} {t('reviews.verifiedReviews')}
+              </span>
+            </div>
+
+            <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+              {foodReviews.length === 0 ? (
+                <p className="text-xs text-slate-400 italic">
+                  {t('reviews.noReviewsYet')}
+                </p>
+              ) : (
+                foodReviews.map((rev) => (
+                  <div
+                    key={rev.id}
+                    className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                          {rev.customerName}
+                        </span>
+                        <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 font-semibold">
+                          Verified
+                        </span>
+                      </div>
+                      <RatingStars value={rev.overallRating} readOnly size="xs" />
+                    </div>
+                    {rev.comment && (
+                      <p className="text-xs text-slate-600 dark:text-slate-300">
+                        {rev.comment}
+                      </p>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
           </div>
 
           {/* Stepper & Add to Cart button */}

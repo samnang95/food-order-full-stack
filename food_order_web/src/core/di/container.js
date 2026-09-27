@@ -1,7 +1,7 @@
 import { ApiClient } from '../services/api_client';
 import { socketService } from '../services/socket_service';
 import { LocalDB, indexedDBService, DBKeys } from '../db';
-import { orderRepository, foodRepository, voucherRepository } from '../../data';
+import { orderRepository, foodRepository, voucherRepository, reviewRepository } from '../../data';
 import {
   GetFoodsUseCase,
   GetFoodByIdUseCase,
@@ -14,6 +14,9 @@ import {
   CancelOrderUseCase,
   GetVouchersUseCase,
   ValidateVoucherUseCase,
+  SubmitReviewUseCase,
+  GetOrderReviewUseCase,
+  GetFoodReviewsUseCase,
 } from '../../domain';
 
 // Use Cases Singletons
@@ -31,14 +34,20 @@ const cancelOrderUseCase = new CancelOrderUseCase(orderRepository);
 const getVouchersUseCase = new GetVouchersUseCase(voucherRepository);
 const validateVoucherUseCase = new ValidateVoucherUseCase(voucherRepository);
 
+const submitReviewUseCase = new SubmitReviewUseCase(reviewRepository);
+const getOrderReviewUseCase = new GetOrderReviewUseCase(reviewRepository);
+const getFoodReviewsUseCase = new GetFoodReviewsUseCase(reviewRepository);
+
 export const container = {
   // Repositories
   getOrderRepository: () => orderRepository,
   getFoodRepository: () => foodRepository,
   getVoucherRepository: () => voucherRepository,
-  orderRepository,
+  getReviewRepository: () => reviewRepository,
+    orderRepository,
   foodRepository,
   voucherRepository,
+  reviewRepository,
 
   // Foods & Categories Use Cases
   getFoodsUseCase,
@@ -68,6 +77,14 @@ export const container = {
   getGetVouchersUseCase: () => getVouchersUseCase,
   getValidateVoucherUseCase: () => validateVoucherUseCase,
 
+  // Reviews Use Cases
+  submitReviewUseCase,
+  getOrderReviewUseCase,
+  getFoodReviewsUseCase,
+  getSubmitReviewUseCase: () => submitReviewUseCase,
+  getGetOrderReviewUseCase: () => getOrderReviewUseCase,
+  getGetFoodReviewsUseCase: () => getFoodReviewsUseCase,
+
   // Services & Storage
   getApiClient: () => ApiClient,
   getSocketService: () => socketService,
@@ -91,6 +108,7 @@ export {
   orderRepository,
   foodRepository,
   voucherRepository,
+  reviewRepository,
   getFoodsUseCase,
   getFoodByIdUseCase,
   getCategoriesUseCase,
@@ -102,5 +120,9 @@ export {
   cancelOrderUseCase,
   getVouchersUseCase,
   validateVoucherUseCase,
+  submitReviewUseCase,
+  getOrderReviewUseCase,
+  getFoodReviewsUseCase,
 };
+
 

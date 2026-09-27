@@ -377,5 +377,24 @@
     "step2Desc": "Tap Apply on any eligible voucher card or enter your code during checkout.",
     "step3Title": "Fast Doorstep Delivery",
     "step3Desc": "Relax while our courier brings your fresh, discounted meal right to your doorstep."
+  },
+  "reviews": {
+    "reviewsTitle": "Customer Reviews",
+    "verifiedReviews": "Verified Foodie Reviews",
+    "rateOrderTitle": "Rate Your Order",
+    "rateOrderSubtitle": "Share your feedback on the food and delivery rider",
+    "rateOrder": "Rate Order",
+    "reviewed": "Reviewed",
+    "foodTaste": "Food Taste",
+    "riderService": "Rider Service",
+    "overallExperience": "Overall Experience",
+    "submitReview": "Submit Review",
+    "thankYouTitle": "Thank You For Your Review! 🎉",
+    "thankYouSubtitle": "Your feedback helps BiteCraft chefs and riders deliver the best experience in Phnom Penh.",
+    "howWasYourMeal": "How was your meal?",
+    "rateMealPrompt": "Rate your food and delivery driver to help us serve you better!",
+    "noReviewsYet": "No customer reviews yet. Be the first to share your experience!",
+    "leaveReview": "Leave a Review",
+    "basedOnReviews": "Based on {{count}} reviews"
   }
 }

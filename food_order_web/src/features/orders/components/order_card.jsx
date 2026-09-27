@@ -1,6 +1,6 @@
 import { StatusPill } from './status_pill';
 
-export function OrderCard({ order, onSelect, onUpdateStatus }) {
+export function OrderCard({ order, onSelect, onUpdateStatus, onRateOrder }) {
   const orderId = order._id || order.id || 'N/A';
   const shortId = orderId.length > 6 ? orderId.substring(orderId.length - 6).toUpperCase() : orderId;
   const status = (order.status || 'pending').toLowerCase();
@@ -108,6 +108,16 @@ export function OrderCard({ order, onSelect, onUpdateStatus }) {
               className="flex-1 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-semibold text-xs py-2 px-3 rounded-xl shadow-xs transition-all cursor-pointer"
             >
               Mark Delivered
+            </button>
+          )}
+
+          {status === 'delivered' && (
+            <button
+              onClick={() => onRateOrder ? onRateOrder(order) : onSelect(order)}
+              className="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-98 text-white font-bold text-xs py-2 px-3 rounded-xl shadow-xs transition-all flex items-center justify-center space-x-1 cursor-pointer"
+            >
+              <span>⭐</span>
+              <span>Rate Order</span>
             </button>
           )}
         </div>
