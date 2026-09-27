@@ -1,7 +1,7 @@
 import { ApiClient } from '../services/api_client';
 import { socketService } from '../services/socket_service';
 import { LocalDB, indexedDBService, DBKeys } from '../db';
-import { orderRepository, foodRepository, voucherRepository, reviewRepository, invoiceRepository } from '../../data';
+import { orderRepository, foodRepository, voucherRepository, reviewRepository, invoiceRepository, driverChatRepository } from '../../data';
 import {
   GetFoodsUseCase,
   GetFoodByIdUseCase,
@@ -18,6 +18,9 @@ import {
   GetOrderReviewUseCase,
   GetFoodReviewsUseCase,
   GenerateInvoiceUseCase,
+  GetChatMessagesUseCase,
+  SendDriverMessageUseCase,
+  SaveDeliveryInstructionUseCase,
 } from '../../domain';
 
 // Use Cases Singletons
@@ -40,6 +43,10 @@ const getOrderReviewUseCase = new GetOrderReviewUseCase(reviewRepository);
 const getFoodReviewsUseCase = new GetFoodReviewsUseCase(reviewRepository);
 const generateInvoiceUseCase = new GenerateInvoiceUseCase(invoiceRepository);
 
+const getChatMessagesUseCase = new GetChatMessagesUseCase(driverChatRepository);
+const sendDriverMessageUseCase = new SendDriverMessageUseCase(driverChatRepository);
+const saveDeliveryInstructionUseCase = new SaveDeliveryInstructionUseCase(driverChatRepository);
+
 export const container = {
   // Repositories
   getOrderRepository: () => orderRepository,
@@ -47,11 +54,13 @@ export const container = {
   getVoucherRepository: () => voucherRepository,
   getReviewRepository: () => reviewRepository,
   getInvoiceRepository: () => invoiceRepository,
+  getDriverChatRepository: () => driverChatRepository,
   orderRepository,
   foodRepository,
   voucherRepository,
   reviewRepository,
   invoiceRepository,
+  driverChatRepository,
 
   // Foods & Categories Use Cases
   getFoodsUseCase,
@@ -93,6 +102,14 @@ export const container = {
   generateInvoiceUseCase,
   getGenerateInvoiceUseCase: () => generateInvoiceUseCase,
 
+  // Driver Chat Use Cases
+  getChatMessagesUseCase,
+  sendDriverMessageUseCase,
+  saveDeliveryInstructionUseCase,
+  getGetChatMessagesUseCase: () => getChatMessagesUseCase,
+  getSendDriverMessageUseCase: () => sendDriverMessageUseCase,
+  getSaveDeliveryInstructionUseCase: () => saveDeliveryInstructionUseCase,
+
   // Services & Storage
   getApiClient: () => ApiClient,
   getSocketService: () => socketService,
@@ -118,6 +135,7 @@ export {
   voucherRepository,
   reviewRepository,
   invoiceRepository,
+  driverChatRepository,
   getFoodsUseCase,
   getFoodByIdUseCase,
   getCategoriesUseCase,
@@ -133,6 +151,10 @@ export {
   getOrderReviewUseCase,
   getFoodReviewsUseCase,
   generateInvoiceUseCase,
+  getChatMessagesUseCase,
+  sendDriverMessageUseCase,
+  saveDeliveryInstructionUseCase,
 };
+
 
 

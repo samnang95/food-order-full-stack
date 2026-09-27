@@ -47,6 +47,28 @@ class SocketService {
     return () => this.socket?.off('driver_location', callback);
   }
 
+  onChatMessage(callback) {
+    if (!this.socket) this.connect();
+    this.socket.on('chat:message', callback);
+    return () => this.socket?.off('chat:message', callback);
+  }
+
+  onDriverTyping(callback) {
+    if (!this.socket) this.connect();
+    this.socket.on('chat:typing', callback);
+    return () => this.socket?.off('chat:typing', callback);
+  }
+
+  sendChatMessage(payload) {
+    if (!this.socket) this.connect();
+    this.socket.emit('chat:message', payload);
+  }
+
+  sendTyping(payload) {
+    if (!this.socket) this.connect();
+    this.socket.emit('chat:typing', payload);
+  }
+
   joinOrder(orderId) {
     if (!this.socket) this.connect();
     this.socket.emit('join_order', { orderId });

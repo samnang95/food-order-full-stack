@@ -425,5 +425,29 @@
     "paidVerified": "Officially Settled & Verified",
     "codPending": "COD Payment Upon Delivery",
     "thankYou": "Thank you for choosing BiteCraft Artisan Kitchen!"
+  },
+  "chat": {
+    "title": "Live Driver Chat",
+    "chatWithDriver": "Chat with Rider",
+    "riderEnRoute": "Rider en route • Chat",
+    "deliveryInstructions": "Delivery Instructions & Notes",
+    "instructionHelp": "Help your rider find your door or lobby quickly",
+    "activeNote": "Active Drop-off Note for Rider",
+    "noInstruction": "No special note yet. Tap edit or pick a quick preset below.",
+    "customInstructionPlaceholder": "e.g. Leave at apartment lobby reception, ring intercom #402, or call upon arrival...",
+    "oneTapPresets": "1-Tap Delivery Presets",
+    "sendPhotoProof": "Send drop-off photo proof",
+    "inputPlaceholder": "Message your driver...",
+    "callRider": "Call Rider",
+    "todayLiveExpress": "Today • Live Express Delivery",
+    "presets": {
+      "lobby": "I'm waiting at the building lobby",
+      "door": "Please leave at the door / gate",
+      "callArrival": "Please call me when you arrive",
+      "ringBell": "Ring the doorbell, please",
+      "extraChili": "Please ask for extra chili & sauces",
+      "gateCode": "Intercom / Gate code provided"
+    }
   }
 }
+

@@ -8,6 +8,12 @@ import { AppRoutes } from '../../routes/app_routes';
 import { DeliveryMapCard } from './components';
 import { OrderRatingModal, useReviews } from '../reviews';
 import { InvoiceModal, useInvoiceStore } from '../invoices';
+import {
+  DriverChatButton,
+  DriverChatDrawer,
+  DeliveryInstructionsCard,
+  useDriverChatStore,
+} from '../chat';
 
 const STATUS_STEPS = [
   { key: 'pending', labelKey: 'orders.statusPending', icon: '📝' },
@@ -43,6 +49,21 @@ export function OrderDetailView() {
     copyInvoiceNumber,
     copiedRef,
   } = useInvoiceStore();
+
+  const {
+    driver: chatDriver,
+    messages: chatMessages,
+    isOpen: isChatOpen,
+    unreadCount: chatUnreadCount,
+    isDriverTyping,
+    driverTypingName,
+    deliveryInstruction,
+    openChat,
+    closeChat,
+    sendMessage: sendChatMessage,
+    sendPreset: sendChatPreset,
+    saveDeliveryInstruction,
+  } = useDriverChatStore(order);
 
   // Fetch Order Details via Clean Architecture Use Case
   useEffect(() => {
@@ -490,6 +511,58 @@ export function OrderDetailView() {
             </div>
 
             {showMap && <DeliveryMapCard order={order} driverLoc={driverLoc} />}
+
+            {/* Live Courier & Quick Chat Bar */}
+            <div className="mt-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center space-x-3">
+                <div className="relative">
+                  <img
+                    src={chatDriver?.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120'}
+                    alt={chatDriver?.name || 'Driver'}
+                    className="w-12 h-12 rounded-2xl object-cover ring-2 ring-orange-500 shadow-sm"
+                  />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900 animate-pulse" />
+                </div>
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                      {chatDriver?.name || 'Sok Dara'}
+                    </h4>
+                    <span className="text-[10px] font-bold text-amber-500 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.2 rounded-md">
+                      ★ {chatDriver?.rating || '4.95'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    🛵 {chatDriver?.vehicle || 'Honda Scoopy • Phnom Penh 1AB-2345'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2 self-start sm:self-auto">
+                <a
+                  href={`tel:${chatDriver?.phone || '+85512889900'}`}
+                  className="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold text-xs transition-colors flex items-center space-x-1"
+                >
+                  <span>📞</span>
+                  <span>{t('chat.callRider') || 'Call'}</span>
+                </a>
+                <DriverChatButton
+                  variant="inline"
+                  driver={chatDriver}
+                  unreadCount={chatUnreadCount}
+                  onClick={openChat}
+                />
+              </div>
+            </div>
+
+            {/* Delivery Instructions & Drop-off Notes */}
+            <div className="mt-4">
+              <DeliveryInstructionsCard
+                currentInstruction={deliveryInstruction}
+                onSaveInstruction={saveDeliveryInstruction}
+                onSendPresetToChat={sendChatPreset}
+              />
+            </div>
           </div>
         )}
 
@@ -725,6 +798,29 @@ export function OrderDetailView() {
         onPrint={triggerPrint}
         onCopyInvoiceNumber={copyInvoiceNumber}
         isCopied={copiedRef}
+      />
+
+      {/* Floating Driver Chat Trigger (if order is active and not delivered) */}
+      {!isCancelled && (
+        <DriverChatButton
+          variant="floating"
+          driver={chatDriver}
+          unreadCount={chatUnreadCount}
+          onClick={openChat}
+        />
+      )}
+
+      {/* Live Driver Chat Slide-over Drawer */}
+      <DriverChatDrawer
+        isOpen={isChatOpen}
+        onClose={closeChat}
+        driver={chatDriver}
+        messages={chatMessages}
+        isDriverTyping={isDriverTyping}
+        driverTypingName={driverTypingName}
+        deliveryInstruction={deliveryInstruction}
+        onSendMessage={sendChatMessage}
+        onSendPreset={sendChatPreset}
       />
     </div>
   );
