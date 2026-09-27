@@ -1,7 +1,7 @@
 import { ApiClient } from '../services/api_client';
 import { socketService } from '../services/socket_service';
 import { LocalDB, indexedDBService, DBKeys } from '../db';
-import { orderRepository, foodRepository, voucherRepository, reviewRepository, invoiceRepository, driverChatRepository } from '../../data';
+import { orderRepository, foodRepository, voucherRepository, reviewRepository, invoiceRepository, driverChatRepository, loyaltyRepository } from '../../data';
 import {
   GetFoodsUseCase,
   GetFoodByIdUseCase,
@@ -21,6 +21,10 @@ import {
   GetChatMessagesUseCase,
   SendDriverMessageUseCase,
   SaveDeliveryInstructionUseCase,
+  GetLoyaltyProfileUseCase,
+  ClaimDailyCheckInUseCase,
+  RedeemRewardUseCase,
+  EarnPointsUseCase,
 } from '../../domain';
 
 // Use Cases Singletons
@@ -47,6 +51,11 @@ const getChatMessagesUseCase = new GetChatMessagesUseCase(driverChatRepository);
 const sendDriverMessageUseCase = new SendDriverMessageUseCase(driverChatRepository);
 const saveDeliveryInstructionUseCase = new SaveDeliveryInstructionUseCase(driverChatRepository);
 
+const getLoyaltyProfileUseCase = new GetLoyaltyProfileUseCase(loyaltyRepository);
+const claimDailyCheckInUseCase = new ClaimDailyCheckInUseCase(loyaltyRepository);
+const redeemRewardUseCase = new RedeemRewardUseCase(loyaltyRepository);
+const earnPointsUseCase = new EarnPointsUseCase(loyaltyRepository);
+
 export const container = {
   // Repositories
   getOrderRepository: () => orderRepository,
@@ -55,12 +64,14 @@ export const container = {
   getReviewRepository: () => reviewRepository,
   getInvoiceRepository: () => invoiceRepository,
   getDriverChatRepository: () => driverChatRepository,
+  getLoyaltyRepository: () => loyaltyRepository,
   orderRepository,
   foodRepository,
   voucherRepository,
   reviewRepository,
   invoiceRepository,
   driverChatRepository,
+  loyaltyRepository,
 
   // Foods & Categories Use Cases
   getFoodsUseCase,
@@ -110,6 +121,16 @@ export const container = {
   getSendDriverMessageUseCase: () => sendDriverMessageUseCase,
   getSaveDeliveryInstructionUseCase: () => saveDeliveryInstructionUseCase,
 
+  // Loyalty & Rewards Use Cases
+  getLoyaltyProfileUseCase,
+  claimDailyCheckInUseCase,
+  redeemRewardUseCase,
+  earnPointsUseCase,
+  getGetLoyaltyProfileUseCase: () => getLoyaltyProfileUseCase,
+  getClaimDailyCheckInUseCase: () => claimDailyCheckInUseCase,
+  getRedeemRewardUseCase: () => redeemRewardUseCase,
+  getEarnPointsUseCase: () => earnPointsUseCase,
+
   // Services & Storage
   getApiClient: () => ApiClient,
   getSocketService: () => socketService,
@@ -136,6 +157,7 @@ export {
   reviewRepository,
   invoiceRepository,
   driverChatRepository,
+  loyaltyRepository,
   getFoodsUseCase,
   getFoodByIdUseCase,
   getCategoriesUseCase,
@@ -154,6 +176,10 @@ export {
   getChatMessagesUseCase,
   sendDriverMessageUseCase,
   saveDeliveryInstructionUseCase,
+  getLoyaltyProfileUseCase,
+  claimDailyCheckInUseCase,
+  redeemRewardUseCase,
+  earnPointsUseCase,
 };
 
 

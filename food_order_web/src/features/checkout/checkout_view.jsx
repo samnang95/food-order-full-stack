@@ -12,6 +12,7 @@ import {
   OrderSuccessModal,
   KhqrPaymentModal,
 } from './components';
+import { CheckoutRewardsSelector } from '../rewards';
 import { useCheckoutStore } from './checkout_store';
 import { CheckoutIntent } from './checkout_intent';
 
@@ -29,6 +30,7 @@ export function CheckoutView() {
     appliedVoucher,
     availableVouchers,
     applyVoucher,
+    applyCustomVoucher,
     removeVoucher,
     clearCart,
   } = useCart();
@@ -202,6 +204,19 @@ export function CheckoutView() {
 
         {/* Right Column: Vouchers & Order Summary (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
+          {/* BitePoints VIP Loyalty Rewards Selector */}
+          <CheckoutRewardsSelector
+            subtotal={subtotal}
+            appliedVoucher={appliedVoucher}
+            onApplyVoucher={(v) => {
+              if (v) {
+                applyCustomVoucher(v);
+              } else {
+                removeVoucher();
+              }
+            }}
+          />
+
           {/* Promo Codes & Vouchers Card */}
           <VoucherSelector
             voucherCode={voucherCode}

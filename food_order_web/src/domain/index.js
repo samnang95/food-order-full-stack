@@ -10,3 +10,4 @@ export * from './vouchers/usecases';
 export * from './reviews';
 export * from './invoices';
 export * from './chat';
+export * from './rewards';

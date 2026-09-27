@@ -9,6 +9,7 @@ import { useCart } from '../../features/cart/use_cart';
 import { useAuth } from '../../features/auth/use_auth';
 import { useFavorites } from '../../features/favorites';
 import { useNotifications, NotificationDropdown } from '../../features/notifications';
+import { NavbarRewardsPill, useRewards } from '../../features/rewards';
 
 export function Navbar() {
   const { t } = useTranslation();
@@ -16,6 +17,7 @@ export function Navbar() {
   const { isAuthenticated, user, openAuthModal, logout } = useAuth();
   const { favoritesCount } = useFavorites();
   const { unreadCount, toggleDropdown } = useNotifications();
+  const { currentTier, pointsBalance, openRewardsModal } = useRewards();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [categoriesHovered, setCategoriesHovered] = useState(false);
@@ -181,8 +183,12 @@ export function Navbar() {
           </NavLink>
         </nav>
 
-        {/* Right side controls: Search, Cart, Auth, Language, Theme, Mobile toggle */}
+        {/* Right side controls: Rewards, Search, Cart, Auth, Language, Theme, Mobile toggle */}
         <div className="flex items-center space-x-1 sm:space-x-1.5 xl:space-x-2 shrink-0">
+          {/* BitePoints VIP Rewards Pill */}
+          <NavbarRewardsPill />
+
+
           {/* Quick Search Button */}
           <Link
             to={AppRoutes.SEARCH}
@@ -358,6 +364,24 @@ export function Navbar() {
               )}
             </div>
           </NavLink>
+
+          {/* Mobile BitePoints Banner */}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              openRewardsModal();
+            }}
+            className="w-full flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-transparent border border-amber-500/30 text-amber-800 dark:text-amber-300 font-bold text-xs"
+          >
+            <div className="flex items-center space-x-2">
+              <span className="text-lg">{currentTier?.icon || '🪙'}</span>
+              <span>BitePoints Rewards</span>
+            </div>
+            <span className="font-mono text-orange-600 dark:text-orange-400 font-black">
+              {pointsBalance} pts →
+            </span>
+          </button>
 
           {isAuthenticated ? (
             <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2 px-2">

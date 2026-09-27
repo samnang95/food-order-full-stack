@@ -1,13 +1,16 @@
+import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { formatUsd, formatKhr, useTranslation } from '../../../core';
 import { AppRoutes } from '../../../routes/app_routes';
-
 import { useInvoiceStore, InvoiceModal } from '../../invoices';
+import { useRewards } from '../../rewards';
 
 export function OrderSuccessModal({ order, onClose }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { currentTier, openRewardsModal, earnPointsFromOrder } = useRewards();
+  const pointsAwardedRef = useRef(false);
 
   const {
     invoice,
@@ -19,7 +22,16 @@ export function OrderSuccessModal({ order, onClose }) {
     copiedRef,
   } = useInvoiceStore();
 
+  useEffect(() => {
+    if (order && !pointsAwardedRef.current) {
+      pointsAwardedRef.current = true;
+      const orderId = order._id || order.id || order.orderNumber;
+      earnPointsFromOrder(orderId, order.totalAmount || 0);
+    }
+  }, [order, earnPointsFromOrder]);
+
   if (!order) return null;
+
 
   const handleTrackLive = () => {
     onClose?.();
@@ -100,6 +112,29 @@ export function OrderSuccessModal({ order, onClose }) {
             </div>
           </div>
         </div>
+
+        {/* BitePoints Earned Celebration Card */}
+        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/15 border border-amber-500/30 flex items-center justify-between text-xs">
+          <div className="flex items-center space-x-2.5 text-left">
+            <span className="text-2xl">🪙</span>
+            <div>
+              <span className="font-black text-amber-800 dark:text-amber-300">
+                +{Math.max(10, Math.round((order.totalAmount || 0) * 10 * (currentTier?.multiplier || 1.2)))} BitePoints Earned!
+              </span>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                Credited to your {currentTier?.name || 'Silver VIP'} account
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={openRewardsModal}
+            className="text-[11px] font-bold text-orange-600 dark:text-orange-400 hover:underline shrink-0"
+          >
+            VIP Hub →
+          </button>
+        </div>
+
 
         {/* Action Buttons */}
         <div className="space-y-2.5 pt-2">

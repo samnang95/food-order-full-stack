@@ -4,6 +4,7 @@ import { VoucherRepositoryImpl } from './vouchers/repositories/voucher_repositor
 
 import { InvoiceRepositoryImpl } from './invoices/repositories/invoice_repository_impl';
 import { DriverChatRepositoryImpl } from './chat/repositories/driver_chat_repository_impl';
+import { LoyaltyRepositoryImpl } from './rewards/repositories/loyalty_repository_impl';
 
 // Export models & implementations
 export * from './orders/models/order_model';
@@ -20,6 +21,7 @@ export * from './vouchers/repositories/voucher_repository_impl';
 export * from './reviews';
 export * from './invoices';
 export * from './chat';
+export * from './rewards';
 
 // Default Singleton Repositories (Service Locator / DI)
 export const orderRepository = new OrderRepositoryImpl();
@@ -27,5 +29,7 @@ export const foodRepository = new FoodRepositoryImpl();
 export const voucherRepository = new VoucherRepositoryImpl();
 export const invoiceRepository = new InvoiceRepositoryImpl();
 export const driverChatRepository = new DriverChatRepositoryImpl();
+export const loyaltyRepository = new LoyaltyRepositoryImpl();
+
 
 

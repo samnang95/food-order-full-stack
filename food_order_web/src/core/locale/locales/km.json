@@ -448,6 +448,33 @@
       "extraChili": "សុំម្ទេស និងទឹកជ្រលក់បន្ថែម",
       "gateCode": "លេខកូដរបង ឬទ្វារចូល"
     }
+  },
+  "rewards": {
+    "hubTitle": "មជ្ឈមណ្ឌលរង្វាន់ BitePoints VIP",
+    "hubSubtitle": "សន្សំពិន្ទុរាល់ពេលបញ្ជាទិញ និងប្តូរយកប័ណ្ណបញ្ចុះតម្លៃពិសេស",
+    "bitePointsDiscount": "អត្ថប្រយោជន៍ពិន្ទុ BitePoints",
+    "availablePoints": "សមតុល្យពិន្ទុ៖",
+    "rewardsHub": "មជ្ឈមណ្ឌលរង្វាន់",
+    "yourRedeemedVouchers": "ប័ណ្ណដែលអ្នកបានប្តូររួច",
+    "redeemPrompt": "អ្នកមានពិន្ទុ BitePoints អាចប្តូរជាការបញ្ចុះតម្លៃអាហារបាន!",
+    "redeemVoucher": "ប្តូរយករង្វាន់",
+    "redeemSuccess": "បានប្តូរយករង្វាន់ដោយជោគជ័យ!",
+    "streakClaimed": "បានទទួលពិន្ទុប្រចាំថ្ងៃ! +៥០ ពិន្ទុ BitePoints ត្រូវបានបន្ថែម។",
+    "applyNow": "ប្រើប្រាស់លើការកុម្ម៉ង់",
+    "dailyStreakTitle": "ការចូលប្រចាំថ្ងៃបន្តបន្ទាប់",
+    "dailyStreakDesc": "ចូលទទួលពិន្ទុជារៀងរាល់ថ្ងៃ។ ថ្ងៃទី ៧ ទទួលបានរង្វាន់ធំ ១០០ ពិន្ទុ!",
+    "claimedToday": "បានទទួលរួចថ្ងៃនេះ",
+    "claimBonus": "ទទួល +៥០ ពិន្ទុ",
+    "catalogTab": "ប្តូរយករង្វាន់",
+    "myVouchersTab": "ប័ណ្ណរបស់ខ្ញុំ",
+    "historyTab": "ប្រវត្តិពិន្ទុ",
+    "allTiersTab": "កម្រិតសមាជិក VIP",
+    "redeemBtn": "ប្តូរយក",
+    "needMorePts": "ខ្វះពិន្ទុ",
+    "noVouchersYet": "មិនទាន់មានប័ណ្ណដែលបានប្តូរនៅឡើយទេ។",
+    "redeemFirst": "ប្រើពិន្ទុ BitePoints របស់អ្នកដើម្បីទទួលបានការបញ្ចុះតម្លៃ។",
+    "noHistory": "មិនទាន់មានប្រវត្តិពិន្ទុនៅឡើយទេ។"
   }
 }
+
 

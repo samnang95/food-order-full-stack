@@ -12,16 +12,27 @@ export function computeCartFinancials(items = [], appliedVoucher = null, tipAmou
     0
   );
 
-  const deliveryFee =
-    items.length === 0
-      ? 0
-      : subtotal >= FREE_DELIVERY_THRESHOLD || appliedVoucher?.code === 'FREESHIP'
-      ? 0
-      : DELIVERY_FEE_STANDARD;
+  const isFreeDelivery =
+    subtotal >= FREE_DELIVERY_THRESHOLD ||
+    appliedVoucher?.code === 'FREESHIP' ||
+    appliedVoucher?.discountType === 'free_delivery' ||
+    appliedVoucher?.code?.startsWith('BITEDELIV');
 
-  const discountAmount = appliedVoucher?.discountAmount
-    ? Number(appliedVoucher.discountAmount) || 0
-    : 0;
+  const deliveryFee =
+    items.length === 0 ? 0 : isFreeDelivery ? 0 : DELIVERY_FEE_STANDARD;
+
+  let discountAmount = 0;
+  if (appliedVoucher) {
+    if (appliedVoucher.discountAmount) {
+      discountAmount = Number(appliedVoucher.discountAmount) || 0;
+    } else if (appliedVoucher.discountType === 'percent') {
+      discountAmount = Math.round(((subtotal * (Number(appliedVoucher.discountValue) || 0)) / 100) * 100) / 100;
+    } else if (appliedVoucher.discountType === 'fixed') {
+      discountAmount = Number(appliedVoucher.discountValue) || 0;
+    } else if (appliedVoucher.discountValue && appliedVoucher.discountType !== 'free_delivery') {
+      discountAmount = Number(appliedVoucher.discountValue) || 0;
+    }
+  }
 
   const rawTotal = subtotal + deliveryFee - discountAmount + tipAmount;
   const totalAmount = Math.max(0, Math.round(rawTotal * 100) / 100);

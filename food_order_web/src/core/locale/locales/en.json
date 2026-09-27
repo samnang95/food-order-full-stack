@@ -448,6 +448,33 @@
       "extraChili": "Please ask for extra chili & sauces",
       "gateCode": "Intercom / Gate code provided"
     }
+  },
+  "rewards": {
+    "hubTitle": "BitePoints VIP Rewards Hub",
+    "hubSubtitle": "Earn points on every bite & redeem exclusive gourmet vouchers",
+    "bitePointsDiscount": "BitePoints Loyalty Perks",
+    "availablePoints": "Balance:",
+    "rewardsHub": "Rewards Hub",
+    "yourRedeemedVouchers": "Your Redeemed Vouchers",
+    "redeemPrompt": "You have BitePoints ready to convert into meal discounts!",
+    "redeemVoucher": "Redeem",
+    "redeemSuccess": "Reward redeemed successfully!",
+    "streakClaimed": "Daily bonus claimed! +50 BitePoints added to your balance.",
+    "applyNow": "Apply to Order",
+    "dailyStreakTitle": "Daily Check-in Streak",
+    "dailyStreakDesc": "Check in every day to claim bonus points. Day 7 unlocks a 100 pts jackpot!",
+    "claimedToday": "Claimed Today",
+    "claimBonus": "Claim +50 Pts",
+    "catalogTab": "Redeem Rewards",
+    "myVouchersTab": "My Vouchers",
+    "historyTab": "Points History",
+    "allTiersTab": "VIP Tiers",
+    "redeemBtn": "Redeem",
+    "needMorePts": "Need Points",
+    "noVouchersYet": "No vouchers redeemed yet.",
+    "redeemFirst": "Use your BitePoints to unlock instant discounts above.",
+    "noHistory": "No point transactions logged yet."
   }
 }
+
 

@@ -231,7 +231,9 @@ export function useCartStore() {
     openCheckout: () => onIntent({ type: CartIntentType.OPEN_CHECKOUT }),
     closeCheckout: () => onIntent({ type: CartIntentType.CLOSE_CHECKOUT }),
     applyVoucher,
+    applyCustomVoucher: (voucher) => onIntent({ type: CartIntentType.SET_APPLIED_VOUCHER, payload: voucher }),
     removeVoucher: () => onIntent({ type: CartIntentType.REMOVE_VOUCHER }),
     setTipAmount: (amount) => onIntent({ type: CartIntentType.SET_TIP, payload: amount }),
   };
 }
+
