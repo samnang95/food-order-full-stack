@@ -16,6 +16,11 @@ const DISTRICT_COORDINATES = {
   'chroy changvar': [11.5950, 104.9350],
 };
 
+const GOOGLE_MAPS_TILES = {
+  streets: 'https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+  satellite: 'https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+};
+
 function getDeliveryCoords(order, driverLoc) {
   if (driverLoc?.deliveryLat && driverLoc?.deliveryLng) {
     return [driverLoc.deliveryLat, driverLoc.deliveryLng];
@@ -49,6 +54,7 @@ export function DeliveryMapCard({ order, driverLoc }) {
   const [isDarkMode, setIsDarkMode] = useState(() =>
     document.documentElement.classList.contains('dark')
   );
+  const [mapType, setMapType] = useState('streets'); // 'streets' | 'satellite'
   const [callAlert, setCallAlert] = useState(false);
 
   // Status computation
@@ -82,7 +88,7 @@ export function DeliveryMapCard({ order, driverLoc }) {
     return () => observer.disconnect();
   }, []);
 
-  // Update map tile layer when dark mode changes
+  // Update map tile layer when dark mode or mapType changes
   useEffect(() => {
     if (!mapInstanceRef.current) return;
 
@@ -90,16 +96,16 @@ export function DeliveryMapCard({ order, driverLoc }) {
       mapInstanceRef.current.removeLayer(tileLayerRef.current);
     }
 
-    const tileUrl = isDarkMode
-      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+    const tileUrl = GOOGLE_MAPS_TILES[mapType] || GOOGLE_MAPS_TILES.streets;
+    const tileClass = isDarkMode && mapType === 'streets' ? 'leaflet-tile-streets' : '';
 
     tileLayerRef.current = L.tileLayer(tileUrl, {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
-      subdomains: 'abcd',
+      maxZoom: 20,
+      subdomains: '0123',
+      attribution: '&copy; Google Maps',
+      className: tileClass,
     }).addTo(mapInstanceRef.current);
-  }, [isDarkMode]);
+  }, [isDarkMode, mapType]);
 
   // Create custom DivIcons
   const createIcons = useCallback((heading = 0) => {
@@ -164,14 +170,14 @@ export function DeliveryMapCard({ order, driverLoc }) {
 
     // Initial tile layer
     const isDark = document.documentElement.classList.contains('dark');
-    const tileUrl = isDark
-      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+    const tileUrl = GOOGLE_MAPS_TILES[mapType] || GOOGLE_MAPS_TILES.streets;
+    const tileClass = isDark && mapType === 'streets' ? 'leaflet-tile-streets' : '';
 
     tileLayerRef.current = L.tileLayer(tileUrl, {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
-      subdomains: 'abcd',
+      maxZoom: 20,
+      subdomains: '0123',
+      attribution: '&copy; Google Maps',
+      className: tileClass,
     }).addTo(map);
 
     const { restaurantIcon, destinationIcon, driverIcon } = createIcons(driverLoc?.heading || 0);
@@ -218,7 +224,7 @@ export function DeliveryMapCard({ order, driverLoc }) {
       map.remove();
       mapInstanceRef.current = null;
     };
-  }, [createIcons, destinationCoords, driverLoc?.heading, order?.deliveryAddress, restaurantCoords, riderCoords, t]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Update positions dynamically when rider moves or order updates
   useEffect(() => {
@@ -294,6 +300,32 @@ export function DeliveryMapCard({ order, driverLoc }) {
 
         {/* Action Controls */}
         <div className="flex items-center space-x-2">
+          {/* Map Type Switcher */}
+          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-xs">
+            <button
+              type="button"
+              onClick={() => setMapType('streets')}
+              className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                mapType === 'streets'
+                  ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+              }`}
+            >
+              🗺️ {isKhmer ? 'ផែនទី' : 'Map'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMapType('satellite')}
+              className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                mapType === 'satellite'
+                  ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+              }`}
+            >
+              🛰️ {isKhmer ? 'ផ្កាយរណប' : 'Satellite'}
+            </button>
+          </div>
+
           <button
             onClick={handleRecenter}
             type="button"
@@ -307,7 +339,7 @@ export function DeliveryMapCard({ order, driverLoc }) {
       </div>
 
       {/* Map Viewport Container */}
-      <div className="relative w-full h-72 sm:h-96 bg-slate-100 dark:bg-slate-800">
+      <div className="relative isolate z-0 w-full h-72 sm:h-96 bg-slate-100 dark:bg-slate-800">
         <div ref={mapContainerRef} className="w-full h-full z-0" />
 
         {/* Floating ETA Badge Overlay */}

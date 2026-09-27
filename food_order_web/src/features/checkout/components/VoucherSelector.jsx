@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { formatUsd, formatKhr } from '../../../core';
+import { AppRoutes } from '../../../routes/app_routes';
 
 export function VoucherSelector({
   appliedVoucher,
@@ -49,6 +51,13 @@ export function VoucherSelector({
             </p>
           </div>
         </div>
+        <Link
+          to={AppRoutes.VOUCHERS}
+          className="text-[11px] font-bold text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 hover:underline flex items-center space-x-1"
+        >
+          <span>Browse Deals</span>
+          <span>→</span>
+        </Link>
       </div>
 
       {/* Applied Voucher Card */}

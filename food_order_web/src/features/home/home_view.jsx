@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { container } from '../../core/di/container';
 import { AppAssets, useTranslation } from '../../core';
@@ -16,6 +16,14 @@ export function HomeView() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFood, setSelectedFood] = useState(null);
+  const categoryScrollRef = useRef(null);
+
+  const scrollCategories = (direction) => {
+    if (categoryScrollRef.current) {
+      const scrollAmount = direction === 'left' ? -320 : 320;
+      categoryScrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -147,8 +155,41 @@ export function HomeView() {
         </div>
       </section>
 
+      {/* 2. Promo & Voucher Hub Banner */}
+      <section
+        onClick={() => navigate(AppRoutes.VOUCHERS)}
+        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 dark:from-amber-500/15 dark:via-orange-500/15 dark:to-rose-500/15 border border-orange-200/80 dark:border-orange-900/60 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:border-orange-500/80 hover:shadow-lg hover:shadow-orange-500/10 transition-all"
+      >
+        <div className="flex items-center space-x-3.5">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white flex items-center justify-center text-xl sm:text-2xl shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform shrink-0">
+            🎟️
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <span className="text-[10px] font-black uppercase tracking-wider bg-orange-500 text-white px-2 py-0.5 rounded-full">
+                HOT DEALS
+              </span>
+              <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                BiteCraft Promo Codes & Vouchers
+              </span>
+            </div>
+            <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+              Save up to 20% OFF or get Free Delivery on your favorite meals in Phnom Penh!
+            </p>
+          </div>
+        </div>
 
-      {/* 2. Categories Horizontal Bar & Showcase */}
+        <div className="flex items-center space-x-2 shrink-0 self-end sm:self-center">
+          <span className="text-xs font-black text-orange-600 dark:text-orange-400 group-hover:underline">
+            Explore All Vouchers
+          </span>
+          <span className="w-7 h-7 rounded-xl bg-orange-500 text-white flex items-center justify-center text-xs font-bold group-hover:translate-x-1 transition-transform shadow-xs">
+            →
+          </span>
+        </div>
+      </section>
+
+      {/* 3. Categories Horizontal Bar & Showcase */}
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
           <div>
@@ -174,12 +215,35 @@ export function HomeView() {
             >
               {t('home.viewFullMenu')}
             </button>
+
+            {/* Left / Right Carousel Navigation Buttons */}
+            <div className="hidden sm:flex items-center space-x-1 pl-1">
+              <button
+                type="button"
+                onClick={() => scrollCategories('left')}
+                className="w-7 h-7 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-orange-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-orange-600 flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-xs text-base font-bold"
+                aria-label="Scroll categories left"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollCategories('right')}
+                className="w-7 h-7 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-orange-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-orange-600 flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-xs text-base font-bold"
+                aria-label="Scroll categories right"
+              >
+                ›
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Visual Category Showcase Cards Carousel */}
+        {/* Visual Category Showcase Cards Carousel with Edge-to-Edge Scroll */}
         {categories.length > 0 && (
-          <div className="grid grid-flow-col auto-cols-[160px] sm:auto-cols-[200px] gap-3 sm:gap-4 overflow-x-auto pb-2 -mx-3.5 px-3.5 sm:mx-0 sm:px-0 scrollbar-none">
+          <div
+            ref={categoryScrollRef}
+            className="grid grid-flow-col auto-cols-[160px] sm:auto-cols-[200px] gap-3 sm:gap-4 overflow-x-auto pb-2 scroll-smooth scrollbar-none overscroll-x-contain -mx-3.5 sm:-mx-6 lg:-mx-8 px-3.5 sm:px-6 lg:px-8"
+          >
             {categories.map((cat) => {
               const icon = getCategoryIcon(cat.name, cat.icon);
               const heroImg = getCategoryHeroImage(cat);
@@ -228,8 +292,8 @@ export function HomeView() {
           </div>
         )}
 
-        {/* Category Pills Selector */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-2 -mx-3.5 px-3.5 sm:mx-0 sm:px-0 scrollbar-none pt-1">
+        {/* Category Pills Selector with Edge-to-Edge Scroll */}
+        <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none pt-1 -mx-3.5 sm:-mx-6 lg:-mx-8 px-3.5 sm:px-6 lg:px-8">
           <button
             onClick={() => setSelectedCategory('ALL')}
             className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-1.5 shrink-0 ${

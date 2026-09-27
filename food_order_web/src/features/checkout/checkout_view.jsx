@@ -12,6 +12,7 @@ import {
   PaymentSelector,
   OrderSummaryCard,
   OrderSuccessModal,
+  KhqrPaymentModal,
 } from './components';
 
 export function CheckoutView() {
@@ -45,54 +46,83 @@ export function CheckoutView() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [placedOrder, setPlacedOrder] = useState(null);
+  const [showKhqrModal, setShowKhqrModal] = useState(false);
 
-  const handlePlaceOrder = async () => {
+  const validateForm = () => {
     setErrorMsg('');
 
     if (items.length === 0) {
       setErrorMsg('Your cart is empty. Please select food items from the menu.');
-      return;
+      return false;
     }
 
     if (!customerName.trim() || !customerPhone.trim() || !streetAddress.trim()) {
       setErrorMsg('Please complete all contact and delivery address fields.');
-      return;
+      return false;
     }
 
+    return true;
+  };
+
+  const buildOrderPayload = (extraPaymentInfo = {}) => {
+    const fullDeliveryAddress = `${streetAddress}, ${selectedDistrict}, Phnom Penh${
+      deliveryNote ? ` (${deliveryNote})` : ''
+    }`;
+
+    return {
+      items: items.map((i) => ({
+        food: i.food.id,
+        quantity: i.quantity,
+        notes: i.notes || '',
+      })),
+      deliveryAddress: fullDeliveryAddress,
+      deliveryLocation: {
+        lat: coordinates ? coordinates[0] : 11.551,
+        lng: coordinates ? coordinates[1] : 104.925,
+      },
+      paymentMethod: paymentMethod === 'khqr' ? 'bakong_khqr' : 'cash',
+      paymentStatus:
+        extraPaymentInfo.paymentStatus || (paymentMethod === 'khqr' ? 'completed' : 'pending'),
+      paymentRef: extraPaymentInfo.transactionId || undefined,
+      voucherCode: voucherCode || undefined,
+      tipAmount: tipAmount || 0,
+    };
+  };
+
+  const executeOrderCreation = async (orderPayload) => {
     setSubmitting(true);
     try {
       await ensureCustomerSession();
-
-      const fullDeliveryAddress = `${streetAddress}, ${selectedDistrict}, Phnom Penh${
-        deliveryNote ? ` (${deliveryNote})` : ''
-      }`;
-
-      const orderPayload = {
-        items: items.map((i) => ({
-          food: i.food.id,
-          quantity: i.quantity,
-          notes: i.notes || '',
-        })),
-        deliveryAddress: fullDeliveryAddress,
-        deliveryLocation: {
-          lat: coordinates ? coordinates[0] : 11.551,
-          lng: coordinates ? coordinates[1] : 104.925,
-        },
-        paymentMethod: paymentMethod === 'khqr' ? 'bakong_khqr' : 'cash',
-        voucherCode: voucherCode || undefined,
-        tipAmount: tipAmount || 0,
-      };
-
       const created = await container.createOrderUseCase.execute(orderPayload);
-
       setPlacedOrder(created);
       clearCart();
+      setShowKhqrModal(false);
     } catch (err) {
       console.error('Order creation error:', err);
       setErrorMsg(err.message || 'Failed to place order. Please try again.');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handlePlaceOrder = async () => {
+    if (!validateForm()) return;
+
+    if (paymentMethod === 'khqr') {
+      setShowKhqrModal(true);
+      return;
+    }
+
+    // Cash on Delivery
+    await executeOrderCreation(buildOrderPayload());
+  };
+
+  const handleKhqrSuccess = async (paymentDetails) => {
+    const payload = buildOrderPayload({
+      paymentStatus: 'completed',
+      transactionId: paymentDetails.transactionId,
+    });
+    await executeOrderCreation(payload);
   };
 
   // If cart is empty and no order just placed, show empty state
@@ -211,6 +241,9 @@ export function CheckoutView() {
             paymentMethod={paymentMethod}
             setPaymentMethod={setPaymentMethod}
             totalAmount={totalAmount}
+            onOpenKhqrModal={() => {
+              if (validateForm()) setShowKhqrModal(true);
+            }}
           />
 
           {/* Courier Tip Card */}
@@ -240,11 +273,24 @@ export function CheckoutView() {
             tipAmount={tipAmount}
             totalAmount={totalAmount}
             appliedVoucher={appliedVoucher}
+            paymentMethod={paymentMethod}
             submitting={submitting}
             onPlaceOrder={handlePlaceOrder}
           />
         </div>
       </div>
+
+      {/* Interactive Bakong KHQR Payment Modal */}
+      <KhqrPaymentModal
+        isOpen={showKhqrModal}
+        onClose={() => setShowKhqrModal(false)}
+        totalAmount={totalAmount}
+        onPaymentSuccess={handleKhqrSuccess}
+        onCancelPayCash={() => {
+          setShowKhqrModal(false);
+          setPaymentMethod('cash');
+        }}
+      />
 
       {/* Order Success Celebration Modal */}
       {placedOrder && (

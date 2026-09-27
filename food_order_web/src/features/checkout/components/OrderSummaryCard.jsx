@@ -9,6 +9,7 @@ export function OrderSummaryCard({
   tipAmount,
   totalAmount,
   appliedVoucher,
+  paymentMethod = 'cash',
   submitting,
   onPlaceOrder,
 }) {
@@ -114,7 +115,11 @@ export function OrderSummaryCard({
         type="button"
         disabled={submitting || items.length === 0}
         onClick={onPlaceOrder}
-        className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-sm shadow-xl shadow-orange-500/30 hover:shadow-orange-500/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-98 transition-all disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center space-x-2"
+        className={`w-full py-4 px-6 rounded-2xl text-white font-black text-sm shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:scale-98 transition-all disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center space-x-2 ${
+          paymentMethod === 'khqr'
+            ? 'bg-gradient-to-r from-[#E11900] via-red-600 to-orange-500 hover:from-[#C21500] hover:to-orange-600 shadow-red-500/25 hover:shadow-red-500/35'
+            : 'bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-orange-500/30 hover:shadow-orange-500/40'
+        }`}
       >
         {submitting ? (
           <span className="flex items-center space-x-2">
@@ -126,7 +131,7 @@ export function OrderSummaryCard({
           </span>
         ) : (
           <>
-            <span>{t('checkout.placeOrder')}</span>
+            <span>{paymentMethod === 'khqr' ? `📱 ${t('checkout.payWithKhqr')}` : t('checkout.placeOrder')}</span>
             <span>•</span>
             <span>{formatUsd(totalAmount)}</span>
           </>
@@ -148,6 +153,7 @@ OrderSummaryCard.propTypes = {
   tipAmount: PropTypes.number.isRequired,
   totalAmount: PropTypes.number.isRequired,
   appliedVoucher: PropTypes.object,
+  paymentMethod: PropTypes.string,
   submitting: PropTypes.bool,
   onPlaceOrder: PropTypes.func.isRequired,
 };

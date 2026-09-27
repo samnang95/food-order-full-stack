@@ -227,7 +227,7 @@ export function OrdersView() {
           <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
             Switch Order ({orders.length})
           </p>
-          <div className="flex items-center space-x-2 overflow-x-auto pb-2 -mx-3.5 px-3.5">
+          <div className="flex items-center space-x-2 overflow-x-auto pb-2 -mx-3.5 sm:-mx-6 px-3.5 sm:px-6 scroll-smooth scrollbar-none overscroll-x-contain">
             {orders.map((order) => {
               const isSelected = order.id === selectedOrderId;
               return (

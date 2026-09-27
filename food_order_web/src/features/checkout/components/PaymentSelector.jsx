@@ -1,7 +1,12 @@
 import PropTypes from 'prop-types';
 import { formatUsd, formatKhr, useTranslation } from '../../../core';
 
-export function PaymentSelector({ paymentMethod, setPaymentMethod, totalAmount }) {
+export function PaymentSelector({
+  paymentMethod,
+  setPaymentMethod,
+  totalAmount,
+  onOpenKhqrModal,
+}) {
   const { t } = useTranslation();
 
   return (
@@ -112,6 +117,18 @@ export function PaymentSelector({ paymentMethod, setPaymentMethod, totalAmount }
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
               ({formatKhr(totalAmount)}) • Supported by ABA, Wing, Acleda, Canadia & 30+ banks
             </p>
+
+            {onOpenKhqrModal && (
+              <button
+                type="button"
+                onClick={onOpenKhqrModal}
+                className="mt-3 inline-flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#E11900] to-red-600 hover:from-[#C21500] hover:to-red-700 text-white text-xs font-black shadow-md shadow-red-500/20 active:scale-95 transition-all"
+              >
+                <span>📱</span>
+                <span>{t('checkout.openKhqr')}</span>
+                <span>→</span>
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -123,4 +140,5 @@ PaymentSelector.propTypes = {
   paymentMethod: PropTypes.string.isRequired,
   setPaymentMethod: PropTypes.func.isRequired,
   totalAmount: PropTypes.number.isRequired,
+  onOpenKhqrModal: PropTypes.func,
 };

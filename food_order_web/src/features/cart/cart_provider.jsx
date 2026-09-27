@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { CartContext } from './cart_context';
-import { LocalDB, DBKeys, VoucherService } from '../../core';
+import { LocalDB, DBKeys } from '../../core';
+import { container } from '../../core/di/container';
 
 const DELIVERY_FEE_STANDARD = 1.5; // $1.50 (approx 6,000 KHR)
 const FREE_DELIVERY_THRESHOLD = 25.0; // Free delivery over $25
@@ -24,11 +25,16 @@ export function CartProvider({ children }) {
   // Load available vouchers
   useEffect(() => {
     let isMounted = true;
-    VoucherService.getAvailableVouchers().then((vouchers) => {
-      if (isMounted && Array.isArray(vouchers)) {
-        setAvailableVouchers(vouchers);
-      }
-    });
+    container.getVouchersUseCase
+      .execute()
+      .then((vouchers) => {
+        if (isMounted && Array.isArray(vouchers)) {
+          setAvailableVouchers(vouchers);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load vouchers:', err);
+      });
     return () => {
       isMounted = false;
     };
@@ -89,7 +95,7 @@ export function CartProvider({ children }) {
 
   const applyVoucher = useCallback(
     async (code) => {
-      const res = await VoucherService.validateVoucher(code, subtotal);
+      const res = await container.validateVoucherUseCase.execute(code, subtotal);
       if (res.valid) {
         setVoucherCode(res.code);
         setAppliedVoucher(res);

@@ -22,7 +22,7 @@ export function OrderSuccessModal({ order, onClose }) {
   const orderId = order.orderNumber || (order._id || order.id || '').toString().slice(-6).toUpperCase();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 text-center space-y-6 animate-in zoom-in-95 duration-200">
         {/* Celebration Badge */}
         <div className="w-20 h-20 mx-auto rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-4xl shadow-xl shadow-emerald-500/20 animate-bounce">
@@ -68,7 +68,11 @@ export function OrderSuccessModal({ order, onClose }) {
           <div className="flex justify-between items-center">
             <span className="text-slate-500 dark:text-slate-400">Payment Status:</span>
             <span className="font-bold uppercase text-emerald-600 dark:text-emerald-400">
-              {order.paymentMethod === 'bakong_khqr' ? 'Bakong KHQR (Pending Scan)' : 'Cash on Delivery'}
+              {order.paymentMethod === 'bakong_khqr'
+                ? order.paymentStatus === 'completed'
+                  ? 'Bakong KHQR (Verified & Paid ✓)'
+                  : t('checkout.khqrPending')
+                : t('checkout.cashOnDelivery')}
             </span>
           </div>
 

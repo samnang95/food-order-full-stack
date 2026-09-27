@@ -5,6 +5,7 @@ import { MenuView } from '../features/menu/menu_view';
 import { OrdersView, OrderDetailView } from '../features/orders';
 import { CategoriesView, CategoryDetailView } from '../features/categories';
 import { SearchView } from '../features/search';
+import { VouchersView } from '../features/vouchers';
 import { FavoritesView } from '../features/favorites';
 import { CheckoutView } from '../features/checkout';
 import { ProfileView } from '../features/profile';
@@ -36,6 +37,10 @@ export const appRouter = createBrowserRouter([
       {
         path: 'search',
         element: <SearchView />,
+      },
+      {
+        path: 'vouchers',
+        element: <VouchersView />,
       },
       {
         path: 'orders',

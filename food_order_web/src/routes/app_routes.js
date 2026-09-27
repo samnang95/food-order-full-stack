@@ -6,6 +6,7 @@ export const AppRoutes = Object.freeze({
   CATEGORIES: '/categories',
   CATEGORY_DETAIL: '/category/:id',
   SEARCH: '/search',
+  VOUCHERS: '/vouchers',
   FAVORITES: '/favorites',
   CHECKOUT: '/checkout',
   PROFILE: '/profile',

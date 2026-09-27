@@ -66,3 +66,23 @@
   }
 }
 
+/* Hide scrollbars across browsers while keeping scrolling active */
+.scrollbar-none {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Google Maps Dark Mode Tile Filter */
+.dark .leaflet-tile-streets {
+  filter: invert(100%) hue-rotate(180deg) brightness(92%) contrast(90%);
+}
+
+/* Ensure Leaflet map containers never bleed over modals or drawers */
+.leaflet-container {
+  z-index: 0 !important;
+  isolation: isolate;
+}
+

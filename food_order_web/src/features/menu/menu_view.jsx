@@ -149,7 +149,7 @@ export function MenuView() {
         </div>
 
         {/* Category Pills */}
-        <div className="flex items-center space-x-1.5 sm:space-x-2 overflow-x-auto pt-1 pb-1 -mx-3.5 px-3.5 sm:mx-0 sm:px-0 scrollbar-none">
+        <div className="flex items-center space-x-1.5 sm:space-x-2 overflow-x-auto pt-1 pb-1 -mx-3.5 sm:-mx-5 px-3.5 sm:px-5 scroll-smooth scrollbar-none overscroll-x-contain">
           <button
             onClick={() => handleCategoryChange('ALL')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-1.5 shrink-0 ${

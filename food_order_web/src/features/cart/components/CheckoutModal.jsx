@@ -5,6 +5,8 @@ import { useAuth } from '../../auth/use_auth';
 import { container } from '../../../core/di/container';
 import { formatUsd, formatKhr, useTranslation } from '../../../core';
 import { AppRoutes } from '../../../routes/app_routes';
+import { KhqrPaymentModal } from '../../checkout/components/KhqrPaymentModal';
+import { useSavedAddresses } from '../../profile/use_saved_addresses';
 
 const DISTRICTS = [
   'BKK 1',
@@ -31,6 +33,7 @@ export function CheckoutModal() {
   } = useCart();
 
   const { user, ensureCustomerSession } = useAuth();
+  const { addresses } = useSavedAddresses();
   const navigate = useNavigate();
 
   const [customerName, setCustomerName] = useState(user?.username || 'Guest Foodie');
@@ -43,6 +46,7 @@ export function CheckoutModal() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [placedOrder, setPlacedOrder] = useState(null);
+  const [showKhqrModal, setShowKhqrModal] = useState(false);
 
   if (!isCheckoutOpen) return null;
 
@@ -51,50 +55,78 @@ export function CheckoutModal() {
     setStreetAddress(`Street 271, Sangkat ${district}, Phnom Penh`);
   };
 
-  const handlePlaceOrder = async (e) => {
-    e.preventDefault();
+  const validateForm = () => {
     setErrorMsg('');
 
     if (items.length === 0) {
       setErrorMsg('Your cart is empty.');
-      return;
+      return false;
     }
 
     if (!customerName.trim() || !customerPhone.trim() || !streetAddress.trim()) {
       setErrorMsg('Please complete all delivery contact fields.');
-      return;
+      return false;
     }
 
+    return true;
+  };
+
+  const buildOrderPayload = (extraPaymentInfo = {}) => {
+    const fullDeliveryAddress = `${streetAddress}, ${selectedDistrict}, Phnom Penh${
+      deliveryNote ? ` (${deliveryNote})` : ''
+    }`;
+
+    return {
+      items: items.map((i) => ({
+        food: i.food.id,
+        quantity: i.quantity,
+        notes: i.notes || '',
+      })),
+      deliveryAddress: fullDeliveryAddress,
+      paymentMethod: paymentMethod === 'khqr' ? 'bakong_khqr' : 'cash',
+      paymentStatus:
+        extraPaymentInfo.paymentStatus || (paymentMethod === 'khqr' ? 'completed' : 'pending'),
+      paymentRef: extraPaymentInfo.transactionId || undefined,
+      voucherCode: voucherCode || undefined,
+    };
+  };
+
+  const executeOrderCreation = async (orderPayload) => {
     setSubmitting(true);
     try {
       await ensureCustomerSession();
-
-      const fullDeliveryAddress = `${streetAddress}, ${selectedDistrict}, Phnom Penh${
-        deliveryNote ? ` (${deliveryNote})` : ''
-      }`;
-
-      const orderPayload = {
-        items: items.map((i) => ({
-          food: i.food.id,
-          quantity: i.quantity,
-          notes: i.notes || '',
-        })),
-        deliveryAddress: fullDeliveryAddress,
-        paymentMethod: paymentMethod === 'khqr' ? 'bakong_khqr' : 'cash',
-        voucherCode: voucherCode || undefined,
-      };
-
       const orderRepo = container.getOrderRepository();
       const created = await orderRepo.createOrder(orderPayload);
 
       setPlacedOrder(created);
       clearCart();
+      setShowKhqrModal(false);
     } catch (err) {
       console.error('Order creation error:', err);
       setErrorMsg(err.message || 'Failed to place order. Please try again.');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handlePlaceOrder = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    if (paymentMethod === 'khqr') {
+      setShowKhqrModal(true);
+      return;
+    }
+
+    await executeOrderCreation(buildOrderPayload());
+  };
+
+  const handleKhqrSuccess = async (paymentDetails) => {
+    const payload = buildOrderPayload({
+      paymentStatus: 'completed',
+      transactionId: paymentDetails.transactionId,
+    });
+    await executeOrderCreation(payload);
   };
 
   const handleTrackOrder = () => {
@@ -236,6 +268,63 @@ export function CheckoutModal() {
                   2. {t('checkout.deliveryAddress')}
                 </h3>
 
+                {/* Saved Addresses Book Selection */}
+                {addresses.length > 0 && (
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
+                      {t('checkout.selectSavedAddress')}
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {addresses.map((addr) => {
+                        const isSelected = streetAddress === addr.address;
+                        const icon =
+                          addr.label === 'Home'
+                            ? '🏠'
+                            : addr.label === 'Work'
+                            ? '🏢'
+                            : addr.label === 'Partner'
+                            ? '❤️'
+                            : addr.label === 'Gym'
+                            ? '🏋️'
+                            : '📍';
+
+                        return (
+                          <button
+                            key={addr.id}
+                            type="button"
+                            onClick={() => {
+                              setStreetAddress(addr.address);
+                              if (addr.note) setDeliveryNote(addr.note);
+                              const lower = addr.address.toLowerCase();
+                              const matched = DISTRICTS.find((d) => lower.includes(d.toLowerCase()));
+                              if (matched) setSelectedDistrict(matched);
+                            }}
+                            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 border ${
+                              isSelected
+                                ? 'bg-orange-500 text-white border-orange-500 shadow-xs'
+                                : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
+                            }`}
+                          >
+                            <span>{icon}</span>
+                            <span>{addr.label}</span>
+                            {addr.isDefault && (
+                              <span
+                                className={`text-[8px] px-1 py-0.2 rounded-full font-black uppercase tracking-wider ${
+                                  isSelected
+                                    ? 'bg-white/20 text-white'
+                                    : 'bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400'
+                                }`}
+                              >
+                                Default
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 {/* Quick District Selector */}
                 <div>
                   <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
@@ -367,6 +456,15 @@ export function CheckoutModal() {
                     <p className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
                       Amount: {formatUsd(totalAmount)} / {formatKhr(totalAmount)}
                     </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (validateForm()) setShowKhqrModal(true);
+                      }}
+                      className="mt-1 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#E11900] to-red-600 hover:from-[#C21500] hover:to-red-700 text-white text-[11px] font-bold shadow-xs active:scale-95 transition-all"
+                    >
+                      <span>📱 {t('checkout.openKhqr')} →</span>
+                    </button>
                   </div>
                 )}
               </div>
@@ -437,7 +535,11 @@ export function CheckoutModal() {
                   <span>{t('checkout.placingOrder')}</span>
                 ) : (
                   <>
-                    <span>{t('checkout.placeOrder')}</span>
+                    <span>
+                      {paymentMethod === 'khqr'
+                        ? t('checkout.payWithKhqr')
+                        : t('checkout.placeOrder')}
+                    </span>
                     <span>•</span>
                     <span>{formatUsd(totalAmount)}</span>
                   </>
@@ -447,6 +549,18 @@ export function CheckoutModal() {
           </form>
         )}
       </div>
+
+      {/* Bakong KHQR Payment Modal */}
+      <KhqrPaymentModal
+        isOpen={showKhqrModal}
+        onClose={() => setShowKhqrModal(false)}
+        totalAmount={totalAmount}
+        onPaymentSuccess={handleKhqrSuccess}
+        onCancelPayCash={() => {
+          setShowKhqrModal(false);
+          setPaymentMethod('cash');
+        }}
+      />
     </div>
   );
 }

@@ -4,3 +4,6 @@ export * from './orders/usecases';
 export * from './foods/entities/food_entity';
 export * from './foods/repositories/food_repository';
 export * from './foods/usecases';
+export * from './vouchers/entities/voucher_entity';
+export * from './vouchers/repositories/voucher_repository';
+export * from './vouchers/usecases';

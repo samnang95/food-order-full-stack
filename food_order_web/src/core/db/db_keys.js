@@ -11,6 +11,7 @@ export const DBKeys = {
   CACHED_ORDERS: 'bitecraft_cached_orders',
   CACHED_FOODS: 'bitecraft_cached_foods',
   CACHED_CATEGORIES: 'bitecraft_cached_categories',
+  CACHED_VOUCHERS: 'bitecraft_cached_vouchers',
   NOTIFICATIONS: 'bitecraft_notifications',
   FCM_TOKEN: 'bitecraft_fcm_token',
 };

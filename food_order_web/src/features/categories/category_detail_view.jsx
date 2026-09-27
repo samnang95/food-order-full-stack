@@ -186,7 +186,7 @@ export function CategoryDetailView() {
             </Link>
           </div>
 
-          <div className="flex items-center space-x-2.5 overflow-x-auto pb-2 -mx-3.5 px-3.5 sm:mx-0 sm:px-0 scrollbar-none">
+          <div className="flex items-center space-x-2.5 overflow-x-auto pb-2 -mx-3.5 sm:-mx-6 lg:-mx-8 px-3.5 sm:px-6 lg:px-8 scroll-smooth scrollbar-none overscroll-x-contain">
             {allCategories.map((cat) => {
               const isCurrent =
                 cat.id === category?.id ||

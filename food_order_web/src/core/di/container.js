@@ -1,7 +1,7 @@
 import { ApiClient } from '../services/api_client';
 import { socketService } from '../services/socket_service';
 import { LocalDB, indexedDBService, DBKeys } from '../db';
-import { orderRepository, foodRepository } from '../../data';
+import { orderRepository, foodRepository, voucherRepository } from '../../data';
 import {
   GetFoodsUseCase,
   GetFoodByIdUseCase,
@@ -12,6 +12,8 @@ import {
   GetOrderByIdUseCase,
   CreateOrderUseCase,
   CancelOrderUseCase,
+  GetVouchersUseCase,
+  ValidateVoucherUseCase,
 } from '../../domain';
 
 // Use Cases Singletons
@@ -26,12 +28,17 @@ const getOrderByIdUseCase = new GetOrderByIdUseCase(orderRepository);
 const createOrderUseCase = new CreateOrderUseCase(orderRepository);
 const cancelOrderUseCase = new CancelOrderUseCase(orderRepository);
 
+const getVouchersUseCase = new GetVouchersUseCase(voucherRepository);
+const validateVoucherUseCase = new ValidateVoucherUseCase(voucherRepository);
+
 export const container = {
   // Repositories
   getOrderRepository: () => orderRepository,
   getFoodRepository: () => foodRepository,
+  getVoucherRepository: () => voucherRepository,
   orderRepository,
   foodRepository,
+  voucherRepository,
 
   // Foods & Categories Use Cases
   getFoodsUseCase,
@@ -55,6 +62,12 @@ export const container = {
   getCreateOrderUseCase: () => createOrderUseCase,
   getCancelOrderUseCase: () => cancelOrderUseCase,
 
+  // Vouchers Use Cases
+  getVouchersUseCase,
+  validateVoucherUseCase,
+  getGetVouchersUseCase: () => getVouchersUseCase,
+  getValidateVoucherUseCase: () => validateVoucherUseCase,
+
   // Services & Storage
   getApiClient: () => ApiClient,
   getSocketService: () => socketService,
@@ -77,6 +90,7 @@ export {
   DBKeys,
   orderRepository,
   foodRepository,
+  voucherRepository,
   getFoodsUseCase,
   getFoodByIdUseCase,
   getCategoriesUseCase,
@@ -86,5 +100,7 @@ export {
   getOrderByIdUseCase,
   createOrderUseCase,
   cancelOrderUseCase,
+  getVouchersUseCase,
+  validateVoucherUseCase,
 };
 
