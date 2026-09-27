@@ -1,3 +1,6 @@
-export { CategoryDetailView } from './category_detail_view';
 export { CategoriesView } from './categories_view';
-export { getCategoryHeroImage, getCategoryIcon } from './category_constants';
+export { CategoryDetailView } from './category_detail_view';
+export { useCategoriesStore, categoriesReducer } from './categories_store';
+export { CategoriesIntentType, CategoriesIntent } from './categories_intent';
+export { initialCategoriesState, computeCategoryItemCounts, computeFilteredCategories } from './categories_state';
+export * from './category_constants';

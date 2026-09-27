@@ -1,41 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { container } from '../../core/di/container';
 import { useTranslation } from '../../core';
 import { AppRoutes, getCategoryDetailRoute } from '../../routes/app_routes';
 import { FoodCard } from './components/FoodCard';
 import { FoodDetailModal } from './components/FoodDetailModal';
+import { useMenuStore } from './menu_store';
+import { MenuIntent } from './menu_intent';
 
 export function MenuView() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const searchQuery = searchParams.get('q') || '';
-  const selectedCategory = searchParams.get('category') || 'ALL';
+  const urlQuery = searchParams.get('q') || '';
+  const urlCategory = searchParams.get('category') || 'ALL';
 
-  const [foods, setFoods] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [sortBy, setSortBy] = useState('popular'); // 'popular' | 'price-low' | 'price-high' | 'name'
-  const [loading, setLoading] = useState(true);
-  const [selectedFood, setSelectedFood] = useState(null);
+  const { state, onIntent, processedFoods } = useMenuStore({
+    selectedCategory: urlCategory,
+    searchQuery: urlQuery,
+  });
+
+  const { foods, categories, sortBy, loading, selectedFood, selectedCategory, searchQuery } = state;
+
+  // Synchronize URL changes to MVI Store
+  useEffect(() => {
+    onIntent(MenuIntent.setCategory(urlCategory));
+  }, [urlCategory, onIntent]);
 
   useEffect(() => {
-    async function loadMenu() {
-      setLoading(true);
-      try {
-        const [foodsData, categoriesData] = await Promise.all([
-          container.getFoodsUseCase.execute(),
-          container.getCategoriesUseCase.execute(),
-        ]);
-        setFoods(foodsData);
-        setCategories(categoriesData);
-      } catch (err) {
-        console.error('Failed to load menu data:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadMenu();
-  }, []);
+    onIntent(MenuIntent.setSearch(urlQuery));
+  }, [urlQuery, onIntent]);
 
   const handleCategoryChange = (categoryName) => {
     const newParams = new URLSearchParams(searchParams);
@@ -45,6 +37,7 @@ export function MenuView() {
       newParams.set('category', categoryName);
     }
     setSearchParams(newParams);
+    onIntent(MenuIntent.setCategory(categoryName));
   };
 
   const handleSearchChange = (e) => {
@@ -56,30 +49,8 @@ export function MenuView() {
       newParams.set('q', val);
     }
     setSearchParams(newParams);
+    onIntent(MenuIntent.setSearch(val));
   };
-
-
-  // Filter and sort dishes
-  const processedFoods = foods
-    .filter((food) => {
-      const matchesCategory =
-        selectedCategory === 'ALL' ||
-        food.categoryName?.toLowerCase() === selectedCategory.toLowerCase() ||
-        food.categoryId === selectedCategory;
-
-      const matchesSearch =
-        !searchQuery.trim() ||
-        food.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        food.description?.toLowerCase().includes(searchQuery.toLowerCase());
-
-      return matchesCategory && matchesSearch;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'price-low') return a.price - b.price;
-      if (sortBy === 'price-high') return b.price - a.price;
-      if (sortBy === 'name') return a.name.localeCompare(b.name);
-      return 0; // Default order
-    });
 
   return (
     <div className="space-y-6 sm:space-y-8 pb-8">
@@ -137,7 +108,7 @@ export function MenuView() {
             </span>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
+              onChange={(e) => onIntent(MenuIntent.setSortBy(e.target.value))}
               className="flex-1 sm:flex-none px-3 py-2 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-bold focus:outline-hidden focus:border-orange-500 cursor-pointer"
             >
               <option value="popular">{t('menu.sortPopular')}</option>
@@ -237,18 +208,17 @@ export function MenuView() {
             <FoodCard
               key={food.id}
               food={food}
-              onSelect={(selected) => setSelectedFood(selected)}
+              onSelect={(selected) => onIntent(MenuIntent.selectFood(selected))}
             />
           ))}
         </div>
       )}
 
       {/* Food Detail Modal */}
-
       {selectedFood && (
         <FoodDetailModal
           food={selectedFood}
-          onClose={() => setSelectedFood(null)}
+          onClose={() => onIntent(MenuIntent.clearSelectedFood())}
         />
       )}
     </div>

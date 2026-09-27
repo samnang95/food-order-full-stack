@@ -1,22 +1,20 @@
-import { useState, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { container } from '../../core/di/container';
 import { AppAssets, useTranslation } from '../../core';
 import { AppRoutes, getCategoryDetailRoute, getSearchRoute } from '../../routes/app_routes';
 import { FoodCard } from '../menu/components/FoodCard';
 import { FoodDetailModal } from '../menu/components/FoodDetailModal';
 import { getCategoryHeroImage, getCategoryIcon } from '../categories';
+import { useHomeStore } from './home_store';
+import { HomeIntent } from './home_intent';
 
 export function HomeView() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [foods, setFoods] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('ALL');
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFood, setSelectedFood] = useState(null);
   const categoryScrollRef = useRef(null);
+
+  const { state, onIntent, filteredFoods } = useHomeStore();
+  const { foods, categories, selectedCategory, loading, searchQuery, selectedFood } = state;
 
   const scrollCategories = (direction) => {
     if (categoryScrollRef.current) {
@@ -24,39 +22,6 @@ export function HomeView() {
       categoryScrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     }
   };
-
-  useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      try {
-        const [foodsData, categoriesData] = await Promise.all([
-          container.getFoodsUseCase.execute(),
-          container.getCategoriesUseCase.execute(),
-        ]);
-        setFoods(foodsData);
-        setCategories(categoriesData);
-      } catch (err) {
-        console.error('Failed to load home data:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
-  }, []);
-
-  const filteredFoods = foods.filter((food) => {
-    const matchesCategory =
-      selectedCategory === 'ALL' ||
-      food.categoryName?.toLowerCase() === selectedCategory.toLowerCase() ||
-      food.categoryId === selectedCategory;
-
-    const matchesSearch =
-      !searchQuery.trim() ||
-      food.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      food.description?.toLowerCase().includes(searchQuery.toLowerCase());
-
-    return matchesCategory && matchesSearch;
-  });
 
   const handleHeroSearch = (e) => {
     e.preventDefault();
@@ -99,7 +64,7 @@ export function HomeView() {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => onIntent(HomeIntent.setSearchQuery(e.target.value))}
                 placeholder={t('home.searchPlaceholder')}
                 className="flex-1 min-w-0 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-hidden"
               />
@@ -138,85 +103,33 @@ export function HomeView() {
                 className="w-full h-full object-contain relative z-10 drop-shadow-2xl hover:scale-105 transition-transform duration-500"
                 onError={(e) => {
                   e.currentTarget.src =
-                    'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600';
+                    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800';
                 }}
               />
-
-              {/* Floating review card */}
-              <div className="absolute -bottom-2 left-2 sm:-left-4 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-2.5 sm:p-3.5 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white flex items-center space-x-2.5 sm:space-x-3 max-w-[90%] sm:max-w-none">
-                <span className="text-xl sm:text-2xl shrink-0">🔥</span>
-                <div className="min-w-0">
-                  <p className="text-[11px] sm:text-xs font-bold truncate">{t('home.ordersCount')}</p>
-                  <p className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 truncate">{t('home.ordersDelivered')}</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. Promo & Voucher Hub Banner */}
-      <section
-        onClick={() => navigate(AppRoutes.VOUCHERS)}
-        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 dark:from-amber-500/15 dark:via-orange-500/15 dark:to-rose-500/15 border border-orange-200/80 dark:border-orange-900/60 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:border-orange-500/80 hover:shadow-lg hover:shadow-orange-500/10 transition-all"
-      >
-        <div className="flex items-center space-x-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white flex items-center justify-center text-xl sm:text-2xl shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform shrink-0">
-            🎟️
-          </div>
+      {/* 2. Categories Carousel & Selector */}
+      <section className="space-y-4 sm:space-y-6">
+        <div className="flex items-center justify-between">
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="text-[10px] font-black uppercase tracking-wider bg-orange-500 text-white px-2 py-0.5 rounded-full">
-                HOT DEALS
-              </span>
-              <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
-                BiteCraft Promo Codes & Vouchers
-              </span>
-            </div>
-            <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 mt-0.5">
-              Save up to 20% OFF or get Free Delivery on your favorite meals in Phnom Penh!
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-2 shrink-0 self-end sm:self-center">
-          <span className="text-xs font-black text-orange-600 dark:text-orange-400 group-hover:underline">
-            Explore All Vouchers
-          </span>
-          <span className="w-7 h-7 rounded-xl bg-orange-500 text-white flex items-center justify-center text-xs font-bold group-hover:translate-x-1 transition-transform shadow-xs">
-            →
-          </span>
-        </div>
-      </section>
-
-      {/* 3. Categories Horizontal Bar & Showcase */}
-      <section className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-          <div>
-            <span className="text-xs font-black uppercase tracking-wider text-orange-600 dark:text-orange-400">
-              {t('home.browseByCuisine')}
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-orange-600 dark:text-orange-400">
+              {t('home.exploreMenu')}
             </span>
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-              {t('home.exploreCategories')}
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              {t('home.curatedCategories')}
             </h2>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <button
               onClick={() => navigate(AppRoutes.CATEGORIES)}
-              className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline flex items-center space-x-1"
+              className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:text-orange-700 flex items-center space-x-1 transition-colors"
             >
-              <span>{t('categories.allCategories')}</span>
+              <span>{t('home.seeAll')}</span>
               <span>→</span>
             </button>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <button
-              onClick={() => navigate(AppRoutes.MENU)}
-              className="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-            >
-              {t('home.viewFullMenu')}
-            </button>
-
-            {/* Left / Right Carousel Navigation Buttons */}
             <div className="hidden sm:flex items-center space-x-1 pl-1">
               <button
                 type="button"
@@ -269,22 +182,15 @@ export function HomeView() {
                         'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600';
                     }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-transparent" />
-                  <div className="relative z-10 flex items-end justify-between">
-                    <div>
-                      <span className="text-base sm:text-lg drop-shadow-xs">{icon}</span>
-                      <h3 className="text-xs sm:text-sm font-black text-white group-hover:text-orange-300 transition-colors truncate">
-                        {cat.name}
-                      </h3>
-                      {count > 0 && (
-                        <p className="text-[10px] text-slate-300 font-semibold">
-                          {count} {t('common.items')}
-                        </p>
-                      )}
-                    </div>
-                    <span className="text-xs font-bold text-orange-400 group-hover:translate-x-0.5 transition-transform">
-                      →
-                    </span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
+                  <div className="relative z-10">
+                    <span className="text-xl sm:text-2xl drop-shadow-md">{icon}</span>
+                    <h4 className="text-xs sm:text-sm font-black text-white group-hover:text-orange-300 transition-colors mt-0.5 sm:mt-1">
+                      {cat.name}
+                    </h4>
+                    <p className="text-[10px] text-slate-300 font-medium">
+                      {count} {t('common.items')}
+                    </p>
                   </div>
                 </div>
               );
@@ -292,10 +198,10 @@ export function HomeView() {
           </div>
         )}
 
-        {/* Category Pills Selector with Edge-to-Edge Scroll */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none pt-1 -mx-3.5 sm:-mx-6 lg:-mx-8 px-3.5 sm:px-6 lg:px-8">
+        {/* Filter Pills */}
+        <div className="flex items-center space-x-2 overflow-x-auto pt-1 pb-1 -mx-3.5 sm:-mx-6 lg:-mx-8 px-3.5 sm:px-6 lg:px-8 scroll-smooth scrollbar-none overscroll-x-contain">
           <button
-            onClick={() => setSelectedCategory('ALL')}
+            onClick={() => onIntent(HomeIntent.setSelectedCategory('ALL'))}
             className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-1.5 shrink-0 ${
               selectedCategory === 'ALL'
                 ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
@@ -311,7 +217,7 @@ export function HomeView() {
             return (
               <button
                 key={cat._id || cat.id || cat.name}
-                onClick={() => setSelectedCategory(cat.name)}
+                onClick={() => onIntent(HomeIntent.setSelectedCategory(cat.name))}
                 className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-1.5 shrink-0 ${
                   selectedCategory === cat.name
                     ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
@@ -362,7 +268,7 @@ export function HomeView() {
                 key={n}
                 className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200 dark:border-slate-800 space-y-3 sm:space-y-4 animate-pulse"
               >
-                <div className="h-36 sm:h-44 bg-slate-200 dark:bg-slate-800 rounded-xl sm:rounded-2xl" />
+                <div className="h-32 sm:h-44 bg-slate-200 dark:bg-slate-800 rounded-xl sm:rounded-2xl" />
                 <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-3/4" />
                 <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded-md w-1/2" />
                 <div className="flex justify-between items-center pt-2">
@@ -374,7 +280,7 @@ export function HomeView() {
           </div>
         ) : filteredFoods.length === 0 ? (
           <div className="text-center py-12 sm:py-16 bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-3">
-            <span className="text-3xl sm:text-4xl">🔍</span>
+            <span className="text-3xl sm:text-4xl">🍽️</span>
             <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
               {t('home.noDishesFound')}
             </h3>
@@ -383,12 +289,12 @@ export function HomeView() {
             </p>
             <button
               onClick={() => {
-                setSelectedCategory('ALL');
-                setSearchQuery('');
+                onIntent(HomeIntent.setSelectedCategory('ALL'));
+                onIntent(HomeIntent.setSearchQuery(''));
               }}
               className="mt-2 px-4 py-2 rounded-xl bg-orange-500 text-white font-bold text-xs"
             >
-              {t('common.resetFilters')}
+              {t('home.viewAllDishes')}
             </button>
           </div>
         ) : (
@@ -397,7 +303,7 @@ export function HomeView() {
               <FoodCard
                 key={food.id}
                 food={food}
-                onSelect={(selected) => setSelectedFood(selected)}
+                onSelect={(selected) => onIntent(HomeIntent.selectFood(selected))}
               />
             ))}
           </div>
@@ -449,12 +355,11 @@ export function HomeView() {
         </div>
       </section>
 
-
       {/* Food Detail Modal */}
       {selectedFood && (
         <FoodDetailModal
           food={selectedFood}
-          onClose={() => setSelectedFood(null)}
+          onClose={() => onIntent(HomeIntent.clearSelectedFood())}
         />
       )}
     </div>

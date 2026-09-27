@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../cart/use_cart';
 import { useAuth } from '../auth/use_auth';
-import { container } from '../../core/di/container';
 import { useTranslation } from '../../core';
 import { AppRoutes } from '../../routes/app_routes';
 import {
@@ -14,6 +12,8 @@ import {
   OrderSuccessModal,
   KhqrPaymentModal,
 } from './components';
+import { useCheckoutStore } from './checkout_store';
+import { CheckoutIntent } from './checkout_intent';
 
 export function CheckoutView() {
   const { t } = useTranslation();
@@ -35,86 +35,33 @@ export function CheckoutView() {
 
   const { user, ensureCustomerSession } = useAuth();
 
-  const [customerName, setCustomerName] = useState(user?.username || 'Guest Foodie');
-  const [customerPhone, setCustomerPhone] = useState('012 888 999');
-  const [selectedDistrict, setSelectedDistrict] = useState('BKK 1');
-  const [streetAddress, setStreetAddress] = useState('Building 45, Street 302, Sangkat Boeng Keng Kang 1');
-  const [deliveryNote, setDeliveryNote] = useState('');
-  const [coordinates, setCoordinates] = useState([11.551, 104.925]);
-  const [paymentMethod, setPaymentMethod] = useState('cash'); // 'cash' | 'khqr'
+  const { state, onIntent, validateForm, buildOrderPayload, executeOrderCreation } =
+    useCheckoutStore(user, { items, voucherCode, tipAmount });
 
-  const [submitting, setSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [placedOrder, setPlacedOrder] = useState(null);
-  const [showKhqrModal, setShowKhqrModal] = useState(false);
-
-  const validateForm = () => {
-    setErrorMsg('');
-
-    if (items.length === 0) {
-      setErrorMsg('Your cart is empty. Please select food items from the menu.');
-      return false;
-    }
-
-    if (!customerName.trim() || !customerPhone.trim() || !streetAddress.trim()) {
-      setErrorMsg('Please complete all contact and delivery address fields.');
-      return false;
-    }
-
-    return true;
-  };
-
-  const buildOrderPayload = (extraPaymentInfo = {}) => {
-    const fullDeliveryAddress = `${streetAddress}, ${selectedDistrict}, Phnom Penh${
-      deliveryNote ? ` (${deliveryNote})` : ''
-    }`;
-
-    return {
-      items: items.map((i) => ({
-        food: i.food.id,
-        quantity: i.quantity,
-        notes: i.notes || '',
-      })),
-      deliveryAddress: fullDeliveryAddress,
-      deliveryLocation: {
-        lat: coordinates ? coordinates[0] : 11.551,
-        lng: coordinates ? coordinates[1] : 104.925,
-      },
-      paymentMethod: paymentMethod === 'khqr' ? 'bakong_khqr' : 'cash',
-      paymentStatus:
-        extraPaymentInfo.paymentStatus || (paymentMethod === 'khqr' ? 'completed' : 'pending'),
-      paymentRef: extraPaymentInfo.transactionId || undefined,
-      voucherCode: voucherCode || undefined,
-      tipAmount: tipAmount || 0,
-    };
-  };
-
-  const executeOrderCreation = async (orderPayload) => {
-    setSubmitting(true);
-    try {
-      await ensureCustomerSession();
-      const created = await container.createOrderUseCase.execute(orderPayload);
-      setPlacedOrder(created);
-      clearCart();
-      setShowKhqrModal(false);
-    } catch (err) {
-      console.error('Order creation error:', err);
-      setErrorMsg(err.message || 'Failed to place order. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const {
+    customerName,
+    customerPhone,
+    selectedDistrict,
+    streetAddress,
+    deliveryNote,
+    coordinates,
+    paymentMethod,
+    submitting,
+    errorMsg,
+    placedOrder,
+    showKhqrModal,
+  } = state;
 
   const handlePlaceOrder = async () => {
     if (!validateForm()) return;
 
     if (paymentMethod === 'khqr') {
-      setShowKhqrModal(true);
+      onIntent(CheckoutIntent.setShowKhqrModal(true));
       return;
     }
 
     // Cash on Delivery
-    await executeOrderCreation(buildOrderPayload());
+    await executeOrderCreation(buildOrderPayload(), ensureCustomerSession, clearCart);
   };
 
   const handleKhqrSuccess = async (paymentDetails) => {
@@ -122,7 +69,7 @@ export function CheckoutView() {
       paymentStatus: 'completed',
       transactionId: paymentDetails.transactionId,
     });
-    await executeOrderCreation(payload);
+    await executeOrderCreation(payload, ensureCustomerSession, clearCart);
   };
 
   // If cart is empty and no order just placed, show empty state
@@ -203,7 +150,7 @@ export function CheckoutView() {
                   type="text"
                   required
                   value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
+                  onChange={(e) => onIntent(CheckoutIntent.setCustomerName(e.target.value))}
                   placeholder="Your full name"
                   className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:border-orange-500"
                 />
@@ -216,7 +163,7 @@ export function CheckoutView() {
                   type="tel"
                   required
                   value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  onChange={(e) => onIntent(CheckoutIntent.setCustomerPhone(e.target.value))}
                   placeholder="012 345 678"
                   className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:border-orange-500"
                 />
@@ -227,22 +174,22 @@ export function CheckoutView() {
           {/* Interactive Delivery Location & Leaflet Map Pin */}
           <DeliveryLocationPicker
             selectedDistrict={selectedDistrict}
-            setSelectedDistrict={setSelectedDistrict}
+            setSelectedDistrict={(d) => onIntent(CheckoutIntent.setSelectedDistrict(d))}
             streetAddress={streetAddress}
-            setStreetAddress={setStreetAddress}
+            setStreetAddress={(a) => onIntent(CheckoutIntent.setStreetAddress(a))}
             deliveryNote={deliveryNote}
-            setDeliveryNote={setDeliveryNote}
+            setDeliveryNote={(n) => onIntent(CheckoutIntent.setDeliveryNote(n))}
             coordinates={coordinates}
-            setCoordinates={setCoordinates}
+            setCoordinates={(c) => onIntent(CheckoutIntent.setCoordinates(c))}
           />
 
           {/* Payment Method Selector */}
           <PaymentSelector
             paymentMethod={paymentMethod}
-            setPaymentMethod={setPaymentMethod}
+            setPaymentMethod={(m) => onIntent(CheckoutIntent.setPaymentMethod(m))}
             totalAmount={totalAmount}
             onOpenKhqrModal={() => {
-              if (validateForm()) setShowKhqrModal(true);
+              if (validateForm()) onIntent(CheckoutIntent.setShowKhqrModal(true));
             }}
           />
 
@@ -283,12 +230,12 @@ export function CheckoutView() {
       {/* Interactive Bakong KHQR Payment Modal */}
       <KhqrPaymentModal
         isOpen={showKhqrModal}
-        onClose={() => setShowKhqrModal(false)}
+        onClose={() => onIntent(CheckoutIntent.setShowKhqrModal(false))}
         totalAmount={totalAmount}
         onPaymentSuccess={handleKhqrSuccess}
         onCancelPayCash={() => {
-          setShowKhqrModal(false);
-          setPaymentMethod('cash');
+          onIntent(CheckoutIntent.setShowKhqrModal(false));
+          onIntent(CheckoutIntent.setPaymentMethod('cash'));
         }}
       />
 
@@ -296,7 +243,7 @@ export function CheckoutView() {
       {placedOrder && (
         <OrderSuccessModal
           order={placedOrder}
-          onClose={() => setPlacedOrder(null)}
+          onClose={() => onIntent(CheckoutIntent.setPlacedOrder(null))}
         />
       )}
     </div>

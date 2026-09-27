@@ -1,11 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { container } from '../../core/di/container';
 import { useTranslation, formatUsd } from '../../core';
 import { AppRoutes } from '../../routes/app_routes';
 import { useCart } from '../cart/use_cart';
 import { VoucherCard } from './components/VoucherCard';
 import { VoucherTermsModal } from './components/VoucherTermsModal';
+import { useVouchersStore } from './vouchers_store';
+import { VouchersIntent } from './vouchers_intent';
 
 export function VouchersView() {
   const { t } = useTranslation();
@@ -20,104 +20,72 @@ export function VouchersView() {
     openCart,
   } = useCart();
 
-  const [vouchers, setVouchers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('ALL');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [inputCode, setInputCode] = useState('');
-  const [redeemFeedback, setRedeemFeedback] = useState(null); // { type: 'success' | 'error', message: string }
-  const [redeeming, setRedeeming] = useState(false);
-  const [selectedTermsVoucher, setSelectedTermsVoucher] = useState(null);
+  const { state, onIntent, filteredVouchers, eligibleCount } = useVouchersStore(subtotal);
 
-  // Load vouchers from UseCase
-  useEffect(() => {
-    let isMounted = true;
-    async function loadVouchers() {
-      setLoading(true);
-      try {
-        const data = await container.getVouchersUseCase.execute();
-        if (isMounted) {
-          setVouchers(data);
-        }
-      } catch (err) {
-        console.error('Failed to load vouchers:', err);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    }
-    loadVouchers();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  // Filter vouchers by category and search
-  const filteredVouchers = useMemo(() => {
-    return vouchers.filter((v) => {
-      const matchesCategory =
-        selectedCategory === 'ALL' ||
-        v.category?.toUpperCase() === selectedCategory.toUpperCase();
-
-      const q = searchQuery.trim().toLowerCase();
-      const matchesSearch =
-        !q ||
-        v.code.toLowerCase().includes(q) ||
-        v.title.toLowerCase().includes(q) ||
-        v.desc.toLowerCase().includes(q);
-
-      return matchesCategory && matchesSearch;
-    });
-  }, [vouchers, selectedCategory, searchQuery]);
-
-  // Count eligible vouchers based on cart subtotal
-  const eligibleCount = useMemo(() => {
-    return vouchers.filter((v) => subtotal >= v.minSpend).length;
-  }, [vouchers, subtotal]);
+  const {
+    loading,
+    selectedCategory,
+    searchQuery,
+    inputCode,
+    redeemFeedback,
+    redeeming,
+    selectedTermsVoucher,
+  } = state;
 
   // Handle manual code redemption
   const handleRedeemManual = async (e) => {
     e.preventDefault();
-    const code = inputCode.trim().toUpperCase();
+    const code = (inputCode || '').trim().toUpperCase();
     if (!code) return;
 
-    setRedeeming(true);
-    setRedeemFeedback(null);
+    onIntent(VouchersIntent.setRedeeming(true));
+    onIntent(VouchersIntent.setRedeemFeedback(null));
     try {
       const res = await applyVoucher(code);
       if (res.success) {
-        setRedeemFeedback({
-          type: 'success',
-          message: res.message || `Code ${code} applied successfully!`,
-        });
-        setInputCode('');
+        onIntent(
+          VouchersIntent.setRedeemFeedback({
+            type: 'success',
+            message: res.message || `Code ${code} applied successfully!`,
+          })
+        );
+        onIntent(VouchersIntent.setInputCode(''));
       } else {
-        setRedeemFeedback({
-          type: 'error',
-          message: res.message || 'Invalid or expired voucher code',
-        });
+        onIntent(
+          VouchersIntent.setRedeemFeedback({
+            type: 'error',
+            message: res.message || 'Invalid or expired voucher code',
+          })
+        );
       }
     } catch (err) {
-      setRedeemFeedback({
-        type: 'error',
-        message: err.message || 'Failed to validate voucher',
-      });
+      onIntent(
+        VouchersIntent.setRedeemFeedback({
+          type: 'error',
+          message: err.message || 'Failed to validate voucher',
+        })
+      );
     } finally {
-      setRedeeming(false);
+      onIntent(VouchersIntent.setRedeeming(false));
     }
   };
 
   const handleApplyCardVoucher = async (code) => {
     const res = await applyVoucher(code);
     if (res.success) {
-      setRedeemFeedback({
-        type: 'success',
-        message: res.message || `Voucher ${code} applied to your cart!`,
-      });
+      onIntent(
+        VouchersIntent.setRedeemFeedback({
+          type: 'success',
+          message: res.message || `Voucher ${code} applied to your cart!`,
+        })
+      );
     } else {
-      setRedeemFeedback({
-        type: 'error',
-        message: res.message || 'Unable to apply voucher',
-      });
+      onIntent(
+        VouchersIntent.setRedeemFeedback({
+          type: 'error',
+          message: res.message || 'Unable to apply voucher',
+        })
+      );
     }
   };
 
@@ -169,7 +137,7 @@ export function VouchersView() {
               <input
                 type="text"
                 value={inputCode}
-                onChange={(e) => setInputCode(e.target.value.toUpperCase())}
+                onChange={(e) => onIntent(VouchersIntent.setInputCode(e.target.value.toUpperCase()))}
                 placeholder={t('vouchers.inputPlaceholder') || 'Enter promo code (e.g. WELCOME20)'}
                 className="flex-1 px-3 py-2 text-xs sm:text-sm font-mono uppercase text-slate-900 placeholder-slate-400 focus:outline-hidden"
               />
@@ -257,7 +225,7 @@ export function VouchersView() {
               return (
                 <button
                   key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
+                  onClick={() => onIntent(VouchersIntent.setCategory(cat.id))}
                   className={`px-3.5 py-2 rounded-xl sm:rounded-2xl text-xs font-bold transition-all shrink-0 flex items-center space-x-1.5 ${
                     active
                       ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
@@ -277,7 +245,7 @@ export function VouchersView() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => onIntent(VouchersIntent.setSearchQuery(e.target.value))}
               placeholder={t('vouchers.searchDeals') || 'Search deals or codes...'}
               className="w-full pl-8 pr-3 py-2 rounded-xl sm:rounded-2xl text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:border-orange-500"
             />
@@ -305,10 +273,10 @@ export function VouchersView() {
             </p>
             <button
               onClick={() => {
-                setSelectedCategory('ALL');
-                setSearchQuery('');
+                onIntent(VouchersIntent.setCategory('ALL'));
+                onIntent(VouchersIntent.setSearchQuery(''));
               }}
-              className="px-4 py-2 rounded-xl bg-orange-500 text-white font-bold text-xs shadow-sm"
+              className="px-4 py-2 rounded-xl bg-orange-500 text-white font-bold text-xs shadow-xs"
             >
               Reset Filters
             </button>
@@ -325,7 +293,7 @@ export function VouchersView() {
                 onApply={handleApplyCardVoucher}
                 onRemove={removeVoucher}
                 onAddMore={handleAddMoreItems}
-                onViewTerms={(v) => setSelectedTermsVoucher(v)}
+                onViewTerms={(v) => onIntent(VouchersIntent.selectTermsVoucher(v))}
               />
             ))}
           </div>
@@ -390,7 +358,7 @@ export function VouchersView() {
         <VoucherTermsModal
           voucher={selectedTermsVoucher}
           isApplied={voucherCode === selectedTermsVoucher.code}
-          onClose={() => setSelectedTermsVoucher(null)}
+          onClose={() => onIntent(VouchersIntent.clearTermsVoucher())}
           onApply={() => handleApplyCardVoucher(selectedTermsVoucher.code)}
         />
       )}

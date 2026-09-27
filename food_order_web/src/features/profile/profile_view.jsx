@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useAuth } from '../auth/use_auth';
 import { useTranslation } from '../../core';
 import {
@@ -9,11 +8,14 @@ import {
   AppPreferencesCard,
   EditProfileModal,
 } from './components';
+import { useProfileStore } from './profile_store';
+import { ProfileIntent } from './profile_intent';
 
 export function ProfileView() {
   const { isAuthenticated, openAuthModal } = useAuth();
   const { t } = useTranslation();
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { state, onIntent } = useProfileStore();
+  const { isEditModalOpen } = state;
 
   if (!isAuthenticated) {
     return (
@@ -52,7 +54,7 @@ export function ProfileView() {
   return (
     <div className="space-y-6 sm:space-y-8 pb-16">
       {/* Profile Header Hero */}
-      <ProfileHeaderCard onOpenEditModal={() => setIsEditModalOpen(true)} />
+      <ProfileHeaderCard onOpenEditModal={() => onIntent(ProfileIntent.openEditModal())} />
 
       {/* Customer Quick Stats (Orders, Points, Favorites) */}
       <ProfileStatsCard />
@@ -74,7 +76,7 @@ export function ProfileView() {
       {/* Edit Profile Modal */}
       <EditProfileModal
         isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
+        onClose={() => onIntent(ProfileIntent.closeEditModal())}
       />
     </div>
   );

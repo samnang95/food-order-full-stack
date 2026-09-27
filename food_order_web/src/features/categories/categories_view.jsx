@@ -1,103 +1,15 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { container } from '../../core/di/container';
 import { useTranslation } from '../../core';
 import { getCategoryDetailRoute } from '../../routes/app_routes';
 import { getCategoryHeroImage, getCategoryIcon } from './category_constants';
+import { useCategoriesStore } from './categories_store';
+import { CategoriesIntent } from './categories_intent';
 
 export function CategoriesView() {
   const { t } = useTranslation();
 
-  const [categories, setCategories] = useState([]);
-  const [foods, setFoods] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTag, setSelectedTag] = useState('all'); // 'all' | 'trending' | 'quick' | 'budget' | 'top_rated'
-
-  useEffect(() => {
-    let isMounted = true;
-    async function loadData() {
-      setLoading(true);
-      try {
-        const [catsData, foodsData] = await Promise.all([
-          container.getCategoriesUseCase.execute(),
-          container.getFoodsUseCase.execute(),
-        ]);
-
-        if (isMounted) {
-          setCategories(catsData);
-          setFoods(foodsData);
-        }
-      } catch (err) {
-        console.error('Failed to load categories:', err);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadData();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  // Compute item count per category
-  const categoryCounts = useMemo(() => {
-    const counts = {};
-    for (const food of foods) {
-      if (food.categoryId) {
-        counts[food.categoryId] = (counts[food.categoryId] || 0) + 1;
-      }
-      if (food.categoryName) {
-        const nameLower = food.categoryName.toLowerCase();
-        counts[nameLower] = (counts[nameLower] || 0) + 1;
-      }
-    }
-    return counts;
-  }, [foods]);
-
-  const getItemCount = useCallback(
-    (category) => {
-      const byId = categoryCounts[category.id] || 0;
-      const byName = categoryCounts[category.name.toLowerCase()] || 0;
-      return Math.max(byId, byName);
-    },
-    [categoryCounts]
-  );
-
-  // Filtered categories
-  const filteredCategories = useMemo(() => {
-    let result = [...categories];
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      result = result.filter(
-        (c) =>
-          c.name.toLowerCase().includes(q) ||
-          (c.description && c.description.toLowerCase().includes(q))
-      );
-    }
-
-    // Filter by quick discovery tag
-    if (selectedTag === 'trending') {
-      // Pick top cuisines like burgers, pizza, asian
-      result = result.filter((c) => {
-        const n = c.name.toLowerCase();
-        return n.includes('burger') || n.includes('pizza') || n.includes('asian');
-      });
-    } else if (selectedTag === 'budget') {
-      // Show categories that have dishes under $12
-      result = result.filter((c) => {
-        const count = getItemCount(c);
-        return count > 0;
-      });
-    }
-
-    return result;
-  }, [categories, searchQuery, selectedTag, getItemCount]);
+  const { state, onIntent, filteredCategories, getItemCount } = useCategoriesStore();
+  const { loading, searchQuery, selectedTag } = state;
 
   return (
     <div className="space-y-6 sm:space-y-8 pb-12">
@@ -132,13 +44,13 @@ export function CategoriesView() {
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => onIntent(CategoriesIntent.setSearchQuery(e.target.value))}
             placeholder={t('categories.searchPlaceholder')}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-orange-500 transition-all"
           />
           {searchQuery && (
             <button
-              onClick={() => setSearchQuery('')}
+              onClick={() => onIntent(CategoriesIntent.setSearchQuery(''))}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
             >
               ✕
@@ -157,7 +69,7 @@ export function CategoriesView() {
           ].map((tag) => (
             <button
               key={tag.id}
-              onClick={() => setSelectedTag(tag.id)}
+              onClick={() => onIntent(CategoriesIntent.setSelectedTag(tag.id))}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 selectedTag === tag.id
                   ? 'bg-orange-500 text-white shadow-xs'
@@ -239,7 +151,7 @@ export function CategoriesView() {
         </div>
       ) : (
         <div className="py-16 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4 max-w-lg mx-auto p-6">
-          <div className="w-16 h-16 mx-auto rounded-3xl bg-orange-100 dark:bg-orange-950/50 flex items-center justify-center text-3xl">
+          <div className="w-16 h-16 mx-auto rounded-3xl bg-orange-100 dark:orange-950/50 flex items-center justify-center text-3xl">
             🍽️
           </div>
           <div className="space-y-1">
@@ -252,8 +164,8 @@ export function CategoriesView() {
           </div>
           <button
             onClick={() => {
-              setSearchQuery('');
-              setSelectedTag('all');
+              onIntent(CategoriesIntent.setSearchQuery(''));
+              onIntent(CategoriesIntent.setSelectedTag('all'));
             }}
             className="px-5 py-2.5 rounded-2xl bg-orange-500 text-white text-xs sm:text-sm font-bold shadow-md shadow-orange-500/20 hover:bg-orange-600 transition-all"
           >

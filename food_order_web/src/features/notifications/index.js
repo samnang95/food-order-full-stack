@@ -1,5 +1,10 @@
 export { NotificationsContext } from './notifications_context';
 export { NotificationsProvider } from './notifications_provider';
 export { useNotifications } from './use_notifications';
+export { useNotificationsStore, notificationsReducer } from './notifications_store';
+export { NotificationsIntentType, NotificationsIntent } from './notifications_intent';
+export { createInitialNotificationsState } from './notifications_state';
 export { NotificationsView } from './notifications_view';
-export * from './components';
+export { NotificationDropdown } from './components/NotificationDropdown';
+export { NotificationItem } from './components/NotificationItem';
+export { NotificationToast } from './components/NotificationToast';

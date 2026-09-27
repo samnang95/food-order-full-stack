@@ -1,21 +1,12 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { container } from '../../core/di/container';
-import { useTranslation, LocalDB, DBKeys } from '../../core';
+import { useTranslation } from '../../core';
 import { FoodCard } from '../menu/components/FoodCard';
 import { FoodDetailModal } from '../menu/components/FoodDetailModal';
 import { SearchFilterDrawer } from './components/SearchFilterDrawer';
-
-const POPULAR_SUGGESTIONS = [
-  { emoji: '🍔', tag: 'Smash Burger' },
-  { emoji: '🍕', tag: 'Pizza' },
-  { emoji: '🍜', tag: 'Ramen' },
-  { emoji: '🥗', tag: 'Healthy Bowl' },
-  { emoji: '🍰', tag: 'Dessert' },
-  { emoji: '☕', tag: 'Coffee' },
-  { emoji: '🦐', tag: 'Seafood' },
-  { emoji: '🥐', tag: 'Croissant' },
-];
+import { POPULAR_SUGGESTIONS } from './search_state';
+import { useSearchStore } from './search_store';
+import { SearchIntent } from './search_intent';
 
 export function SearchView() {
   const { t } = useTranslation();
@@ -25,101 +16,60 @@ export function SearchView() {
   const initialQuery = searchParams.get('q') || '';
   const initialCat = searchParams.get('category') || 'ALL';
 
-  const [query, setQuery] = useState(initialQuery);
-  const [selectedCategory, setSelectedCategory] = useState(initialCat);
-  const [priceRange, setPriceRange] = useState('all');
-  const [sortBy, setSortBy] = useState('recommended');
-  const [foods, setFoods] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedFood, setSelectedFood] = useState(null);
-  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
+  const { state, onIntent, filteredFoods } = useSearchStore({
+    query: initialQuery,
+    selectedCategory: initialCat,
+  });
 
-  // Recent Searches state
-  const [recentSearches, setRecentSearches] = useState(() =>
-    LocalDB.getJSON(DBKeys.SEARCH_HISTORY, [])
-  );
-
-  // Load foods & categories
-  useEffect(() => {
-    let isMounted = true;
-    async function loadData() {
-      setLoading(true);
-      try {
-        const [foodsData, catsData] = await Promise.all([
-          container.getFoodsUseCase.execute(),
-          container.getCategoriesUseCase.execute(),
-        ]);
-
-        if (isMounted) {
-          setFoods(foodsData);
-          setCategories(catsData);
-        }
-      } catch (err) {
-        console.error('Failed to load search data:', err);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadData();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  // Save to recent searches
-  const saveSearchQuery = useCallback((term) => {
-    const clean = term.trim();
-    if (!clean || clean.length < 2) return;
-
-    setRecentSearches((prev) => {
-      const filtered = prev.filter((item) => item.toLowerCase() !== clean.toLowerCase());
-      const updated = [clean, ...filtered].slice(0, 8);
-      LocalDB.setJSON(DBKeys.SEARCH_HISTORY, updated);
-      return updated;
-    });
-  }, []);
+  const {
+    query,
+    selectedCategory,
+    priceRange,
+    sortBy,
+    categories,
+    loading,
+    selectedFood,
+    filterDrawerOpen,
+    recentSearches,
+  } = state;
 
   // Sync state to URL params
-  const updateUrlParams = useCallback((newQuery, newCat) => {
-    const params = new URLSearchParams();
-    if (newQuery.trim()) params.set('q', newQuery.trim());
-    if (newCat && newCat !== 'ALL') params.set('category', newCat);
-    setSearchParams(params, { replace: true });
-  }, [setSearchParams]);
+  const updateUrlParams = useCallback(
+    (newQuery, newCat) => {
+      const params = new URLSearchParams();
+      if (newQuery.trim()) params.set('q', newQuery.trim());
+      if (newCat && newCat !== 'ALL') params.set('category', newCat);
+      setSearchParams(params, { replace: true });
+    },
+    [setSearchParams]
+  );
 
   const handleQueryChange = (val) => {
-    setQuery(val);
+    onIntent(SearchIntent.setQuery(val));
     updateUrlParams(val, selectedCategory);
   };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (query.trim()) {
-      saveSearchQuery(query);
+      onIntent(SearchIntent.saveSearchQuery(query));
       updateUrlParams(query, selectedCategory);
     }
   };
 
   const handleSelectRecent = (term) => {
-    setQuery(term);
-    saveSearchQuery(term);
+    onIntent(SearchIntent.setQuery(term));
+    onIntent(SearchIntent.saveSearchQuery(term));
     updateUrlParams(term, selectedCategory);
   };
 
   const handleClearRecent = () => {
-    setRecentSearches([]);
-    LocalDB.setJSON(DBKeys.SEARCH_HISTORY, []);
+    onIntent(SearchIntent.clearRecentSearches());
   };
 
   const handleResetFilters = () => {
-    setQuery('');
-    setSelectedCategory('ALL');
-    setPriceRange('all');
-    setSortBy('recommended');
+    onIntent(SearchIntent.resetFilters());
+    onIntent(SearchIntent.setQuery(''));
     setSearchParams({});
   };
 
@@ -131,52 +81,6 @@ export function SearchView() {
     if (sortBy !== 'recommended') count++;
     return count;
   }, [selectedCategory, priceRange, sortBy]);
-
-  // Filter & Sort Results
-  const filteredFoods = useMemo(() => {
-    let result = [...foods];
-    const q = query.trim().toLowerCase();
-
-    // 1. Text Search
-    if (q) {
-      result = result.filter(
-        (f) =>
-          f.name.toLowerCase().includes(q) ||
-          (f.description && f.description.toLowerCase().includes(q)) ||
-          (f.categoryName && f.categoryName.toLowerCase().includes(q))
-      );
-    }
-
-    // 2. Category Filter
-    if (selectedCategory && selectedCategory !== 'ALL') {
-      const catLower = selectedCategory.toLowerCase();
-      result = result.filter(
-        (f) =>
-          f.categoryId === selectedCategory ||
-          (f.categoryName && f.categoryName.toLowerCase() === catLower)
-      );
-    }
-
-    // 3. Price Filter
-    if (priceRange === 'under10') {
-      result = result.filter((f) => f.price < 10);
-    } else if (priceRange === '10to15') {
-      result = result.filter((f) => f.price >= 10 && f.price <= 15);
-    } else if (priceRange === 'above15') {
-      result = result.filter((f) => f.price > 15);
-    }
-
-    // 4. Sorting
-    result.sort((a, b) => {
-      if (sortBy === 'rating') return (b.rating || 4.8) - (a.rating || 4.8);
-      if (sortBy === 'price_asc') return a.price - b.price;
-      if (sortBy === 'price_desc') return b.price - a.price;
-      if (sortBy === 'alpha') return a.name.localeCompare(b.name);
-      return 0; // 'recommended'
-    });
-
-    return result;
-  }, [foods, query, selectedCategory, priceRange, sortBy]);
 
   const hasSearchTerm = query.trim().length > 0;
   const hasActiveFilters = activeFiltersCount > 0;
@@ -206,7 +110,7 @@ export function SearchView() {
               value={query}
               onChange={(e) => handleQueryChange(e.target.value)}
               placeholder={t('search.inputPlaceholder')}
-              className="w-full pl-11 pr-10 py-3 rounded-2xl bg-white text-slate-900 text-xs sm:text-sm placeholder-slate-400 shadow-md focus:outline-none focus:ring-2 focus:ring-amber-300 transition-all"
+              className="w-full pl-11 pr-10 py-3 rounded-2xl bg-white text-slate-900 text-xs sm:text-sm placeholder-slate-400 shadow-md focus:outline-hidden focus:ring-2 focus:ring-amber-300 transition-all"
             />
             {query && (
               <button
@@ -222,8 +126,8 @@ export function SearchView() {
           {/* Filter Drawer Toggle Button */}
           <button
             type="button"
-            onClick={() => setFilterDrawerOpen(true)}
-            className="px-4 py-3 rounded-2xl bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/25 text-white text-xs sm:text-sm font-bold flex items-center space-x-1.5 transition-all shrink-0 shadow-sm"
+            onClick={() => onIntent(SearchIntent.setFilterDrawer(true))}
+            className="px-4 py-3 rounded-2xl bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/25 text-white text-xs sm:text-sm font-bold flex items-center space-x-1.5 transition-all shrink-0 shadow-xs"
           >
             <span>⚙️</span>
             <span className="hidden sm:inline">{t('search.filters')}</span>
@@ -246,21 +150,33 @@ export function SearchView() {
           {selectedCategory !== 'ALL' && (
             <span className="px-3 py-1 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center space-x-1 shrink-0">
               <span>{selectedCategory}</span>
-              <button onClick={() => setSelectedCategory('ALL')} className="hover:opacity-75">✕</button>
+              <button
+                onClick={() => {
+                  onIntent(SearchIntent.setCategory('ALL'));
+                  updateUrlParams(query, 'ALL');
+                }}
+                className="hover:opacity-75"
+              >
+                ✕
+              </button>
             </span>
           )}
 
           {priceRange !== 'all' && (
             <span className="px-3 py-1 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center space-x-1 shrink-0">
               <span>{priceRange}</span>
-              <button onClick={() => setPriceRange('all')} className="hover:opacity-75">✕</button>
+              <button onClick={() => onIntent(SearchIntent.setPriceRange('all'))} className="hover:opacity-75">
+                ✕
+              </button>
             </span>
           )}
 
           {sortBy !== 'recommended' && (
             <span className="px-3 py-1 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center space-x-1 shrink-0">
               <span>{sortBy}</span>
-              <button onClick={() => setSortBy('recommended')} className="hover:opacity-75">✕</button>
+              <button onClick={() => onIntent(SearchIntent.setSortBy('recommended'))} className="hover:opacity-75">
+                ✕
+              </button>
             </span>
           )}
 
@@ -342,8 +258,8 @@ export function SearchView() {
           <select
             id="search-sort-select"
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer shadow-xs"
+            onChange={(e) => onIntent(SearchIntent.setSortBy(e.target.value))}
+            className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold focus:outline-hidden focus:ring-1 focus:ring-orange-500 cursor-pointer shadow-xs"
           >
             <option value="recommended">{t('search.sortRecommended')}</option>
             <option value="rating">{t('search.sortRating')}</option>
@@ -375,12 +291,16 @@ export function SearchView() {
       ) : filteredFoods.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
           {filteredFoods.map((food) => (
-            <FoodCard key={food.id} food={food} onSelect={setSelectedFood} />
+            <FoodCard
+              key={food.id}
+              food={food}
+              onSelect={(selected) => onIntent(SearchIntent.selectFood(selected))}
+            />
           ))}
         </div>
       ) : (
         <div className="py-16 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4 max-w-lg mx-auto p-6">
-          <div className="w-16 h-16 mx-auto rounded-3xl bg-orange-100 dark:bg-orange-950/50 flex items-center justify-center text-3xl">
+          <div className="w-16 h-16 mx-auto rounded-3xl bg-orange-100 dark:orange-950/50 flex items-center justify-center text-3xl">
             🔍
           </div>
           <div className="space-y-1">
@@ -403,14 +323,17 @@ export function SearchView() {
       {/* 7. Slide-over Filter Drawer */}
       <SearchFilterDrawer
         isOpen={filterDrawerOpen}
-        onClose={() => setFilterDrawerOpen(false)}
+        onClose={() => onIntent(SearchIntent.setFilterDrawer(false))}
         categories={categories}
         selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
+        setSelectedCategory={(cat) => {
+          onIntent(SearchIntent.setCategory(cat));
+          updateUrlParams(query, cat);
+        }}
         priceRange={priceRange}
-        setPriceRange={setPriceRange}
+        setPriceRange={(range) => onIntent(SearchIntent.setPriceRange(range))}
         sortBy={sortBy}
-        setSortBy={setSortBy}
+        setSortBy={(sort) => onIntent(SearchIntent.setSortBy(sort))}
         onResetFilters={handleResetFilters}
       />
 
@@ -418,7 +341,7 @@ export function SearchView() {
       {selectedFood && (
         <FoodDetailModal
           food={selectedFood}
-          onClose={() => setSelectedFood(null)}
+          onClose={() => onIntent(SearchIntent.clearSelectedFood())}
         />
       )}
     </div>
