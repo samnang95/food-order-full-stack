@@ -71,6 +71,8 @@ export class OrderModel {
       createdAt: raw.createdAt ? new Date(raw.createdAt) : new Date(),
       updatedAt: raw.updatedAt ? new Date(raw.updatedAt) : new Date(),
       notes: raw.notes || raw.specialInstructions || '',
+      deliverySchedule: raw.deliverySchedule || null,
+      deliveryNotes: raw.deliveryNotes || '',
     });
   }
 
@@ -89,6 +91,8 @@ export class OrderModel {
       deliveryAddress: entity.deliveryAddress,
       paymentMethod: entity.paymentMethod,
       paymentStatus: entity.paymentStatus,
+      deliverySchedule: entity.deliverySchedule,
+      deliveryNotes: entity.deliveryNotes,
     };
   }
 }

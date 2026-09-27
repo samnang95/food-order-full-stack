@@ -1,4 +1,5 @@
 import { StatusPill } from './status_pill';
+import { QuickReorderButton } from '../../schedule';
 
 export function OrderCard({ order, onSelect, onUpdateStatus, onRateOrder, onViewInvoice }) {
   const orderId = order._id || order.id || 'N/A';
@@ -37,6 +38,17 @@ export function OrderCard({ order, onSelect, onUpdateStatus, onRateOrder, onView
             {order.deliveryAddress || 'Standard Delivery Address'}
           </p>
         </div>
+
+        {order.deliverySchedule && (
+          <div className="flex items-center space-x-1.5 text-[11px] font-bold text-amber-600 dark:text-amber-400 mb-3 bg-amber-500/10 px-2.5 py-1 rounded-lg w-fit">
+            <span>{order.deliverySchedule.mode === 'scheduled' ? '📅' : '⚡'}</span>
+            <span>
+              {order.deliverySchedule.mode === 'scheduled'
+                ? `${order.deliverySchedule.date} • ${order.deliverySchedule.timeSlot}`
+                : 'Deliver ASAP'}
+            </span>
+          </div>
+        )}
 
         {/* Items Summary */}
         <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl p-3 mb-4 border border-slate-100 dark:border-slate-700/60">
@@ -85,6 +97,8 @@ export function OrderCard({ order, onSelect, onUpdateStatus, onRateOrder, onView
               <span className="hidden sm:inline text-[11px]">Invoice</span>
             </button>
           )}
+
+          <QuickReorderButton order={order} size="sm" />
 
           {status === 'pending' && (
             <button

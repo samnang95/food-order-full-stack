@@ -6,6 +6,7 @@ import { CartProvider } from './features/cart/cart_provider';
 import { FavoritesProvider } from './features/favorites';
 import { NotificationsProvider } from './features/notifications';
 import { RewardsProvider } from './features/rewards';
+import { ScheduleProvider } from './features/schedule';
 
 export default function App() {
   return (
@@ -16,7 +17,9 @@ export default function App() {
             <FavoritesProvider>
               <NotificationsProvider>
                 <RewardsProvider>
-                  <RouterProvider router={appRouter} />
+                  <ScheduleProvider>
+                    <RouterProvider router={appRouter} />
+                  </ScheduleProvider>
                 </RewardsProvider>
               </NotificationsProvider>
             </FavoritesProvider>

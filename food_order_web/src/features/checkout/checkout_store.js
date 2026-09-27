@@ -110,6 +110,8 @@ export function useCheckoutStore(user, cartProps = {}) {
         paymentRef: extraPaymentInfo.transactionId || undefined,
         voucherCode: cartProps.voucherCode || undefined,
         tipAmount: cartProps.tipAmount || 0,
+        deliverySchedule: extraPaymentInfo.deliverySchedule || null,
+        deliveryNotes: extraPaymentInfo.deliveryNotes || state.deliveryNote || '',
       };
     },
     [

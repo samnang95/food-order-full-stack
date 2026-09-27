@@ -4,6 +4,7 @@
  */
 export const CartIntentType = {
   ADD_ITEM: 'CART/ADD_ITEM',
+  ADD_ITEMS_BATCH: 'CART/ADD_ITEMS_BATCH',
   REMOVE_ITEM: 'CART/REMOVE_ITEM',
   UPDATE_QUANTITY: 'CART/UPDATE_QUANTITY',
   CLEAR_CART: 'CART/CLEAR_CART',
@@ -27,6 +28,11 @@ export const CartIntent = {
   addItem: (food, quantity = 1, notes = '') => ({
     type: CartIntentType.ADD_ITEM,
     payload: { food, quantity, notes },
+  }),
+
+  addItemsBatch: (items) => ({
+    type: CartIntentType.ADD_ITEMS_BATCH,
+    payload: items,
   }),
 
   removeItem: (foodId) => ({

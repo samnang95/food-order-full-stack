@@ -1,7 +1,7 @@
 import { ApiClient } from '../services/api_client';
 import { socketService } from '../services/socket_service';
 import { LocalDB, indexedDBService, DBKeys } from '../db';
-import { orderRepository, foodRepository, voucherRepository, reviewRepository, invoiceRepository, driverChatRepository, loyaltyRepository } from '../../data';
+import { orderRepository, foodRepository, voucherRepository, reviewRepository, invoiceRepository, driverChatRepository, loyaltyRepository, scheduleRepository } from '../../data';
 import {
   GetFoodsUseCase,
   GetFoodByIdUseCase,
@@ -25,6 +25,9 @@ import {
   ClaimDailyCheckInUseCase,
   RedeemRewardUseCase,
   EarnPointsUseCase,
+  GetDeliveryScheduleUseCase,
+  SaveDeliveryScheduleUseCase,
+  ExecuteQuickReorderUseCase,
 } from '../../domain';
 
 // Use Cases Singletons
@@ -55,6 +58,10 @@ const getLoyaltyProfileUseCase = new GetLoyaltyProfileUseCase(loyaltyRepository)
 const claimDailyCheckInUseCase = new ClaimDailyCheckInUseCase(loyaltyRepository);
 const redeemRewardUseCase = new RedeemRewardUseCase(loyaltyRepository);
 const earnPointsUseCase = new EarnPointsUseCase(loyaltyRepository);
+
+const getDeliveryScheduleUseCase = new GetDeliveryScheduleUseCase(scheduleRepository);
+const saveDeliveryScheduleUseCase = new SaveDeliveryScheduleUseCase(scheduleRepository);
+const executeQuickReorderUseCase = new ExecuteQuickReorderUseCase(scheduleRepository);
 
 export const container = {
   // Repositories
@@ -131,6 +138,16 @@ export const container = {
   getRedeemRewardUseCase: () => redeemRewardUseCase,
   getEarnPointsUseCase: () => earnPointsUseCase,
 
+  // Schedule & Quick Reorder Use Cases
+  getDeliveryScheduleUseCase,
+  saveDeliveryScheduleUseCase,
+  executeQuickReorderUseCase,
+  getScheduleRepository: () => scheduleRepository,
+  scheduleRepository,
+  getGetDeliveryScheduleUseCase: () => getDeliveryScheduleUseCase,
+  getSaveDeliveryScheduleUseCase: () => saveDeliveryScheduleUseCase,
+  getExecuteQuickReorderUseCase: () => executeQuickReorderUseCase,
+
   // Services & Storage
   getApiClient: () => ApiClient,
   getSocketService: () => socketService,
@@ -158,6 +175,7 @@ export {
   invoiceRepository,
   driverChatRepository,
   loyaltyRepository,
+  scheduleRepository,
   getFoodsUseCase,
   getFoodByIdUseCase,
   getCategoriesUseCase,
@@ -180,6 +198,9 @@ export {
   claimDailyCheckInUseCase,
   redeemRewardUseCase,
   earnPointsUseCase,
+  getDeliveryScheduleUseCase,
+  saveDeliveryScheduleUseCase,
+  executeQuickReorderUseCase,
 };
 
 

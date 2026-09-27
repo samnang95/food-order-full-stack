@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../use_cart';
 import { formatUsd, formatKhr, useTranslation } from '../../../core';
 import { AppRoutes } from '../../../routes/app_routes';
+import { DeliveryScheduleSelector } from '../../schedule';
 
 export function CartDrawer() {
   const { t } = useTranslation();
@@ -196,6 +197,8 @@ export function CartDrawer() {
           {/* Footer Checkout Summary */}
           {items.length > 0 && (
             <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/60 space-y-3 sm:space-y-4">
+              {/* Delivery Timing Quick Selector */}
+              <DeliveryScheduleSelector compact={true} />
 
               {/* Voucher Input */}
               <div>

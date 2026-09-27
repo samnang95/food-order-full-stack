@@ -3,7 +3,6 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { container } from '../../core/di/container';
 import { socketService } from '../../core/services/socket_service';
 import { formatUsd, formatKhr, useTranslation, AppAssets } from '../../core';
-import { useCart } from '../cart/use_cart';
 import { AppRoutes } from '../../routes/app_routes';
 import { DeliveryMapCard } from './components';
 import { OrderRatingModal, useReviews } from '../reviews';
@@ -14,6 +13,7 @@ import {
   DeliveryInstructionsCard,
   useDriverChatStore,
 } from '../chat';
+import { QuickReorderButton } from '../schedule';
 
 const STATUS_STEPS = [
   { key: 'pending', labelKey: 'orders.statusPending', icon: '📝' },
@@ -26,14 +26,11 @@ export function OrderDetailView() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { addItem, openCart } = useCart();
-
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [driverLoc, setDriverLoc] = useState(null);
   const [copied, setCopied] = useState(false);
-  const [reordering, setReordering] = useState(false);
   const [showMap, setShowMap] = useState(true);
   const [showRatingModal, setShowRatingModal] = useState(false);
 
@@ -119,30 +116,6 @@ export function OrderDetailView() {
       unsubDriver?.();
     };
   }, [id]);
-
-  // Reorder all items in this order
-  const handleReorder = () => {
-    if (!order?.items || order.items.length === 0) return;
-    setReordering(true);
-
-    try {
-      order.items.forEach((item) => {
-        const foodObj = {
-          id: item.foodId || item.id,
-          name: item.foodName,
-          price: item.price,
-          imageUrl: item.foodImageUrl,
-        };
-        addItem(foodObj, item.quantity || 1, item.notes || '');
-      });
-
-      openCart();
-    } catch (err) {
-      console.error('Failed to reorder items:', err);
-    } finally {
-      setReordering(false);
-    }
-  };
 
   // Copy direct receipt link to clipboard
   const handleCopyLink = () => {
@@ -262,7 +235,7 @@ export function OrderDetailView() {
           </div>
         </div>
 
-        {/* Actions: Print, Copy Link, Reorder */}
+        {/* Actions: Print, Copy Link, Quick Reorder */}
         <div className="flex items-center space-x-2 flex-wrap gap-y-2">
           <button
             type="button"
@@ -283,15 +256,7 @@ export function OrderDetailView() {
             <span>{t('invoices.viewInvoice') || 'Tax Invoice'}</span>
           </button>
 
-          <button
-            type="button"
-            onClick={handleReorder}
-            disabled={reordering}
-            className="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold shadow-md shadow-orange-500/20 active:scale-95 transition-all flex items-center space-x-1.5"
-          >
-            <span>🔄</span>
-            <span>{t('orders.reorder') || 'Reorder All'}</span>
-          </button>
+          <QuickReorderButton order={order} size="sm" />
 
           {isDelivered && (
             <button
@@ -315,6 +280,37 @@ export function OrderDetailView() {
           )}
         </div>
       </div>
+
+      {/* Delivery Schedule Timing Banner */}
+      {order.deliverySchedule && (
+        <div className="no-print p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/20 shadow-xs flex items-center justify-between">
+          <div className="flex items-center space-x-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold">
+              {order.deliverySchedule.mode === 'scheduled' ? '📅' : '⚡'}
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                {t('schedule.deliveryTiming', 'Delivery Timing')}
+              </span>
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
+                {order.deliverySchedule.mode === 'scheduled'
+                  ? `${order.deliverySchedule.date} (${order.deliverySchedule.timeSlot})`
+                  : t('schedule.asapLabel', '⚡ Deliver ASAP (25 - 35 mins)')}
+              </h3>
+              {order.deliverySchedule.note && (
+                <p className="text-xs text-slate-500 dark:text-slate-400 italic mt-0.5">
+                  "{order.deliverySchedule.note}"
+                </p>
+              )}
+            </div>
+          </div>
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20">
+            {order.deliverySchedule.mode === 'scheduled'
+              ? t('schedule.scheduledSlot', 'Scheduled')
+              : t('schedule.expressAsap', 'Express ASAP')}
+          </span>
+        </div>
+      )}
 
       {/* Main Printable Receipt / Invoice Card */}
       <div className="printable-receipt bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
@@ -757,7 +753,7 @@ export function OrderDetailView() {
               </div>
 
               {/* View Official Tax Invoice CTA */}
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
                 <button
                   type="button"
                   onClick={() => openInvoice(order)}
@@ -767,6 +763,9 @@ export function OrderDetailView() {
                   <span>{t('invoices.viewInvoice') || 'View Official Tax Invoice'}</span>
                   <span>→</span>
                 </button>
+
+                {/* Instant 1-Click Quick Reorder Full-Width CTA */}
+                <QuickReorderButton order={order} size="md" />
               </div>
             </div>
           </div>

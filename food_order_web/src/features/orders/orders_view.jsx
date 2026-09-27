@@ -13,6 +13,7 @@ import {
   DeliveryInstructionsCard,
   useDriverChatStore,
 } from '../chat';
+import { QuickReorderButton } from '../schedule';
 
 const STATUS_STEPS = [
   { key: 'pending', labelKey: 'orders.statusPending', icon: '📝' },
@@ -341,11 +342,23 @@ export function OrdersView() {
                     {order.items?.map((i) => `${i.quantity}x ${i.foodName}`).join(', ')}
                   </p>
 
+                  {order.deliverySchedule && (
+                    <div className="flex items-center space-x-1 text-[10px] font-bold text-amber-600 dark:text-amber-400 mb-2">
+                      <span>{order.deliverySchedule.mode === 'scheduled' ? '📅' : '⚡'}</span>
+                      <span className="truncate">
+                        {order.deliverySchedule.mode === 'scheduled'
+                          ? `${order.deliverySchedule.date} • ${order.deliverySchedule.timeSlot}`
+                          : 'Deliver ASAP'}
+                      </span>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
                     <span className="text-slate-400 text-[10px]">
                       {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'Today'}
                     </span>
-                    <div className="flex items-center space-x-2.5">
+                    <div className="flex items-center space-x-2">
+                      <QuickReorderButton order={order} size="sm" />
                       {isDelivered && (
                         <button
                           type="button"
@@ -374,7 +387,7 @@ export function OrdersView() {
                         title={t('invoices.viewInvoice') || 'View Tax Invoice'}
                       >
                         <span>📄</span>
-                        <span>{t('invoices.taxInvoice') || 'Tax Invoice'}</span>
+                        <span className="hidden sm:inline">{t('invoices.taxInvoice') || 'Tax Invoice'}</span>
                       </button>
                       <Link
                         to={`/orders/${order.id}`}
@@ -424,14 +437,43 @@ export function OrdersView() {
                     <span>Details</span>
                     <span>→</span>
                   </Link>
+                  <QuickReorderButton order={selectedOrder} size="sm" />
                   <div className="text-right hidden sm:block">
                     <span className="text-[10px] text-slate-400 block">ETA</span>
                     <span className="text-xs font-black text-orange-600 dark:text-orange-400">
-                      {activeStepIdx >= 3 ? 'Delivered' : '⚡ 25 - 35 mins'}
+                      {selectedOrder.deliverySchedule?.mode === 'scheduled'
+                        ? selectedOrder.deliverySchedule.timeSlot
+                        : activeStepIdx >= 3
+                        ? 'Delivered'
+                        : '⚡ 25 - 35 mins'}
                     </span>
                   </div>
                 </div>
               </div>
+
+              {/* Delivery Timing Banner if scheduled */}
+              {selectedOrder.deliverySchedule && (
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-500/30 flex items-center justify-between text-xs">
+                  <div className="flex items-center space-x-2.5">
+                    <span className="text-lg">{selectedOrder.deliverySchedule.mode === 'scheduled' ? '📅' : '⚡'}</span>
+                    <div>
+                      <span className="font-extrabold text-slate-900 dark:text-white">
+                        {selectedOrder.deliverySchedule.mode === 'scheduled'
+                          ? `Scheduled Delivery: ${selectedOrder.deliverySchedule.date} (${selectedOrder.deliverySchedule.timeSlot})`
+                          : 'Express Priority Delivery (ASAP 25-35 mins)'}
+                      </span>
+                      {selectedOrder.deliverySchedule.note && (
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">
+                          "{selectedOrder.deliverySchedule.note}"
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300">
+                    {selectedOrder.deliverySchedule.mode === 'scheduled' ? 'Scheduled' : 'ASAP'}
+                  </span>
+                </div>
+              )}
 
               {/* Step Timeline */}
               <div className="relative py-2 sm:py-4">

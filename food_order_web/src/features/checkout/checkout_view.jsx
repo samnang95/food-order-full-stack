@@ -13,11 +13,13 @@ import {
   KhqrPaymentModal,
 } from './components';
 import { CheckoutRewardsSelector } from '../rewards';
+import { DeliveryScheduleSelector, useSchedule } from '../schedule';
 import { useCheckoutStore } from './checkout_store';
 import { CheckoutIntent } from './checkout_intent';
 
 export function CheckoutView() {
   const { t } = useTranslation();
+  const { currentSchedule } = useSchedule();
   const {
     items,
     subtotal,
@@ -63,13 +65,18 @@ export function CheckoutView() {
     }
 
     // Cash on Delivery
-    await executeOrderCreation(buildOrderPayload(), ensureCustomerSession, clearCart);
+    await executeOrderCreation(
+      buildOrderPayload({ deliverySchedule: currentSchedule }),
+      ensureCustomerSession,
+      clearCart
+    );
   };
 
   const handleKhqrSuccess = async (paymentDetails) => {
     const payload = buildOrderPayload({
       paymentStatus: 'completed',
       transactionId: paymentDetails.transactionId,
+      deliverySchedule: currentSchedule,
     });
     await executeOrderCreation(payload, ensureCustomerSession, clearCart);
   };
@@ -172,6 +179,9 @@ export function CheckoutView() {
               </div>
             </div>
           </div>
+
+          {/* Delivery Timing & Scheduling */}
+          <DeliveryScheduleSelector />
 
           {/* Interactive Delivery Location & Leaflet Map Pin */}
           <DeliveryLocationPicker

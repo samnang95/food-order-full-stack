@@ -11,3 +11,4 @@ export * from './reviews';
 export * from './invoices';
 export * from './chat';
 export * from './rewards';
+export * from './schedule';

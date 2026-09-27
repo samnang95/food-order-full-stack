@@ -35,6 +35,34 @@ export function cartReducer(state, action) {
       };
     }
 
+    case CartIntentType.ADD_ITEMS_BATCH: {
+      const batch = Array.isArray(action.payload) ? action.payload : [];
+      let updatedItems = [...state.items];
+
+      for (const item of batch) {
+        const { food, quantity = 1, notes = '' } = item || {};
+        if (!food || !food.id) continue;
+
+        const existingIdx = updatedItems.findIndex((i) => i.food.id === food.id);
+        if (existingIdx >= 0) {
+          updatedItems[existingIdx] = {
+            ...updatedItems[existingIdx],
+            quantity: updatedItems[existingIdx].quantity + quantity,
+            notes: notes || updatedItems[existingIdx].notes,
+          };
+        } else {
+          updatedItems.push({ food, quantity, notes });
+        }
+      }
+
+      const financials = computeCartFinancials(updatedItems, state.appliedVoucher, state.tipAmount);
+      return {
+        ...state,
+        items: updatedItems,
+        ...financials,
+      };
+    }
+
     case CartIntentType.REMOVE_ITEM: {
       const foodId = action.payload;
       const updatedItems = state.items.filter((i) => i.food.id !== foodId);
@@ -221,6 +249,8 @@ export function useCartStore() {
 
     addItem: (food, qty, notes) =>
       onIntent({ type: CartIntentType.ADD_ITEM, payload: { food, quantity: qty, notes } }),
+    addItemsBatch: (items) =>
+      onIntent({ type: CartIntentType.ADD_ITEMS_BATCH, payload: items }),
     removeItem: (id) => onIntent({ type: CartIntentType.REMOVE_ITEM, payload: id }),
     updateQuantity: (id, qty) =>
       onIntent({ type: CartIntentType.UPDATE_QUANTITY, payload: { foodId: id, quantity: qty } }),

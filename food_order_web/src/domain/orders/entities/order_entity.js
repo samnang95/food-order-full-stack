@@ -44,6 +44,8 @@ export class OrderEntity {
     createdAt = new Date(),
     updatedAt = new Date(),
     notes = '',
+    deliverySchedule = null,
+    deliveryNotes = '',
   } = {}) {
     this.id = id;
     this.orderNumber = orderNumber || (id ? `#${id.slice(-6).toUpperCase()}` : '#ORD-0000');
@@ -61,9 +63,20 @@ export class OrderEntity {
     this.createdAt = createdAt instanceof Date ? createdAt : new Date(createdAt);
     this.updatedAt = updatedAt instanceof Date ? updatedAt : new Date(updatedAt);
     this.notes = notes;
+    this.deliverySchedule = deliverySchedule;
+    this.deliveryNotes = deliveryNotes;
   }
 
   // Domain Business Getters
+  get isScheduledDelivery() {
+    return this.deliverySchedule?.mode === 'scheduled';
+  }
+
+  get formattedDeliverySchedule() {
+    if (!this.deliverySchedule) return '';
+    if (this.deliverySchedule.mode === 'asap') return '⚡ Deliver ASAP';
+    return `📅 ${this.deliverySchedule.date || ''} (${this.deliverySchedule.timeSlot || ''})`;
+  }
   get isPending() {
     return this.status === OrderStatus.PENDING;
   }
