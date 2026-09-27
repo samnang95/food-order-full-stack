@@ -101,21 +101,28 @@ export function Navbar() {
 
           {/* User Profile / Auth Button */}
           {isAuthenticated ? (
-            <div className="hidden sm:flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-2.5 sm:px-3 py-1.5 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700">
-              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-orange-500 text-white font-black text-[10px] sm:text-xs flex items-center justify-center uppercase">
-                {user?.username?.[0] || 'U'}
+            <Link
+              to={AppRoutes.PROFILE}
+              className="hidden sm:flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 px-2.5 sm:px-3 py-1.5 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 transition-colors"
+            >
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full overflow-hidden bg-orange-500 text-white font-black text-[10px] sm:text-xs flex items-center justify-center uppercase shrink-0">
+                {user?.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.username}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  user?.username?.[0] || 'U'
+                )}
               </div>
               <span className="text-xs font-bold text-slate-800 dark:text-slate-200 hidden md:inline max-w-[80px] truncate">
                 {user?.username || 'Foodie'}
               </span>
-              <button
-                onClick={logout}
-                className="text-[11px] text-slate-400 hover:text-rose-500 font-semibold ml-1 hidden sm:inline"
-                title="Logout"
-              >
-                {t('navigation.logOut')}
-              </button>
-            </div>
+            </Link>
           ) : (
             <button
               onClick={() => openAuthModal('login')}
@@ -190,24 +197,42 @@ export function Navbar() {
           </NavLink>
 
           {isAuthenticated ? (
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between px-2">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center uppercase shadow-sm">
-                  {user?.username?.[0] || 'U'}
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2 px-2">
+              <Link
+                to={AppRoutes.PROFILE}
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center space-x-2.5 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-orange-500 text-white font-black text-xs flex items-center justify-center uppercase shadow-sm shrink-0">
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.username}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    user?.username?.[0] || 'U'
+                  )}
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-900 dark:text-white">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
                     {user?.username || 'Foodie'}
                   </p>
-                  <p className="text-[10px] text-slate-400">{user?.email || 'Logged in'}</p>
+                  <p className="text-[10px] text-slate-400 truncate">{user?.email || 'Logged in'}</p>
                 </div>
-              </div>
+                <span className="text-xs font-bold text-orange-600 dark:text-orange-400">
+                  {t('navigation.profile')} →
+                </span>
+              </Link>
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
                   logout();
                 }}
-                className="px-3 py-1.5 text-xs text-rose-500 font-bold hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors"
+                className="w-full text-left px-2 py-1.5 text-xs text-rose-500 font-bold hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors"
               >
                 {t('navigation.logOut')}
               </button>

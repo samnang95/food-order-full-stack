@@ -107,13 +107,114 @@ export function AuthProvider({ children }) {
     }
   }, [token, user, saveAuthSession]);
 
+  const updateProfile = useCallback(
+    async (updateData) => {
+      setLoading(true);
+      setAuthError(null);
+      try {
+        let updatedUser = { ...user, ...updateData };
+        if (token) {
+          try {
+            const res = await ApiClient.put('/users/profile', updateData);
+            if (res?.user) {
+              updatedUser = { ...user, ...res.user };
+            }
+          } catch (apiErr) {
+            console.warn('API update failed, updating local profile:', apiErr.message);
+          }
+        }
+        setUser(updatedUser);
+        LocalDB.setJSON(DBKeys.USER_PROFILE, updatedUser);
+        return updatedUser;
+      } catch (err) {
+        setAuthError(err.message || 'Failed to update profile');
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user, token]
+  );
+
+  const changePassword = useCallback(
+    async (oldPassword, newPassword) => {
+      setLoading(true);
+      setAuthError(null);
+      try {
+        if (!token) throw new Error('You must be logged in to change your password');
+        const res = await ApiClient.put('/users/profile/password', { oldPassword, newPassword });
+        return res;
+      } catch (err) {
+        setAuthError(err.message || 'Failed to change password');
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token]
+  );
+
+  const uploadAvatar = useCallback(
+    async (file) => {
+      if (!file) return null;
+      setLoading(true);
+      setAuthError(null);
+      try {
+        let avatarUrl = '';
+        if (file instanceof File) {
+          if (token) {
+            try {
+              const formData = new FormData();
+              formData.append('image', file);
+              const headers = {};
+              const currentToken = ApiClient.getToken();
+              if (currentToken) headers['Authorization'] = `Bearer ${currentToken}`;
+
+              const res = await fetch('/api/upload', {
+                method: 'POST',
+                headers,
+                body: formData,
+              });
+              if (res.ok) {
+                const data = await res.json();
+                avatarUrl = data?.image?.url || '';
+              }
+            } catch (upErr) {
+              console.warn('Upload to server failed, falling back to local preview:', upErr);
+            }
+          }
+
+          if (!avatarUrl) {
+            avatarUrl = await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result);
+              reader.readAsDataURL(file);
+            });
+          }
+        } else if (typeof file === 'string') {
+          avatarUrl = file;
+        }
+
+        if (avatarUrl) {
+          await updateProfile({ avatar: avatarUrl });
+        }
+        return avatarUrl;
+      } catch (err) {
+        setAuthError(err.message || 'Failed to update avatar photo');
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, updateProfile]
+  );
+
   const logout = useCallback(() => {
     setToken(null);
     setUser(null);
     ApiClient.clearToken();
     LocalDB.remove(DBKeys.USER_PROFILE);
   }, []);
-
 
   const openAuthModal = useCallback((mode = 'login') => {
     setAuthModalMode(mode);
@@ -136,6 +237,9 @@ export function AuthProvider({ children }) {
     register,
     loginWithGoogle,
     logout,
+    updateProfile,
+    changePassword,
+    uploadAvatar,
     ensureCustomerSession,
     isAuthModalOpen,
     authModalMode,

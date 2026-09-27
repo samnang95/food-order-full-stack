@@ -7,6 +7,7 @@ export const AppRoutes = Object.freeze({
   MENU: '/menu',
   FAVORITES: '/favorites',
   CHECKOUT: '/checkout',
+  PROFILE: '/profile',
   SETTINGS: '/settings',
   NOT_FOUND: '*',
 });

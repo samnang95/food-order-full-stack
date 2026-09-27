@@ -5,6 +5,7 @@ import { MenuView } from '../features/menu/menu_view';
 import { OrdersView } from '../features/orders/orders_view';
 import { FavoritesView } from '../features/favorites';
 import { CheckoutView } from '../features/checkout';
+import { ProfileView } from '../features/profile';
 import { NotFoundView } from '../components/common/NotFoundView';
 import { AppRoutes } from './app_routes';
 
@@ -32,6 +33,10 @@ export const appRouter = createBrowserRouter([
       {
         path: 'checkout',
         element: <CheckoutView />,
+      },
+      {
+        path: 'profile',
+        element: <ProfileView />,
       },
       {
         path: '*',

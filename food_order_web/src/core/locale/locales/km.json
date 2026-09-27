@@ -24,6 +24,7 @@
     "menu": "មុខម្ហូប",
     "orders": "ការកុម្ម៉ង់របស់ខ្ញុំ",
     "favorites": "មុខម្ហូបចូលចិត្ត",
+    "profile": "គណនីរបស់ខ្ញុំ",
     "cart": "កន្ត្រក",
     "signIn": "ចូលគណនី",
     "logOut": "ចាកចេញ"
@@ -174,5 +175,28 @@
     "searchFavorites": "ស្វែងរកក្នុងបញ្ជីចូលចិត្ត...",
     "addToFavorites": "បញ្ចូលទៅក្នុងបញ្ជីចូលចិត្ត",
     "removeFromFavorites": "ដកចេញពីបញ្ជីចូលចិត្ត"
+  },
+  "profile": {
+    "profileTitle": "គណនីរបស់ខ្ញុំ",
+    "darkMode": "មុខងារងងឹត (Dark Mode)",
+    "language": "ភាសា",
+    "savedAddresses": "អាសយដ្ឋានដែលបានរក្សាទុក",
+    "paymentMethods": "វិធីសាស្ត្រទូទាត់ប្រាក់",
+    "helpCenter": "ជំនួយ និងការគាំទ្រ",
+    "signOut": "ចាកចេញពីគណនី",
+    "editProfile": "កែប្រែព័ត៌មានផ្ទាល់ខ្លួន",
+    "saveChanges": "រក្សាទុកការផ្លាស់ប្តូរ",
+    "addAddress": "បន្ថែមអាសយដ្ឋាន",
+    "noSavedAddresses": "មិនទាន់មានអាសយដ្ឋានដែលបានរក្សាទុកនៅឡើយទេ",
+    "enterAddress": "បញ្ចូលអាសយដ្ឋានដឹកជញ្ជូនរបស់អ្នក",
+    "cancel": "បោះបង់",
+    "preferences": "ការកំណត់",
+    "orders": "ការកម្ម៉ង់",
+    "points": "ពិន្ទុ",
+    "favorites": "ចូលចិត្ត",
+    "changePhoto": "ប្តូររូបថតគណនី",
+    "takePhoto": "ថតរូប",
+    "chooseFromGallery": "ជ្រើសពីវិចិត្រសាល",
+    "uploadingAvatar": "កំពុងផ្ទុករូបភាពឡើង..."
   }
 }
