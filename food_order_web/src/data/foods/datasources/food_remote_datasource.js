@@ -43,4 +43,17 @@ export class FoodRemoteDataSource {
     if (Array.isArray(response?.categories)) return response.categories;
     return [];
   }
+
+  async fetchCategoryById(categoryId) {
+    const response = await this.api.get(`/categories/${categoryId}`);
+    return response?.data || response?.category || response;
+  }
+
+  async fetchFoodsByCategory(categoryId) {
+    const response = await this.api.get(`/categories/${categoryId}/foods`);
+    if (Array.isArray(response)) return response;
+    if (Array.isArray(response?.data)) return response.data;
+    if (Array.isArray(response?.foods)) return response.foods;
+    return [];
+  }
 }

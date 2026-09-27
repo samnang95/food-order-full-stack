@@ -3,6 +3,8 @@ import { MainLayout } from '../components/layout/MainLayout';
 import { HomeView } from '../features/home/home_view';
 import { MenuView } from '../features/menu/menu_view';
 import { OrdersView, OrderDetailView } from '../features/orders';
+import { CategoriesView, CategoryDetailView } from '../features/categories';
+import { SearchView } from '../features/search';
 import { FavoritesView } from '../features/favorites';
 import { CheckoutView } from '../features/checkout';
 import { ProfileView } from '../features/profile';
@@ -22,6 +24,18 @@ export const appRouter = createBrowserRouter([
       {
         path: 'menu',
         element: <MenuView />,
+      },
+      {
+        path: 'categories',
+        element: <CategoriesView />,
+      },
+      {
+        path: 'category/:id',
+        element: <CategoryDetailView />,
+      },
+      {
+        path: 'search',
+        element: <SearchView />,
       },
       {
         path: 'orders',

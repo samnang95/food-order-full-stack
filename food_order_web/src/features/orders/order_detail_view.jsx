@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { container } from '../../core/di/container';
 import { socketService } from '../../core/services/socket_service';
-import { formatUsd, formatKhr, useTranslation, LocalDB, DBKeys, AppAssets } from '../../core';
+import { formatUsd, formatKhr, useTranslation, AppAssets } from '../../core';
 import { useCart } from '../cart/use_cart';
 import { AppRoutes } from '../../routes/app_routes';
 import { DeliveryMapCard } from './components';
@@ -28,30 +28,18 @@ export function OrderDetailView() {
   const [reordering, setReordering] = useState(false);
   const [showMap, setShowMap] = useState(true);
 
-  // Fetch Order Details
+  // Fetch Order Details via Clean Architecture Use Case
   useEffect(() => {
     if (!id) return;
     let isMounted = true;
 
     async function loadOrder() {
       try {
-        const orderRepo = container.getOrderRepository();
-        let orderData = null;
-
-        try {
-          orderData = await orderRepo.getOrderById(id);
-        } catch (apiErr) {
-          console.debug('Failed to fetch from API, checking local cache:', apiErr.message);
-          // Fallback to local cached orders
-          const cached = LocalDB.getJSON(DBKeys.CACHED_ORDERS, []);
-          orderData = cached.find((o) => (o.id || o._id) === id);
-          if (!orderData) {
-            throw new Error('Order not found or access expired.', { cause: apiErr });
-          }
-        }
-
+        setLoading(true);
+        const orderData = await container.getOrderByIdUseCase.execute(id);
         if (isMounted) {
           setOrder(orderData);
+          setError(null);
         }
       } catch (err) {
         if (isMounted) {

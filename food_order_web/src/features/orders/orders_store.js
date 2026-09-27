@@ -2,7 +2,7 @@ import { useReducer, useEffect, useCallback, useRef } from 'react';
 import { initialOrdersState, computeFilteredOrders } from './orders_state';
 import { OrdersIntentType } from './orders_intent';
 import { orderRepository } from '../../data';
-import { socketService } from '../../core';
+import { socketService, getOrdersUseCase, cancelOrderUseCase } from '../../core';
 
 /**
  * Pure Reducer: receives current state and intent, returns new state
@@ -122,7 +122,7 @@ export function useOrdersStore() {
   const fetchOrders = useCallback(async () => {
     dispatch({ type: OrdersIntentType.FETCH_START });
     try {
-      const ordersList = await orderRepository.getOrders();
+      const ordersList = await getOrdersUseCase.execute();
       dispatch({ type: OrdersIntentType.FETCH_SUCCESS, payload: ordersList });
     } catch (error) {
       dispatch({
@@ -139,10 +139,10 @@ export function useOrdersStore() {
       payload: { orderId, newStatus },
     });
 
-    // 2. Sync with backend API via Order Repository
+    // 2. Sync with backend API via Order UseCase / Repository
     try {
       if (newStatus === 'cancelled') {
-        await orderRepository.cancelOrder(orderId, 'Cancelled by kitchen admin');
+        await cancelOrderUseCase.execute(orderId, 'Cancelled by kitchen admin');
       } else {
         await orderRepository.updateOrderStatus(orderId, newStatus);
       }

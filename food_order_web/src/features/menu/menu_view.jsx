@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { container } from '../../core/di/container';
 import { useTranslation } from '../../core';
+import { AppRoutes, getCategoryDetailRoute } from '../../routes/app_routes';
 import { FoodCard } from './components/FoodCard';
 import { FoodDetailModal } from './components/FoodDetailModal';
 
@@ -21,10 +22,9 @@ export function MenuView() {
     async function loadMenu() {
       setLoading(true);
       try {
-        const foodRepo = container.getFoodRepository();
         const [foodsData, categoriesData] = await Promise.all([
-          foodRepo.getFoods(),
-          foodRepo.getCategories(),
+          container.getFoodsUseCase.execute(),
+          container.getCategoriesUseCase.execute(),
         ]);
         setFoods(foodsData);
         setCategories(categoriesData);
@@ -84,13 +84,24 @@ export function MenuView() {
   return (
     <div className="space-y-6 sm:space-y-8 pb-8">
       {/* Header Banner */}
-      <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-transparent p-4 sm:p-8 border border-orange-500/20">
-        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-          {t('menu.menuTitle')}
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
-          {t('menu.menuSubtitle')}
-        </p>
+      <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-transparent p-4 sm:p-8 border border-orange-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+            {t('menu.menuTitle')}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
+            {t('menu.menuSubtitle')}
+          </p>
+        </div>
+
+        <Link
+          to={AppRoutes.CATEGORIES}
+          className="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 text-xs font-bold border border-orange-200 dark:border-orange-900/60 shadow-xs hover:border-orange-500 transition-all shrink-0 self-start sm:self-auto"
+        >
+          <span>✨</span>
+          <span>{t('categories.allCategories')}</span>
+          <span>→</span>
+        </Link>
       </div>
 
       {/* Filter and Search Controls */}
@@ -171,6 +182,18 @@ export function MenuView() {
               </button>
             );
           })}
+
+          {selectedCategory !== 'ALL' && (
+            <Link
+              to={getCategoryDetailRoute(
+                categories.find((c) => c.name === selectedCategory)?.id || selectedCategory
+              )}
+              className="px-3 py-1.5 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 text-xs font-bold whitespace-nowrap hover:bg-orange-200 transition-all shrink-0 flex items-center space-x-1"
+            >
+              <span>{t('categories.exploreDishes')}</span>
+              <span>→</span>
+            </Link>
+          )}
         </div>
       </div>
 

@@ -83,8 +83,7 @@ export function CheckoutView() {
         tipAmount: tipAmount || 0,
       };
 
-      const orderRepo = container.getOrderRepository();
-      const created = await orderRepo.createOrder(orderPayload);
+      const created = await container.createOrderUseCase.execute(orderPayload);
 
       setPlacedOrder(created);
       clearCart();

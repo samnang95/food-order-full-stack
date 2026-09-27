@@ -36,12 +36,14 @@ export class CategoryEntity {
     id = '',
     name = '',
     icon = '🍽️',
+    imageUrl = '',
     description = '',
     order = 0,
   } = {}) {
     this.id = id;
     this.name = name;
     this.icon = icon;
+    this.imageUrl = imageUrl;
     this.description = description;
     this.order = Number(order) || 0;
   }

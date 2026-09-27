@@ -22,4 +22,12 @@ export class IFoodRepository {
   async getCategories() {
     throw new Error('Method getCategories() must be implemented.');
   }
+
+  async getCategoryById() {
+    throw new Error('Method getCategoryById() must be implemented.');
+  }
+
+  async getFoodsByCategory() {
+    throw new Error('Method getFoodsByCategory() must be implemented.');
+  }
 }

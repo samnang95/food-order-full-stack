@@ -42,11 +42,27 @@ export class FoodModel {
 }
 
 export class CategoryModel {
+  static getCategoryIcon(name = '', fallbackIcon = '🍽️') {
+    if (fallbackIcon && fallbackIcon !== '🍽️') return fallbackIcon;
+    const lower = (name || '').toLowerCase();
+    if (lower.includes('burger')) return '🍔';
+    if (lower.includes('pizza')) return '🍕';
+    if (lower.includes('asian') || lower.includes('noodle') || lower.includes('ramen')) return '🍜';
+    if (lower.includes('healthy') || lower.includes('bowl') || lower.includes('salad')) return '🥗';
+    if (lower.includes('dessert') || lower.includes('cake') || lower.includes('sweet')) return '🍰';
+    if (lower.includes('beverage') || lower.includes('drink') || lower.includes('coffee')) return '☕';
+    if (lower.includes('seafood') || lower.includes('fish') || lower.includes('shrimp')) return '🦐';
+    if (lower.includes('bakery') || lower.includes('bread') || lower.includes('pastry')) return '🥖';
+    return fallbackIcon || '🍽️';
+  }
+
   static fromJson(raw = {}) {
+    const name = raw.name || 'Category';
     return new CategoryEntity({
       id: raw._id || raw.id || '',
-      name: raw.name || 'Category',
-      icon: raw.icon || '🍽️',
+      name,
+      icon: CategoryModel.getCategoryIcon(name, raw.icon),
+      imageUrl: raw.imageUrl || raw.image || '',
       description: raw.description || '',
       order: Number(raw.order) || 0,
     });
@@ -56,6 +72,7 @@ export class CategoryModel {
     return {
       name: entity.name,
       icon: entity.icon,
+      imageUrl: entity.imageUrl,
       description: entity.description,
       order: entity.order,
     };

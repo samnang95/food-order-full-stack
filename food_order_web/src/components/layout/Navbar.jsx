@@ -65,6 +65,9 @@ export function Navbar() {
           <NavLink to={AppRoutes.ROOT} className={getNavClass} end>
             🏠 {t('navigation.home')}
           </NavLink>
+          <NavLink to={AppRoutes.CATEGORIES} className={getNavClass}>
+            ✨ {t('navigation.categories')}
+          </NavLink>
           <NavLink to={AppRoutes.MENU} className={getNavClass}>
             🍔 {t('navigation.menu')}
           </NavLink>
@@ -84,8 +87,18 @@ export function Navbar() {
           </NavLink>
         </nav>
 
-        {/* Right side controls: Cart, Auth, Language, Theme, Mobile toggle */}
+        {/* Right side controls: Search, Cart, Auth, Language, Theme, Mobile toggle */}
         <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+          {/* Quick Search Button */}
+          <Link
+            to={AppRoutes.SEARCH}
+            className="p-2 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 flex items-center space-x-1.5 transition-all active:scale-95 shadow-xs"
+            aria-label="Search"
+          >
+            <span className="text-base leading-none">🔍</span>
+            <span className="text-xs font-bold hidden xl:inline">{t('navigation.search')}</span>
+          </Link>
+
           {/* Notifications Bell Dropdown */}
           <div className="relative">
             <button
@@ -186,6 +199,20 @@ export function Navbar() {
             end
           >
             🏠 {t('navigation.home')}
+          </NavLink>
+          <NavLink
+            to={AppRoutes.SEARCH}
+            onClick={() => setMobileMenuOpen(false)}
+            className={getMobileNavClass}
+          >
+            🔍 {t('navigation.search')}
+          </NavLink>
+          <NavLink
+            to={AppRoutes.CATEGORIES}
+            onClick={() => setMobileMenuOpen(false)}
+            className={getMobileNavClass}
+          >
+            ✨ {t('navigation.categories')}
           </NavLink>
           <NavLink
             to={AppRoutes.MENU}

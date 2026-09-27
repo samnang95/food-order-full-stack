@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { container } from '../../core/di/container';
 import { AppAssets, useTranslation } from '../../core';
-import { AppRoutes } from '../../routes/app_routes';
+import { AppRoutes, getCategoryDetailRoute, getSearchRoute } from '../../routes/app_routes';
 import { FoodCard } from '../menu/components/FoodCard';
 import { FoodDetailModal } from '../menu/components/FoodDetailModal';
+import { getCategoryHeroImage, getCategoryIcon } from '../categories';
 
 export function HomeView() {
   const navigate = useNavigate();
@@ -20,10 +21,9 @@ export function HomeView() {
     async function loadData() {
       setLoading(true);
       try {
-        const foodRepo = container.getFoodRepository();
         const [foodsData, categoriesData] = await Promise.all([
-          foodRepo.getFoods(),
-          foodRepo.getCategories(),
+          container.getFoodsUseCase.execute(),
+          container.getCategoriesUseCase.execute(),
         ]);
         setFoods(foodsData);
         setCategories(categoriesData);
@@ -53,7 +53,9 @@ export function HomeView() {
   const handleHeroSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`${AppRoutes.MENU}?q=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(getSearchRoute(searchQuery.trim()));
+    } else {
+      navigate(AppRoutes.SEARCH);
     }
   };
 
@@ -146,7 +148,7 @@ export function HomeView() {
       </section>
 
 
-      {/* 2. Categories Horizontal Bar */}
+      {/* 2. Categories Horizontal Bar & Showcase */}
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
           <div>
@@ -157,17 +159,77 @@ export function HomeView() {
               {t('home.exploreCategories')}
             </h2>
           </div>
-          <button
-            onClick={() => navigate(AppRoutes.MENU)}
-            className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline flex items-center space-x-1"
-          >
-            <span>{t('home.viewFullMenu')}</span>
-            <span>→</span>
-          </button>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => navigate(AppRoutes.CATEGORIES)}
+              className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline flex items-center space-x-1"
+            >
+              <span>{t('categories.allCategories')}</span>
+              <span>→</span>
+            </button>
+            <span className="text-slate-300 dark:text-slate-700">•</span>
+            <button
+              onClick={() => navigate(AppRoutes.MENU)}
+              className="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+            >
+              {t('home.viewFullMenu')}
+            </button>
+          </div>
         </div>
 
+        {/* Visual Category Showcase Cards Carousel */}
+        {categories.length > 0 && (
+          <div className="grid grid-flow-col auto-cols-[160px] sm:auto-cols-[200px] gap-3 sm:gap-4 overflow-x-auto pb-2 -mx-3.5 px-3.5 sm:mx-0 sm:px-0 scrollbar-none">
+            {categories.map((cat) => {
+              const icon = getCategoryIcon(cat.name, cat.icon);
+              const heroImg = getCategoryHeroImage(cat);
+              const detailRoute = getCategoryDetailRoute(cat.id || cat.name);
+              const count = foods.filter(
+                (f) =>
+                  f.categoryId === cat.id ||
+                  f.categoryName?.toLowerCase() === cat.name?.toLowerCase()
+              ).length;
+
+              return (
+                <div
+                  key={cat._id || cat.id || cat.name}
+                  onClick={() => navigate(detailRoute)}
+                  className="group relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs hover:shadow-lg hover:shadow-orange-500/15 border border-slate-200/80 dark:border-slate-800 bg-slate-900 h-28 sm:h-36 p-3 sm:p-4 flex flex-col justify-end cursor-pointer transition-all hover:-translate-y-1 shrink-0"
+                >
+                  <img
+                    src={heroImg}
+                    alt={cat.name}
+                    className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-75 group-hover:scale-105 transition-all duration-500"
+                    onError={(e) => {
+                      e.currentTarget.src =
+                        'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600';
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-transparent" />
+                  <div className="relative z-10 flex items-end justify-between">
+                    <div>
+                      <span className="text-base sm:text-lg drop-shadow-xs">{icon}</span>
+                      <h3 className="text-xs sm:text-sm font-black text-white group-hover:text-orange-300 transition-colors truncate">
+                        {cat.name}
+                      </h3>
+                      {count > 0 && (
+                        <p className="text-[10px] text-slate-300 font-semibold">
+                          {count} {t('common.items')}
+                        </p>
+                      )}
+                    </div>
+                    <span className="text-xs font-bold text-orange-400 group-hover:translate-x-0.5 transition-transform">
+                      →
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         {/* Category Pills Selector */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-2 -mx-3.5 px-3.5 sm:mx-0 sm:px-0 scrollbar-none">
+        <div className="flex items-center space-x-2 overflow-x-auto pb-2 -mx-3.5 px-3.5 sm:mx-0 sm:px-0 scrollbar-none pt-1">
           <button
             onClick={() => setSelectedCategory('ALL')}
             className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-1.5 shrink-0 ${
@@ -180,20 +242,36 @@ export function HomeView() {
             <span>{t('home.all')} ({foods.length})</span>
           </button>
 
-          {categories.map((cat) => (
+          {categories.map((cat) => {
+            const icon = getCategoryIcon(cat.name, cat.icon);
+            return (
+              <button
+                key={cat._id || cat.id || cat.name}
+                onClick={() => setSelectedCategory(cat.name)}
+                className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-1.5 shrink-0 ${
+                  selectedCategory === cat.name
+                    ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-orange-500'
+                }`}
+              >
+                <span>{icon}</span>
+                <span>{cat.name}</span>
+              </button>
+            );
+          })}
+
+          {selectedCategory !== 'ALL' && (
             <button
-              key={cat._id || cat.id || cat.name}
-              onClick={() => setSelectedCategory(cat.name)}
-              className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center space-x-1.5 shrink-0 ${
-                selectedCategory === cat.name
-                  ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
-                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-orange-500'
-              }`}
+              onClick={() => {
+                const targetCat = categories.find((c) => c.name === selectedCategory);
+                navigate(getCategoryDetailRoute(targetCat?.id || selectedCategory));
+              }}
+              className="px-3 py-1.5 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 text-xs font-bold whitespace-nowrap hover:bg-orange-200 transition-all shrink-0 flex items-center space-x-1"
             >
-              <span>🍽️</span>
-              <span>{cat.name}</span>
+              <span>{t('categories.exploreDishes')}</span>
+              <span>→</span>
             </button>
-          ))}
+          )}
         </div>
       </section>
 
