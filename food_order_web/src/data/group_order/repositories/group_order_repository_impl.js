@@ -3,12 +3,17 @@ import { GroupOrderEntity } from '../../../domain/group_order/entities/group_ord
 import { GroupMemberEntity, MEMBER_AVATAR_COLORS } from '../../../domain/group_order/entities/group_member_entity';
 import { GroupItemEntity } from '../../../domain/group_order/entities/group_item_entity';
 import { GroupOrderLocalDataSource } from '../datasources/group_order_local_datasource';
+import { GroupOrderRemoteDataSource } from '../datasources/group_order_remote_datasource';
 import { socketService } from '../../../core/services/socket_service';
 
 export class GroupOrderRepositoryImpl extends GroupOrderRepository {
-  constructor({ localDataSource = new GroupOrderLocalDataSource() } = {}) {
+  constructor({
+    localDataSource = new GroupOrderLocalDataSource(),
+    remoteDataSource = new GroupOrderRemoteDataSource(),
+  } = {}) {
     super();
     this.localDataSource = localDataSource;
+    this.remoteDataSource = remoteDataSource;
   }
 
   getCurrentMember() {
@@ -20,7 +25,31 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
   }
 
   async getActiveGroupOrder() {
-    return this.localDataSource.getActiveGroupOrder();
+    const local = this.localDataSource.getActiveGroupOrder();
+    if (local?.id) {
+      try {
+        const remote = await this.remoteDataSource.getGroupOrder(local.id);
+        if (remote) {
+          const synced = new GroupOrderEntity({
+            id: remote.groupId || remote.id,
+            code: local.code,
+            title: remote.title || local.title,
+            hostId: remote.host?.userId || local.hostId,
+            hostName: remote.host?.name || local.hostName,
+            isLocked: remote.status === 'locked' || local.isLocked,
+            members: (remote.members || []).map((m) => new GroupMemberEntity(m)),
+            items: (remote.items || []).map((i) => new GroupItemEntity(i)),
+            createdAt: remote.createdAt || local.createdAt,
+            updatedAt: remote.updatedAt || local.updatedAt,
+          });
+          this.localDataSource.saveGroupOrder(synced);
+          return synced;
+        }
+      } catch (err) {
+        console.debug('Using local group order fallback:', err.message);
+      }
+    }
+    return local;
   }
 
   async createGroupOrder({ title = 'Group Feast', hostMember }) {
@@ -37,11 +66,11 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
       joinedAt: new Date(),
     });
 
-    // 6-character room code (e.g. BC-9281)
     const randomCode = `BC-${Math.floor(1000 + Math.random() * 9000)}`;
+    const groupId = `grp_${Date.now()}`;
 
     const newGroup = new GroupOrderEntity({
-      id: `grp_${Date.now()}`,
+      id: groupId,
       code: randomCode,
       title: title || 'Group Feast',
       hostId: host.id,
@@ -56,7 +85,20 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
     this.localDataSource.saveGroupOrder(newGroup);
     this.localDataSource.saveCurrentMember(host);
 
-    // Join socket room
+    // Call backend API in parallel
+    try {
+      await this.remoteDataSource.createGroupOrder({
+        groupId,
+        title: newGroup.title,
+        hostId: host.id,
+        hostName: host.name,
+        hostAvatar: host.avatar,
+      });
+    } catch (e) {
+      console.debug('Backend group creation note:', e.message);
+    }
+
+    // Join real-time socket room
     try {
       socketService.emit('group:join', { groupId: newGroup.id, member: host });
     } catch (e) {
@@ -70,10 +112,10 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
     const formattedCode = (code || '').trim().toUpperCase();
     let currentGroup = this.localDataSource.getActiveGroupOrder();
 
-    // If joining an existing room or creating a simulated room matching the code
     if (!currentGroup || currentGroup.code !== formattedCode) {
+      const generatedId = `grp_${formattedCode.replace(/[^A-Z0-9]/gi, '')}`;
       currentGroup = new GroupOrderEntity({
-        id: `grp_${formattedCode.replace(/[^A-Z0-9]/gi, '')}`,
+        id: generatedId,
         code: formattedCode,
         title: 'Team Shared Order',
         hostId: 'host_shared',
@@ -93,7 +135,6 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
       });
     }
 
-    // Check if member already in group
     const existingIdx = currentGroup.members.findIndex(
       (m) => m.name.toLowerCase() === member.name.toLowerCase() || m.id === member.id
     );
@@ -130,7 +171,18 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
     this.localDataSource.saveGroupOrder(updatedGroup);
     this.localDataSource.saveCurrentMember(joinedMember);
 
-    // Emit socket join
+    // Call backend API
+    try {
+      await this.remoteDataSource.joinGroupOrder(updatedGroup.id, {
+        memberId: joinedMember.id,
+        name: joinedMember.name,
+        avatar: joinedMember.avatar,
+      });
+    } catch (e) {
+      console.debug('Backend group join note:', e.message);
+    }
+
+    // Emit socket join & sync
     try {
       socketService.emit('group:join', { groupId: updatedGroup.id, member: joinedMember });
       socketService.emit('group:sync', { groupId: updatedGroup.id, groupOrder: updatedGroup });
@@ -175,6 +227,25 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
 
     this.localDataSource.saveGroupOrder(updatedGroup);
 
+    // Call backend API
+    try {
+      await this.remoteDataSource.addItem(groupId, {
+        itemId: newItem.id,
+        foodId: newItem.foodId,
+        name: newItem.foodName,
+        price: newItem.price,
+        quantity: newItem.quantity,
+        image: newItem.image,
+        addedBy: {
+          id: newItem.memberId,
+          name: newItem.memberName,
+        },
+        notes: newItem.notes,
+      });
+    } catch (e) {
+      console.debug('Backend add item note:', e.message);
+    }
+
     // Broadcast sync
     try {
       socketService.emit('group:sync', { groupId: updatedGroup.id, groupOrder: updatedGroup });
@@ -195,7 +266,6 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
 
     const updatedItems = currentGroup.items.filter((it) => {
       if (it.id === itemId) {
-        // Can be removed if caller is host or caller is the owner of the item
         if (memberId && it.memberId && it.memberId !== memberId) {
           const caller = currentGroup.members.find((m) => m.id === memberId);
           if (!caller?.isHost) return true;
@@ -212,6 +282,13 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
     });
 
     this.localDataSource.saveGroupOrder(updatedGroup);
+
+    // Call backend API
+    try {
+      await this.remoteDataSource.removeItem(groupId, itemId);
+    } catch (e) {
+      console.debug('Backend remove item note:', e.message);
+    }
 
     try {
       socketService.emit('group:sync', { groupId: updatedGroup.id, groupOrder: updatedGroup });
@@ -234,6 +311,13 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
 
     this.localDataSource.saveGroupOrder(updatedGroup);
 
+    // Call backend API
+    try {
+      await this.remoteDataSource.lockGroupOrder(groupId, Boolean(isLocked));
+    } catch (e) {
+      console.debug('Backend lock note:', e.message);
+    }
+
     try {
       socketService.emit('group:lock', { groupId, isLocked: Boolean(isLocked) });
       socketService.emit('group:sync', { groupId: updatedGroup.id, groupOrder: updatedGroup });
@@ -245,6 +329,12 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
   }
 
   async leaveGroupOrder({ groupId, memberId }) {
+    try {
+      await this.remoteDataSource.leaveGroupOrder(groupId, memberId);
+    } catch (e) {
+      console.debug('Backend leave group note:', e.message);
+    }
+
     try {
       socketService.emit('group:leave', { groupId, memberId });
     } catch (e) {

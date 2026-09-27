@@ -1,4 +1,5 @@
 const { getIO } = require('../socket/socketManager');
+const firebaseService = require('../services/firebaseService');
 
 const SYSTEM_NOTIFICATIONS = [
   {
@@ -38,8 +39,8 @@ const notificationController = {
     });
   },
 
-  sendNotification: (req, res) => {
-    const { title, body, type = 'system', orderId, promoCode } = req.body;
+  sendNotification: async (req, res) => {
+    const { title, body, type = 'system', orderId, promoCode, userId, fcmToken } = req.body;
 
     if (!title || !body) {
       return res.status(400).json({
@@ -68,6 +69,34 @@ const notificationController = {
       console.log(`🔔 [Notification] Broadcasted push notification: "${title}"`);
     } catch (err) {
       console.error('Failed to emit socket push notification:', err.message);
+    }
+
+    // Trigger Firebase Cloud Messaging
+    try {
+      if (userId) {
+        await firebaseService.sendPushNotificationToUser(userId, {
+          title,
+          body,
+          data: {
+            orderId: orderId || '',
+            promoCode: promoCode || '',
+            type,
+          },
+        });
+      } else if (fcmToken) {
+        await firebaseService.sendPushNotification({
+          token: fcmToken,
+          title,
+          body,
+          data: {
+            orderId: orderId || '',
+            promoCode: promoCode || '',
+            type,
+          },
+        });
+      }
+    } catch (fcmErr) {
+      console.error('⚠️ [Notification] FCM delivery error:', fcmErr.message);
     }
 
     return res.status(201).json({

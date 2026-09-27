@@ -77,7 +77,10 @@ const orderService = {
       discountAmount: discountAmount,
       deliveryAddress: orderData.deliveryAddress,
       deliveryLocation,
-      paymentMethod: orderData.paymentMethod || 'cash'
+      paymentMethod: orderData.paymentMethod || 'cash',
+      paymentStatus: orderData.paymentStatus || 'pending',
+      deliverySchedule: orderData.deliverySchedule || { mode: 'asap' },
+      deliveryNotes: orderData.deliveryNotes || '',
     };
 
     const createdOrder = await orderRepository.create(finalOrderData);

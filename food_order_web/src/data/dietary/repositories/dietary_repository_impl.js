@@ -2,19 +2,37 @@ import { DietaryRepository } from '../../../domain/dietary/repositories/dietary_
 import { FoodNutritionCatalog } from '../services/food_nutrition_catalog';
 import { NutritionalInfoEntity } from '../../../domain/dietary/entities/nutritional_info_entity';
 import { DIET_TYPES } from '../../../domain/dietary/entities/dietary_info_entity';
+import { DietaryRemoteDataSource } from '../datasources/dietary_remote_datasource';
 
 export class DietaryRepositoryImpl extends DietaryRepository {
-  constructor({ localDataSource }) {
+  constructor({ localDataSource, remoteDataSource = new DietaryRemoteDataSource() }) {
     super();
     this.localDataSource = localDataSource;
+    this.remoteDataSource = remoteDataSource;
   }
 
   async getUserPreferences() {
-    return this.localDataSource.getUserPreferences();
+    const local = await this.localDataSource.getUserPreferences();
+    try {
+      const remote = await this.remoteDataSource.getPreferences();
+      if (remote) {
+        await this.localDataSource.saveUserPreferences(remote);
+        return await this.localDataSource.getUserPreferences();
+      }
+    } catch (e) {
+      console.debug('Using local dietary preferences fallback:', e.message);
+    }
+    return local;
   }
 
   async saveUserPreferences(preferences) {
-    return this.localDataSource.saveUserPreferences(preferences);
+    const saved = await this.localDataSource.saveUserPreferences(preferences);
+    try {
+      await this.remoteDataSource.savePreferences(preferences);
+    } catch (e) {
+      console.debug('Backend dietary save note:', e.message);
+    }
+    return saved;
   }
 
   getDishNutritionAndDietary(food) {

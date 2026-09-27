@@ -35,6 +35,9 @@ const orderRoutes = require('./routes/orderRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const voucherRoutes = require('./routes/voucherRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const groupOrderRoutes = require('./routes/groupOrderRoutes');
+const driverTipRoutes = require('./routes/driverTipRoutes');
+const dietaryRoutes = require('./routes/dietaryRoutes');
 
 // Public Auth Routes
 app.use('/auth', authRoutes);
@@ -59,6 +62,15 @@ app.use('/vouchers', voucherRoutes);
 
 // In-App Push Notification Routes
 app.use('/notifications', notificationRoutes);
+
+// Collaborative Group Order Routes
+app.use('/group-orders', groupOrderRoutes);
+
+// Driver Tip & Feedback Routes
+app.use('/driver-tips', driverTipRoutes);
+
+// Dietary & Allergen Profile Routes
+app.use('/dietary', dietaryRoutes);
 
 
 

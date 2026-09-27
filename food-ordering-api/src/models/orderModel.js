@@ -72,6 +72,16 @@ const orderSchema = new mongoose.Schema({
   discountAmount: {
     type: Number,
     default: 0,
+  },
+  deliverySchedule: {
+    mode: { type: String, enum: ['asap', 'scheduled'], default: 'asap' },
+    date: { type: String, default: null },
+    timeSlot: { type: String, default: null },
+    note: { type: String, default: '' },
+  },
+  deliveryNotes: {
+    type: String,
+    default: '',
   }
 }, { timestamps: true });
 
