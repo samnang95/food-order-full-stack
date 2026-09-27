@@ -1,7 +1,7 @@
 import { ApiClient } from '../services/api_client';
 import { socketService } from '../services/socket_service';
 import { LocalDB, indexedDBService, DBKeys } from '../db';
-import { orderRepository, foodRepository, voucherRepository, reviewRepository } from '../../data';
+import { orderRepository, foodRepository, voucherRepository, reviewRepository, invoiceRepository } from '../../data';
 import {
   GetFoodsUseCase,
   GetFoodByIdUseCase,
@@ -17,6 +17,7 @@ import {
   SubmitReviewUseCase,
   GetOrderReviewUseCase,
   GetFoodReviewsUseCase,
+  GenerateInvoiceUseCase,
 } from '../../domain';
 
 // Use Cases Singletons
@@ -37,6 +38,7 @@ const validateVoucherUseCase = new ValidateVoucherUseCase(voucherRepository);
 const submitReviewUseCase = new SubmitReviewUseCase(reviewRepository);
 const getOrderReviewUseCase = new GetOrderReviewUseCase(reviewRepository);
 const getFoodReviewsUseCase = new GetFoodReviewsUseCase(reviewRepository);
+const generateInvoiceUseCase = new GenerateInvoiceUseCase(invoiceRepository);
 
 export const container = {
   // Repositories
@@ -44,10 +46,12 @@ export const container = {
   getFoodRepository: () => foodRepository,
   getVoucherRepository: () => voucherRepository,
   getReviewRepository: () => reviewRepository,
-    orderRepository,
+  getInvoiceRepository: () => invoiceRepository,
+  orderRepository,
   foodRepository,
   voucherRepository,
   reviewRepository,
+  invoiceRepository,
 
   // Foods & Categories Use Cases
   getFoodsUseCase,
@@ -85,6 +89,10 @@ export const container = {
   getGetOrderReviewUseCase: () => getOrderReviewUseCase,
   getGetFoodReviewsUseCase: () => getFoodReviewsUseCase,
 
+  // Invoices Use Cases
+  generateInvoiceUseCase,
+  getGenerateInvoiceUseCase: () => generateInvoiceUseCase,
+
   // Services & Storage
   getApiClient: () => ApiClient,
   getSocketService: () => socketService,
@@ -109,6 +117,7 @@ export {
   foodRepository,
   voucherRepository,
   reviewRepository,
+  invoiceRepository,
   getFoodsUseCase,
   getFoodByIdUseCase,
   getCategoriesUseCase,
@@ -123,6 +132,7 @@ export {
   submitReviewUseCase,
   getOrderReviewUseCase,
   getFoodReviewsUseCase,
+  generateInvoiceUseCase,
 };
 
 

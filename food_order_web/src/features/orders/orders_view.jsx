@@ -6,6 +6,7 @@ import { formatUsd, formatKhr, useTranslation } from '../../core';
 import { AppRoutes } from '../../routes/app_routes';
 import { DeliveryMapCard } from './components';
 import { OrderRatingModal, useReviews } from '../reviews';
+import { InvoiceModal, useInvoiceStore } from '../invoices';
 
 const STATUS_STEPS = [
   { key: 'pending', labelKey: 'orders.statusPending', icon: '📝' },
@@ -26,6 +27,16 @@ export function OrdersView() {
   const [ratingTargetOrder, setRatingTargetOrder] = useState(null);
 
   const { getReviewForOrder, hasReviewedOrder } = useReviews();
+
+  const {
+    invoice,
+    isOpen: isInvoiceOpen,
+    openInvoice,
+    closeInvoice,
+    triggerPrint,
+    copyInvoiceNumber,
+    copiedRef,
+  } = useInvoiceStore();
 
   const refetchOrders = useCallback(async () => {
     try {
@@ -332,13 +343,24 @@ export function OrdersView() {
                           <span>{hasReviewedOrder(order.id) ? 'Reviewed' : 'Rate'}</span>
                         </button>
                       )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openInvoice(order);
+                        }}
+                        className="text-[10px] font-bold text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 flex items-center space-x-1 bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/60 px-2 py-0.5 rounded-md hover:scale-102 transition-all cursor-pointer"
+                        title={t('invoices.viewInvoice') || 'View Tax Invoice'}
+                      >
+                        <span>📄</span>
+                        <span>{t('invoices.taxInvoice') || 'Tax Invoice'}</span>
+                      </button>
                       <Link
                         to={`/orders/${order.id}`}
                         onClick={(e) => e.stopPropagation()}
-                        className="text-[10px] font-bold text-orange-600 dark:text-orange-400 hover:underline flex items-center space-x-0.5"
+                        className="text-[10px] font-medium text-slate-500 dark:text-slate-400 hover:underline flex items-center space-x-0.5"
                       >
-                        <span>🧾</span>
-                        <span>{t('orders.receipt') || 'Receipt'}</span>
+                        <span>Details →</span>
                       </Link>
                       <span className="font-black text-slate-900 dark:text-white">
                         {formatUsd(order.totalAmount)}
@@ -365,13 +387,20 @@ export function OrdersView() {
                     {selectedOrder.orderNumber || `#${selectedOrder.id?.slice(-6).toUpperCase()}`}
                   </h3>
                 </div>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => openInvoice(selectedOrder)}
+                    className="px-3.5 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-xs font-bold transition-all flex items-center space-x-1.5 shadow-md shadow-orange-500/20 cursor-pointer"
+                  >
+                    <span>📄</span>
+                    <span>{t('invoices.viewInvoice') || 'Tax Invoice'}</span>
+                  </button>
                   <Link
                     to={`/orders/${selectedOrder.id}`}
-                    className="px-3.5 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/40 dark:hover:bg-orange-950/70 border border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 text-xs font-bold transition-all flex items-center space-x-1.5 shadow-xs"
+                    className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all flex items-center space-x-1 shadow-2xs"
                   >
-                    <span>🧾</span>
-                    <span>{t('orders.viewInvoice') || 'Full Invoice'}</span>
+                    <span>Details</span>
                     <span>→</span>
                   </Link>
                   <div className="text-right hidden sm:block">
@@ -538,6 +567,16 @@ export function OrdersView() {
           setRatingTargetOrder(null);
         }}
         order={ratingTargetOrder || selectedOrder}
+      />
+
+      {/* Official Tax Invoice & Receipt Modal */}
+      <InvoiceModal
+        isOpen={isInvoiceOpen}
+        invoice={invoice}
+        onClose={closeInvoice}
+        onPrint={triggerPrint}
+        onCopyInvoiceNumber={copyInvoiceNumber}
+        isCopied={copiedRef}
       />
     </div>
   );

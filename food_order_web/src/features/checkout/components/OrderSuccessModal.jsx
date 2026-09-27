@@ -3,9 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { formatUsd, formatKhr, useTranslation } from '../../../core';
 import { AppRoutes } from '../../../routes/app_routes';
 
+import { useInvoiceStore, InvoiceModal } from '../../invoices';
+
 export function OrderSuccessModal({ order, onClose }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const {
+    invoice,
+    isOpen: isInvoiceOpen,
+    openInvoice,
+    closeInvoice,
+    triggerPrint,
+    copyInvoiceNumber,
+    copiedRef,
+  } = useInvoiceStore();
 
   if (!order) return null;
 
@@ -100,15 +112,36 @@ export function OrderSuccessModal({ order, onClose }) {
             <span>→</span>
           </button>
 
-          <button
-            type="button"
-            onClick={handleBackToMenu}
-            className="w-full py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors"
-          >
-            {t('checkout.continueBrowsing')}
-          </button>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => openInvoice(order)}
+              className="py-3 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs transition-colors flex items-center justify-center space-x-1.5 shadow-2xs"
+            >
+              <span>📄</span>
+              <span>{t('invoices.viewInvoice') || 'Tax Invoice'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleBackToMenu}
+              className="py-3 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors"
+            >
+              {t('checkout.continueBrowsing')}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Official Tax Invoice & Receipt Modal */}
+      <InvoiceModal
+        isOpen={isInvoiceOpen}
+        invoice={invoice}
+        onClose={closeInvoice}
+        onPrint={triggerPrint}
+        onCopyInvoiceNumber={copyInvoiceNumber}
+        isCopied={copiedRef}
+      />
     </div>
   );
 }

@@ -8,3 +8,4 @@ export * from './vouchers/entities/voucher_entity';
 export * from './vouchers/repositories/voucher_repository';
 export * from './vouchers/usecases';
 export * from './reviews';
+export * from './invoices';

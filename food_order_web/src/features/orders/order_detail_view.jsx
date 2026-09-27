@@ -7,6 +7,7 @@ import { useCart } from '../cart/use_cart';
 import { AppRoutes } from '../../routes/app_routes';
 import { DeliveryMapCard } from './components';
 import { OrderRatingModal, useReviews } from '../reviews';
+import { InvoiceModal, useInvoiceStore } from '../invoices';
 
 const STATUS_STEPS = [
   { key: 'pending', labelKey: 'orders.statusPending', icon: '📝' },
@@ -32,6 +33,16 @@ export function OrderDetailView() {
 
   const { getReviewForOrder } = useReviews();
   const existingReview = id ? getReviewForOrder(id) : null;
+
+  const {
+    invoice,
+    isOpen: isInvoiceOpen,
+    openInvoice,
+    closeInvoice,
+    triggerPrint,
+    copyInvoiceNumber,
+    copiedRef,
+  } = useInvoiceStore();
 
   // Fetch Order Details via Clean Architecture Use Case
   useEffect(() => {
@@ -120,9 +131,9 @@ export function OrderDetailView() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Trigger print dialog
+  // Trigger formal tax invoice preview and print
   const handlePrint = () => {
-    window.print();
+    if (order) openInvoice(order);
   };
 
   // Handle Order Cancellation
@@ -247,8 +258,8 @@ export function OrderDetailView() {
             onClick={handlePrint}
             className="px-3.5 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold hover:opacity-90 transition-opacity flex items-center space-x-1.5 shadow-xs"
           >
-            <span>🖨️</span>
-            <span>{t('orders.printInvoice') || 'Print Invoice'}</span>
+            <span>📄</span>
+            <span>{t('invoices.viewInvoice') || 'Tax Invoice'}</span>
           </button>
 
           <button
@@ -671,6 +682,19 @@ export function OrderDetailView() {
                   </span>
                 </div>
               </div>
+
+              {/* View Official Tax Invoice CTA */}
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => openInvoice(order)}
+                  className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all flex items-center justify-center space-x-2 shadow-2xs"
+                >
+                  <span>📄</span>
+                  <span>{t('invoices.viewInvoice') || 'View Official Tax Invoice'}</span>
+                  <span>→</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -691,6 +715,16 @@ export function OrderDetailView() {
         isOpen={showRatingModal}
         onClose={() => setShowRatingModal(false)}
         order={order}
+      />
+
+      {/* Official Tax Invoice & Receipt Modal */}
+      <InvoiceModal
+        isOpen={isInvoiceOpen}
+        invoice={invoice}
+        onClose={closeInvoice}
+        onPrint={triggerPrint}
+        onCopyInvoiceNumber={copyInvoiceNumber}
+        isCopied={copiedRef}
       />
     </div>
   );

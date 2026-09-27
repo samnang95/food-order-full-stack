@@ -1,6 +1,6 @@
 import { StatusPill } from './status_pill';
 
-export function OrderCard({ order, onSelect, onUpdateStatus, onRateOrder }) {
+export function OrderCard({ order, onSelect, onUpdateStatus, onRateOrder, onViewInvoice }) {
   const orderId = order._id || order.id || 'N/A';
   const shortId = orderId.length > 6 ? orderId.substring(orderId.length - 6).toUpperCase() : orderId;
   const status = (order.status || 'pending').toLowerCase();
@@ -74,6 +74,17 @@ export function OrderCard({ order, onSelect, onUpdateStatus, onRateOrder }) {
           >
             Details
           </button>
+
+          {onViewInvoice && (
+            <button
+              onClick={() => onViewInvoice(order)}
+              title="Tax Invoice & Receipt"
+              className="px-2.5 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-orange-50 hover:text-orange-600 dark:hover:bg-orange-950/40 dark:hover:text-orange-400 text-slate-600 dark:text-slate-300 font-semibold text-xs rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0 space-x-1"
+            >
+              <span>📄</span>
+              <span className="hidden sm:inline text-[11px]">Invoice</span>
+            </button>
+          )}
 
           {status === 'pending' && (
             <button
