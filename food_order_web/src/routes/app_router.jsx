@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import { MainLayout } from '../components/layout/MainLayout';
 import { HomeView } from '../features/home/home_view';
 import { MenuView } from '../features/menu/menu_view';
-import { OrdersView } from '../features/orders/orders_view';
+import { OrdersView, OrderDetailView } from '../features/orders';
 import { FavoritesView } from '../features/favorites';
 import { CheckoutView } from '../features/checkout';
 import { ProfileView } from '../features/profile';
@@ -26,6 +26,10 @@ export const appRouter = createBrowserRouter([
       {
         path: 'orders',
         element: <OrdersView />,
+      },
+      {
+        path: 'orders/:id',
+        element: <OrderDetailView />,
       },
       {
         path: 'favorites',

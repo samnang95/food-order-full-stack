@@ -308,9 +308,19 @@ export function OrdersView() {
                     <span className="text-slate-400 text-[10px]">
                       {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'Today'}
                     </span>
-                    <span className="font-black text-slate-900 dark:text-white">
-                      {formatUsd(order.totalAmount)}
-                    </span>
+                    <div className="flex items-center space-x-2.5">
+                      <Link
+                        to={`/orders/${order.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-[10px] font-bold text-orange-600 dark:text-orange-400 hover:underline flex items-center space-x-0.5"
+                      >
+                        <span>🧾</span>
+                        <span>{t('orders.receipt') || 'Receipt'}</span>
+                      </Link>
+                      <span className="font-black text-slate-900 dark:text-white">
+                        {formatUsd(order.totalAmount)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               );
@@ -323,7 +333,7 @@ export function OrdersView() {
           <div className="order-1 lg:order-2 lg:col-span-8 space-y-6">
             {/* Live Status Tracker Card */}
             <div className="p-4 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-5 sm:space-y-6">
-              <div className="flex flex-row items-center justify-between gap-2 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
                 <div>
                   <span className="text-[10px] sm:text-[11px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
                     Live Tracking
@@ -332,11 +342,21 @@ export function OrdersView() {
                     {selectedOrder.orderNumber || `#${selectedOrder.id?.slice(-6).toUpperCase()}`}
                   </h3>
                 </div>
-                <div className="text-right">
-                  <span className="text-[10px] sm:text-xs text-slate-400 block">Estimated Arrival</span>
-                  <span className="text-xs sm:text-sm font-black text-orange-600 dark:text-orange-400">
-                    {activeStepIdx >= 3 ? 'Delivered' : '⚡ 25 - 35 mins'}
-                  </span>
+                <div className="flex items-center space-x-3">
+                  <Link
+                    to={`/orders/${selectedOrder.id}`}
+                    className="px-3.5 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/40 dark:hover:bg-orange-950/70 border border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 text-xs font-bold transition-all flex items-center space-x-1.5 shadow-xs"
+                  >
+                    <span>🧾</span>
+                    <span>{t('orders.viewInvoice') || 'Full Invoice'}</span>
+                    <span>→</span>
+                  </Link>
+                  <div className="text-right hidden sm:block">
+                    <span className="text-[10px] text-slate-400 block">ETA</span>
+                    <span className="text-xs font-black text-orange-600 dark:text-orange-400">
+                      {activeStepIdx >= 3 ? 'Delivered' : '⚡ 25 - 35 mins'}
+                    </span>
+                  </div>
                 </div>
               </div>
 

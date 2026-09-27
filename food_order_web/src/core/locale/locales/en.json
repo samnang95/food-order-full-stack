@@ -146,7 +146,18 @@
     "gpsConnected": "Live GPS Connected",
     "estimatedArrival": "Estimated Arrival",
     "callRider": "Call Rider",
-    "riderMoving": "Moving towards you"
+    "riderMoving": "Moving towards you",
+    "receipt": "Receipt",
+    "viewInvoice": "View Full Invoice",
+    "printInvoice": "Print Invoice",
+    "copyLink": "Share",
+    "cancelOrder": "Cancel",
+    "cancelConfirm": "Are you sure you want to cancel this order?",
+    "orderNotFound": "Order Receipt Not Found",
+    "backToOrders": "Back to My Orders",
+    "officialInvoice": "Official Tax Receipt & Order Summary",
+    "orderStatus": "Order Status",
+    "thankYou": "Thank you for ordering with BiteCraft Phnom Penh!"
   },
   "auth": {
     "welcomeBack": "Welcome Back!",
