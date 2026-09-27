@@ -1,14 +1,29 @@
+import { useState } from 'react';
 import { useTranslation, useTheme } from '../../../core';
 import { useAuth } from '../../auth/use_auth';
+import { useNotifications } from '../../notifications';
 
 export function AppPreferencesCard() {
   const { isKhmer, setLanguage, t } = useTranslation();
   const { isDark, toggleTheme } = useTheme();
   const { logout } = useAuth();
+  const { pushPermission, requestPushPermission, sendTestPush } = useNotifications();
+  const [testingPush, setTestingPush] = useState(false);
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to sign out?')) {
       logout();
+    }
+  };
+
+  const handleTestPush = async () => {
+    setTestingPush(true);
+    try {
+      await sendTestPush();
+    } catch (err) {
+      console.error('Failed to trigger test push:', err);
+    } finally {
+      setTestingPush(false);
     }
   };
 
@@ -23,7 +38,7 @@ export function AppPreferencesCard() {
             {t('profile.preferences') || 'Preferences & Settings'}
           </h3>
           <p className="text-[11px] text-slate-500 dark:text-slate-400">
-            Customize language, theme, and account sessions
+            Customize language, theme, notifications, and account sessions
           </p>
         </div>
       </div>
@@ -78,6 +93,56 @@ export function AppPreferencesCard() {
           >
             <span>{isDark ? '🌙 Dark' : '☀️ Light'}</span>
           </button>
+        </div>
+
+        {/* Firebase Push Notifications Preference */}
+        <div className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <div className="flex items-center space-x-2">
+              <p className="text-xs font-bold text-slate-900 dark:text-white">
+                {t('profile.pushNotifications') || 'Push Notifications'}
+              </p>
+              {pushPermission === 'granted' && (
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+                  {t('profile.pushEnabled') || 'Active'}
+                </span>
+              )}
+              {pushPermission === 'denied' && (
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
+                  {t('profile.pushBlocked') || 'Blocked'}
+                </span>
+              )}
+            </div>
+            <p className="text-[11px] text-slate-400">
+              {t('profile.pushNotificationsDesc') ||
+                'Receive instant delivery updates and coupons in your browser'}
+            </p>
+          </div>
+
+          <div className="flex items-center space-x-2 self-start sm:self-auto">
+            {pushPermission === 'granted' ? (
+              <button
+                type="button"
+                onClick={handleTestPush}
+                disabled={testingPush}
+                className="px-3 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/40 dark:hover:bg-orange-950/70 border border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 font-bold text-xs transition-colors"
+              >
+                {testingPush ? 'Sending...' : t('profile.testPush') || '🔥 Test Notification'}
+              </button>
+            ) : pushPermission === 'denied' ? (
+              <span className="text-[11px] text-amber-500 font-medium">
+                {t('profile.pushEnableInBrowser') || 'Enable in browser settings'}
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={requestPushPermission}
+                className="px-3.5 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs shadow-xs transition-all active:scale-95"
+              >
+                🔔 {t('profile.enablePush') || 'Enable Push'}
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Sign Out */}

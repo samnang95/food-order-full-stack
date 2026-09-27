@@ -2,6 +2,7 @@ export * from './config/app_config';
 export * from './services/api_client';
 export * from './services/voucher_service';
 export * from './services/socket_service';
+export * from './services/firebase_service';
 export * from './constants/app_constants';
 export * from './constants/app_assets';
 export * from './constants/app_fonts';

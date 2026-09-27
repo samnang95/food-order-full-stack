@@ -27,7 +27,8 @@
     "profile": "My Profile",
     "cart": "Cart",
     "signIn": "Sign In",
-    "logOut": "Log out"
+    "logOut": "Log out",
+    "notifications": "Notifications"
   },
   "home": {
     "heroTitle": "Artisan Flavors Delivered Hot in Phnom Penh",
@@ -197,6 +198,42 @@
     "changePhoto": "Change Profile Photo",
     "takePhoto": "Take Photo",
     "chooseFromGallery": "Choose from Gallery",
-    "uploadingAvatar": "Uploading photo..."
+    "uploadingAvatar": "Uploading photo...",
+    "pushNotifications": "Push Notifications",
+    "pushNotificationsDesc": "Receive instant delivery updates and coupons in your browser",
+    "pushEnabled": "Active",
+    "pushBlocked": "Blocked",
+    "testPush": "🔥 Test Notification",
+    "enablePush": "Enable Push",
+    "pushEnableInBrowser": "Enable in browser settings"
+  },
+  "notifications": {
+    "title": "Notifications Center",
+    "subtitle": "Stay updated with real-time order tracking, promo perks, and announcements.",
+    "all": "All",
+    "orders": "Orders",
+    "promos": "Promotions",
+    "unread": "Unread",
+    "markAllRead": "Mark All as Read",
+    "clearAll": "Clear All",
+    "clearAllConfirm": "Are you sure you want to clear all notifications?",
+    "noNotifications": "No notifications yet",
+    "noNotificationsDesc": "You are all caught up! When you place an order or receive special offers, they will appear here.",
+    "trackDelivery": "Track Live Delivery",
+    "copyCode": "Copy Code",
+    "codeCopied": "Code copied!",
+    "applyPromo": "Use Voucher",
+    "justNow": "Just now",
+    "minutesAgo": "{mins}m ago",
+    "hoursAgo": "{hrs}h ago",
+    "daysAgo": "{days}d ago",
+    "viewAll": "View All Notifications",
+    "liveAlert": "Live Update",
+    "deleteAlert": "Delete",
+    "enablePushTitle": "Enable Browser Push Notifications",
+    "enablePushDesc": "Receive instant order status alerts and vouchers directly on your device via Firebase.",
+    "enablePushBtn": "Enable Alerts",
+    "pushActive": "Firebase Web Push Notifications are active on this browser.",
+    "sendTest": "Send Test Push"
   }
 }

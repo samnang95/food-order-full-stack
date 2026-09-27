@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { AuthContext } from './auth_context';
-import { ApiClient, LocalDB, DBKeys } from '../../core';
+import { ApiClient, LocalDB, DBKeys, firebaseService } from '../../core';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => LocalDB.getJSON(DBKeys.USER_PROFILE));
@@ -25,6 +25,7 @@ export function AuthProvider({ children }) {
     setUser(userData);
     ApiClient.setToken(tokenStr);
     LocalDB.setJSON(DBKeys.USER_PROFILE, userData);
+    firebaseService.syncTokenWithBackend();
   }, []);
 
 

@@ -6,12 +6,14 @@ import { ThemeToggle, LanguageToggle } from '../common';
 import { useCart } from '../../features/cart/use_cart';
 import { useAuth } from '../../features/auth/use_auth';
 import { useFavorites } from '../../features/favorites';
+import { useNotifications, NotificationDropdown } from '../../features/notifications';
 
 export function Navbar() {
   const { t } = useTranslation();
   const { totalCount, openCart } = useCart();
   const { isAuthenticated, user, openAuthModal, logout } = useAuth();
   const { favoritesCount } = useFavorites();
+  const { unreadCount, toggleDropdown } = useNotifications();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const getNavClass = ({ isActive }) =>
@@ -84,6 +86,24 @@ export function Navbar() {
 
         {/* Right side controls: Cart, Auth, Language, Theme, Mobile toggle */}
         <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+          {/* Notifications Bell Dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={toggleDropdown}
+              className="relative p-2 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 flex items-center space-x-1.5 transition-all active:scale-95 shadow-xs"
+              aria-label="Notifications"
+            >
+              <span className="text-base leading-none">🔔</span>
+              {unreadCount > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-orange-500 text-white animate-pulse">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+            <NotificationDropdown />
+          </div>
+
           {/* Cart Button */}
           <button
             onClick={openCart}
@@ -191,6 +211,21 @@ export function Navbar() {
               {favoritesCount > 0 && (
                 <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500 text-white">
                   {favoritesCount}
+                </span>
+              )}
+            </div>
+          </NavLink>
+
+          <NavLink
+            to={AppRoutes.NOTIFICATIONS}
+            onClick={() => setMobileMenuOpen(false)}
+            className={getMobileNavClass}
+          >
+            <div className="flex items-center justify-between">
+              <span>🔔 {t('navigation.notifications') || 'Notifications'}</span>
+              {unreadCount > 0 && (
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-orange-500 text-white">
+                  {unreadCount}
                 </span>
               )}
             </div>

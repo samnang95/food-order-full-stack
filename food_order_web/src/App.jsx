@@ -4,6 +4,7 @@ import { ThemeProvider, LanguageProvider } from './core';
 import { AuthProvider } from './features/auth/auth_provider';
 import { CartProvider } from './features/cart/cart_provider';
 import { FavoritesProvider } from './features/favorites';
+import { NotificationsProvider } from './features/notifications';
 
 export default function App() {
   return (
@@ -12,7 +13,9 @@ export default function App() {
         <AuthProvider>
           <CartProvider>
             <FavoritesProvider>
-              <RouterProvider router={appRouter} />
+              <NotificationsProvider>
+                <RouterProvider router={appRouter} />
+              </NotificationsProvider>
             </FavoritesProvider>
           </CartProvider>
         </AuthProvider>

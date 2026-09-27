@@ -4,6 +4,7 @@ import { MobileBottomNav } from './MobileBottomNav';
 import { CartDrawer } from '../../features/cart/components/CartDrawer';
 import { CheckoutModal } from '../../features/cart/components/CheckoutModal';
 import { AuthModal } from '../../features/auth/components/AuthModal';
+import { NotificationToast } from '../../features/notifications';
 import { AppRoutes } from '../../routes/app_routes';
 import { AppAssets } from '../../core';
 
@@ -30,6 +31,8 @@ export function MainLayout() {
       {/* Authentication Modal */}
       <AuthModal />
 
+      {/* Real-time Push Alert Toast */}
+      <NotificationToast />
 
       {/* Rich Customer Footer */}
       <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 transition-colors duration-200 mb-16 md:mb-0">
@@ -85,6 +88,11 @@ export function MainLayout() {
                 <li>
                   <Link to={AppRoutes.ORDERS} className="hover:text-orange-500 transition-colors">
                     Track My Orders
+                  </Link>
+                </li>
+                <li>
+                  <Link to={AppRoutes.NOTIFICATIONS} className="hover:text-orange-500 transition-colors">
+                    Notifications & Alerts
                   </Link>
                 </li>
               </ul>
