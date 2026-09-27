@@ -1,7 +1,11 @@
 import { StatusPill } from './status_pill';
 import { QuickReorderButton } from '../../schedule';
+import { useDriverTip } from '../../driver_tip';
+import { useTranslation } from '../../../core';
 
 export function OrderCard({ order, onSelect, onUpdateStatus, onRateOrder, onViewInvoice }) {
+  const { t } = useTranslation();
+  const { openRatingModal } = useDriverTip();
   const orderId = order._id || order.id || 'N/A';
   const shortId = orderId.length > 6 ? orderId.substring(orderId.length - 6).toUpperCase() : orderId;
   const status = (order.status || 'pending').toLowerCase();
@@ -137,13 +141,23 @@ export function OrderCard({ order, onSelect, onUpdateStatus, onRateOrder, onView
           )}
 
           {status === 'delivered' && (
-            <button
-              onClick={() => onRateOrder ? onRateOrder(order) : onSelect(order)}
-              className="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-98 text-white font-bold text-xs py-2 px-3 rounded-xl shadow-xs transition-all flex items-center justify-center space-x-1 cursor-pointer"
-            >
-              <span>⭐</span>
-              <span>Rate Order</span>
-            </button>
+            <>
+              <button
+                onClick={() => (onRateOrder ? onRateOrder(order) : onSelect(order))}
+                className="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-98 text-white font-bold text-xs py-2 px-3 rounded-xl shadow-xs transition-all flex items-center justify-center space-x-1 cursor-pointer"
+              >
+                <span>⭐</span>
+                <span>{t('orders.rateOrder', 'Rate Order')}</span>
+              </button>
+              <button
+                onClick={() => openRatingModal(orderId)}
+                className="bg-amber-100 hover:bg-amber-200 dark:bg-amber-950/60 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-200 font-bold text-xs py-2 px-3 rounded-xl shadow-xs transition-all flex items-center justify-center space-x-1 cursor-pointer"
+                title={t('driverTip.tipRiderTooltip', 'Tip & Compliment Rider')}
+              >
+                <span>🛵</span>
+                <span>{t('driverTip.tipRider', 'Tip Rider')}</span>
+              </button>
+            </>
           )}
         </div>
       </div>

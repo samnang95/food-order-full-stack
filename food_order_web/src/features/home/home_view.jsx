@@ -1,10 +1,11 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppAssets, useTranslation } from '../../core';
 import { AppRoutes, getCategoryDetailRoute, getSearchRoute } from '../../routes/app_routes';
 import { FoodCard } from '../menu/components/FoodCard';
 import { FoodDetailModal } from '../menu/components/FoodDetailModal';
 import { getCategoryHeroImage, getCategoryIcon } from '../categories';
+import { useDietary, DietaryFilterBar } from '../dietary';
 import { useHomeStore } from './home_store';
 import { HomeIntent } from './home_intent';
 
@@ -15,6 +16,18 @@ export function HomeView() {
 
   const { state, onIntent, filteredFoods } = useHomeStore();
   const { foods, categories, selectedCategory, loading, searchQuery, selectedFood } = state;
+
+  const {
+    filterFoods,
+    activeDietTag,
+    setActiveDietTag,
+    openPreferencesModal,
+  } = useDietary();
+
+  const dietaryFilteredFoods = useMemo(() => {
+    const res = filterFoods(filteredFoods);
+    return Array.isArray(res) ? res : [];
+  }, [filterFoods, filteredFoods]);
 
   const scrollCategories = (direction) => {
     if (categoryScrollRef.current) {
@@ -243,6 +256,9 @@ export function HomeView() {
             </button>
           )}
         </div>
+
+        {/* Dietary & Allergen Filter Bar */}
+        <DietaryFilterBar className="pt-1" />
       </section>
 
       {/* 3. Featured Dishes Grid */}
@@ -257,7 +273,7 @@ export function HomeView() {
             </h2>
           </div>
           <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-            {filteredFoods.length} {t('common.items')}
+            {dietaryFilteredFoods.length} {t('common.items')}
           </span>
         </div>
 
@@ -278,28 +294,41 @@ export function HomeView() {
               </div>
             ))}
           </div>
-        ) : filteredFoods.length === 0 ? (
+        ) : dietaryFilteredFoods.length === 0 ? (
           <div className="text-center py-12 sm:py-16 bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-3">
-            <span className="text-3xl sm:text-4xl">🍽️</span>
+            <span className="text-3xl sm:text-4xl">🥗</span>
             <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-              {t('home.noDishesFound')}
+              {filteredFoods.length === 0
+                ? t('home.noDishesFound')
+                : t('dietary.noMatchingDietDishes', 'No dishes match your active dietary lifestyle or allergen filters')}
             </h3>
             <p className="text-xs text-slate-500">
-              {t('home.noDishesSubtitle')}
+              {filteredFoods.length === 0
+                ? t('home.noDishesSubtitle')
+                : t('dietary.tryAdjustingFilters', 'Try resetting the dietary tag or updating your allergen settings.')}
             </p>
-            <button
-              onClick={() => {
-                onIntent(HomeIntent.setSelectedCategory('ALL'));
-                onIntent(HomeIntent.setSearchQuery(''));
-              }}
-              className="mt-2 px-4 py-2 rounded-xl bg-orange-500 text-white font-bold text-xs"
-            >
-              {t('home.viewAllDishes')}
-            </button>
+            <div className="flex items-center justify-center space-x-2 pt-2">
+              {activeDietTag !== 'all' && (
+                <button
+                  type="button"
+                  onClick={() => setActiveDietTag('all')}
+                  className="px-4 py-2 rounded-xl bg-orange-500 text-white font-bold text-xs"
+                >
+                  {t('dietary.clearDietFilter', 'Show All Diets')}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={openPreferencesModal}
+                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs hover:border-orange-500"
+              >
+                {t('dietary.adjustSettings', 'Adjust Allergen & Diet Settings')}
+              </button>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-            {filteredFoods.map((food) => (
+            {dietaryFilteredFoods.map((food) => (
               <FoodCard
                 key={food.id}
                 food={food}

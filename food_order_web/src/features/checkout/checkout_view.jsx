@@ -5,7 +5,6 @@ import { useTranslation } from '../../core';
 import { AppRoutes } from '../../routes/app_routes';
 import {
   DeliveryLocationPicker,
-  CourierTipSelector,
   VoucherSelector,
   PaymentSelector,
   OrderSummaryCard,
@@ -14,6 +13,7 @@ import {
 } from './components';
 import { CheckoutRewardsSelector } from '../rewards';
 import { DeliveryScheduleSelector, useSchedule } from '../schedule';
+import { DriverTipCard } from '../driver_tip';
 import { useCheckoutStore } from './checkout_store';
 import { CheckoutIntent } from './checkout_intent';
 
@@ -205,10 +205,11 @@ export function CheckoutView() {
             }}
           />
 
-          {/* Courier Tip Card */}
-          <CourierTipSelector
+          {/* Driver Tip & Compliments Card */}
+          <DriverTipCard
             tipAmount={tipAmount}
             onTipChange={setTipAmount}
+            showBakongButton={false}
           />
         </div>
 

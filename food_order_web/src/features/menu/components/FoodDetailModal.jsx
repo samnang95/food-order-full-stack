@@ -4,11 +4,14 @@ import { useCart } from '../../cart/use_cart';
 import { formatUsd, formatKhr, useTranslation } from '../../../core';
 import { FavoriteButton } from '../../favorites';
 import { useReviews, RatingStars } from '../../reviews';
+import { useGroupOrder } from '../../group_order';
+import { FoodNutritionDetail } from '../../dietary';
 
 export function FoodDetailModal({ food, onClose }) {
   const { t } = useTranslation();
   const { addItem, openCart } = useCart();
   const { getReviewsForFood } = useReviews();
+  const { isGroupOrderActive, currentMember, addItemToGroup } = useGroupOrder();
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
   const [added, setAdded] = useState(false);
@@ -18,6 +21,9 @@ export function FoodDetailModal({ food, onClose }) {
   if (!food) return null;
 
   const handleAddToCart = () => {
+    if (isGroupOrderActive) {
+      addItemToGroup({ food, quantity, notes });
+    }
     addItem(food, quantity, notes);
     setAdded(true);
     setTimeout(() => {
@@ -90,6 +96,9 @@ export function FoodDetailModal({ food, onClose }) {
             </div>
           </div>
 
+          {/* Nutritional Facts & Macro Breakdown */}
+          <FoodNutritionDetail food={food} />
+
           {/* Special Instructions */}
           <div>
             <label className="block text-[11px] sm:text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
@@ -152,6 +161,17 @@ export function FoodDetailModal({ food, onClose }) {
               )}
             </div>
           </div>
+
+          {/* Group Order Active Indicator */}
+          {isGroupOrderActive && (
+            <div className="flex items-center space-x-2 text-xs font-bold text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/40 p-2.5 rounded-xl border border-orange-200 dark:border-orange-800">
+              <span>👥</span>
+              <span>
+                {t('groupOrder.addingForMember', 'Adding to Group Cart for:')}{' '}
+                <strong className="underline">{currentMember?.name || 'You'}</strong>
+              </span>
+            </div>
+          )}
 
           {/* Stepper & Add to Cart button */}
           <div className="pt-2 flex items-center space-x-2.5 sm:space-x-4 pb-2 sm:pb-0">

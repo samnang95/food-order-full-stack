@@ -3,14 +3,20 @@ import PropTypes from 'prop-types';
 import { useCart } from '../../cart/use_cart';
 import { formatUsd, formatKhr } from '../../../core';
 import { FavoriteButton } from '../../favorites';
+import { useGroupOrder } from '../../group_order';
+import { MacroBreakdownBadge } from '../../dietary';
 
 export function FoodCard({ food, onSelect }) {
   const { addItem } = useCart();
+  const { isGroupOrderActive, addItemToGroup } = useGroupOrder();
   const [isAdding, setIsAdding] = useState(false);
 
   const handleQuickAdd = (e) => {
     e.stopPropagation();
     setIsAdding(true);
+    if (isGroupOrderActive) {
+      addItemToGroup({ food, quantity: 1 });
+    }
     addItem(food, 1);
     setTimeout(() => setIsAdding(false), 500);
   };
@@ -61,6 +67,7 @@ export function FoodCard({ food, onSelect }) {
           <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1 line-clamp-1 sm:line-clamp-2 leading-relaxed">
             {food.description || 'Deliciously crafted with fresh local ingredients.'}
           </p>
+          <MacroBreakdownBadge food={food} />
         </div>
 
         {/* Footer: Price & Add Button */}

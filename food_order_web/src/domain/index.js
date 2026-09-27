@@ -12,3 +12,6 @@ export * from './invoices';
 export * from './chat';
 export * from './rewards';
 export * from './schedule';
+export * from './group_order';
+export * from './dietary';
+export * from './driver_tip';

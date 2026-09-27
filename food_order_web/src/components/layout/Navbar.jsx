@@ -10,6 +10,8 @@ import { useAuth } from '../../features/auth/use_auth';
 import { useFavorites } from '../../features/favorites';
 import { useNotifications, NotificationDropdown } from '../../features/notifications';
 import { NavbarRewardsPill, useRewards } from '../../features/rewards';
+import { useGroupOrder } from '../../features/group_order';
+import { useDietary } from '../../features/dietary';
 
 export function Navbar() {
   const { t } = useTranslation();
@@ -18,6 +20,9 @@ export function Navbar() {
   const { favoritesCount } = useFavorites();
   const { unreadCount, toggleDropdown } = useNotifications();
   const { currentTier, pointsBalance, openRewardsModal } = useRewards();
+  const { isGroupOrderActive, groupOrder, openGroupModal } = useGroupOrder();
+  const { preferences, openPreferencesModal } = useDietary();
+  const dietaryAlertsCount = (preferences?.activeDiets?.length || 0) + (preferences?.allergensToAvoid?.length || 0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [categoriesHovered, setCategoriesHovered] = useState(false);
@@ -188,6 +193,47 @@ export function Navbar() {
           {/* BitePoints VIP Rewards Pill */}
           <NavbarRewardsPill />
 
+          {/* Group Order Pill */}
+          <button
+            type="button"
+            onClick={openGroupModal}
+            className={`p-2 sm:px-2.5 sm:py-2 xl:px-3 xl:py-2 rounded-xl sm:rounded-2xl border flex items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs active:scale-95 shrink-0 ${
+              isGroupOrderActive
+                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-orange-400 shadow-sm shadow-orange-500/20'
+                : 'bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400'
+            }`}
+            title={t('groupOrder.navTooltip', 'Group Order & Split Bill')}
+          >
+            <span className="text-base leading-none">👥</span>
+            <span className="text-xs font-bold hidden lg:inline">
+              {isGroupOrderActive ? groupOrder.code : t('groupOrder.groupOrder', 'Group Order')}
+            </span>
+            {isGroupOrderActive && (
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            )}
+          </button>
+
+          {/* Dietary & Allergens Preferences Pill */}
+          <button
+            type="button"
+            onClick={openPreferencesModal}
+            className={`p-2 sm:px-2.5 sm:py-2 xl:px-3 xl:py-2 rounded-xl sm:rounded-2xl border flex items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs active:scale-95 shrink-0 ${
+              dietaryAlertsCount > 0
+                ? 'bg-amber-500/10 border-amber-500/40 text-amber-800 dark:text-amber-300'
+                : 'bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400'
+            }`}
+            title={t('dietary.preferencesTooltip', 'Customize dietary lifestyle & allergen alerts')}
+          >
+            <span className="text-base leading-none">🥗</span>
+            <span className="text-xs font-bold hidden xl:inline">
+              {t('dietary.dietNav', 'Diet')}
+            </span>
+            {dietaryAlertsCount > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-amber-500 text-white">
+                {dietaryAlertsCount}
+              </span>
+            )}
+          </button>
 
           {/* Quick Search Button */}
           <Link
@@ -381,6 +427,50 @@ export function Navbar() {
             <span className="font-mono text-orange-600 dark:text-orange-400 font-black">
               {pointsBalance} pts →
             </span>
+          </button>
+
+          {/* Mobile Group Order Button */}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              openGroupModal();
+            }}
+            className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs"
+          >
+            <div className="flex items-center space-x-2">
+              <span className="text-lg">👥</span>
+              <span>{t('groupOrder.groupOrder', 'Group Order & Split Bill')}</span>
+            </div>
+            {isGroupOrderActive ? (
+              <span className="font-mono bg-orange-500 text-white px-2 py-0.5 rounded-lg text-[10px] font-black">
+                {groupOrder.code}
+              </span>
+            ) : (
+              <span className="text-orange-500">➔</span>
+            )}
+          </button>
+
+          {/* Mobile Dietary & Allergen Preferences Button */}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              openPreferencesModal();
+            }}
+            className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs"
+          >
+            <div className="flex items-center space-x-2">
+              <span className="text-lg">🥗</span>
+              <span>{t('dietary.preferencesTitle', 'Dietary & Allergen Safety')}</span>
+            </div>
+            {dietaryAlertsCount > 0 ? (
+              <span className="font-mono bg-amber-500 text-white px-2 py-0.5 rounded-lg text-[10px] font-black">
+                {dietaryAlertsCount} {t('dietary.active', 'active')}
+              </span>
+            ) : (
+              <span className="text-orange-500">⚙️</span>
+            )}
           </button>
 
           {isAuthenticated ? (

@@ -1,7 +1,7 @@
 import { ApiClient } from '../services/api_client';
 import { socketService } from '../services/socket_service';
 import { LocalDB, indexedDBService, DBKeys } from '../db';
-import { orderRepository, foodRepository, voucherRepository, reviewRepository, invoiceRepository, driverChatRepository, loyaltyRepository, scheduleRepository } from '../../data';
+import { orderRepository, foodRepository, voucherRepository, reviewRepository, invoiceRepository, driverChatRepository, loyaltyRepository, scheduleRepository, groupOrderRepository, dietaryRepository, driverTipRepository } from '../../data';
 import {
   GetFoodsUseCase,
   GetFoodByIdUseCase,
@@ -28,7 +28,45 @@ import {
   GetDeliveryScheduleUseCase,
   SaveDeliveryScheduleUseCase,
   ExecuteQuickReorderUseCase,
+  GetActiveGroupOrderUseCase,
+  CreateGroupOrderUseCase,
+  JoinGroupOrderUseCase,
+  AddMemberItemUseCase,
+  RemoveMemberItemUseCase,
+  LockGroupOrderUseCase,
+  LeaveGroupOrderUseCase,
+  GetUserDietaryPreferencesUseCase,
+  SaveUserDietaryPreferencesUseCase,
+  GetDishNutritionUseCase,
+  FilterDishesByDietaryUseCase,
+  CalculateCartNutritionUseCase,
+  GetDriverProfileUseCase,
+  SubmitDriverTipUseCase,
+  SubmitDriverFeedbackUseCase,
+  GetOrderTipStatusUseCase,
+  GenerateBakongTipQrUseCase,
 } from '../../domain';
+
+// Use Cases Singletons
+const getActiveGroupOrderUseCase = new GetActiveGroupOrderUseCase(groupOrderRepository);
+const createGroupOrderUseCase = new CreateGroupOrderUseCase(groupOrderRepository);
+const joinGroupOrderUseCase = new JoinGroupOrderUseCase(groupOrderRepository);
+const addMemberItemUseCase = new AddMemberItemUseCase(groupOrderRepository);
+const removeMemberItemUseCase = new RemoveMemberItemUseCase(groupOrderRepository);
+const lockGroupOrderUseCase = new LockGroupOrderUseCase(groupOrderRepository);
+const leaveGroupOrderUseCase = new LeaveGroupOrderUseCase(groupOrderRepository);
+
+const getUserDietaryPreferencesUseCase = new GetUserDietaryPreferencesUseCase(dietaryRepository);
+const saveUserDietaryPreferencesUseCase = new SaveUserDietaryPreferencesUseCase(dietaryRepository);
+const getDishNutritionUseCase = new GetDishNutritionUseCase(dietaryRepository);
+const filterDishesByDietaryUseCase = new FilterDishesByDietaryUseCase(dietaryRepository);
+const calculateCartNutritionUseCase = new CalculateCartNutritionUseCase(dietaryRepository);
+
+const getDriverProfileUseCase = new GetDriverProfileUseCase(driverTipRepository);
+const submitDriverTipUseCase = new SubmitDriverTipUseCase(driverTipRepository);
+const submitDriverFeedbackUseCase = new SubmitDriverFeedbackUseCase(driverTipRepository);
+const getOrderTipStatusUseCase = new GetOrderTipStatusUseCase(driverTipRepository);
+const generateBakongTipQrUseCase = new GenerateBakongTipQrUseCase(driverTipRepository);
 
 // Use Cases Singletons
 const getFoodsUseCase = new GetFoodsUseCase(foodRepository);
@@ -148,6 +186,52 @@ export const container = {
   getSaveDeliveryScheduleUseCase: () => saveDeliveryScheduleUseCase,
   getExecuteQuickReorderUseCase: () => executeQuickReorderUseCase,
 
+  // Group Order & Split Bill Use Cases
+  getActiveGroupOrderUseCase,
+  createGroupOrderUseCase,
+  joinGroupOrderUseCase,
+  addMemberItemUseCase,
+  removeMemberItemUseCase,
+  lockGroupOrderUseCase,
+  leaveGroupOrderUseCase,
+  getGroupOrderRepository: () => groupOrderRepository,
+  groupOrderRepository,
+  getGetActiveGroupOrderUseCase: () => getActiveGroupOrderUseCase,
+  getCreateGroupOrderUseCase: () => createGroupOrderUseCase,
+  getJoinGroupOrderUseCase: () => joinGroupOrderUseCase,
+  getAddMemberItemUseCase: () => addMemberItemUseCase,
+  getRemoveMemberItemUseCase: () => removeMemberItemUseCase,
+  getLockGroupOrderUseCase: () => lockGroupOrderUseCase,
+  getLeaveGroupOrderUseCase: () => leaveGroupOrderUseCase,
+
+  // Dietary & Nutrition Use Cases
+  dietaryRepository,
+  getUserDietaryPreferencesUseCase,
+  saveUserDietaryPreferencesUseCase,
+  getDishNutritionUseCase,
+  filterDishesByDietaryUseCase,
+  calculateCartNutritionUseCase,
+  getDietaryRepository: () => dietaryRepository,
+  getGetUserDietaryPreferencesUseCase: () => getUserDietaryPreferencesUseCase,
+  getSaveUserDietaryPreferencesUseCase: () => saveUserDietaryPreferencesUseCase,
+  getGetDishNutritionUseCase: () => getDishNutritionUseCase,
+  getFilterDishesByDietaryUseCase: () => filterDishesByDietaryUseCase,
+  getCalculateCartNutritionUseCase: () => calculateCartNutritionUseCase,
+
+  // Driver Tip & Feedback Use Cases
+  driverTipRepository,
+  getDriverProfileUseCase,
+  submitDriverTipUseCase,
+  submitDriverFeedbackUseCase,
+  getOrderTipStatusUseCase,
+  generateBakongTipQrUseCase,
+  getDriverTipRepository: () => driverTipRepository,
+  getGetDriverProfileUseCase: () => getDriverProfileUseCase,
+  getSubmitDriverTipUseCase: () => submitDriverTipUseCase,
+  getSubmitDriverFeedbackUseCase: () => submitDriverFeedbackUseCase,
+  getGetOrderTipStatusUseCase: () => getOrderTipStatusUseCase,
+  getGenerateBakongTipQrUseCase: () => generateBakongTipQrUseCase,
+
   // Services & Storage
   getApiClient: () => ApiClient,
   getSocketService: () => socketService,
@@ -176,6 +260,9 @@ export {
   driverChatRepository,
   loyaltyRepository,
   scheduleRepository,
+  groupOrderRepository,
+  dietaryRepository,
+  driverTipRepository,
   getFoodsUseCase,
   getFoodByIdUseCase,
   getCategoriesUseCase,
@@ -201,6 +288,23 @@ export {
   getDeliveryScheduleUseCase,
   saveDeliveryScheduleUseCase,
   executeQuickReorderUseCase,
+  getActiveGroupOrderUseCase,
+  createGroupOrderUseCase,
+  joinGroupOrderUseCase,
+  addMemberItemUseCase,
+  removeMemberItemUseCase,
+  lockGroupOrderUseCase,
+  leaveGroupOrderUseCase,
+  getUserDietaryPreferencesUseCase,
+  saveUserDietaryPreferencesUseCase,
+  getDishNutritionUseCase,
+  filterDishesByDietaryUseCase,
+  calculateCartNutritionUseCase,
+  getDriverProfileUseCase,
+  submitDriverTipUseCase,
+  submitDriverFeedbackUseCase,
+  getOrderTipStatusUseCase,
+  generateBakongTipQrUseCase,
 };
 
 

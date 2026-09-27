@@ -6,6 +6,11 @@ import { InvoiceRepositoryImpl } from './invoices/repositories/invoice_repositor
 import { DriverChatRepositoryImpl } from './chat/repositories/driver_chat_repository_impl';
 import { LoyaltyRepositoryImpl } from './rewards/repositories/loyalty_repository_impl';
 import { ScheduleRepositoryImpl } from './schedule/repositories/schedule_repository_impl';
+import { GroupOrderRepositoryImpl } from './group_order/repositories/group_order_repository_impl';
+import { DietaryRepositoryImpl } from './dietary/repositories/dietary_repository_impl';
+import { DietaryLocalDataSource } from './dietary/datasources/dietary_local_datasource';
+import { DriverTipRepositoryImpl } from './driver_tip/repositories/driver_tip_repository_impl';
+import { DriverTipLocalDataSource } from './driver_tip/datasources/driver_tip_local_datasource';
 
 // Export models & implementations
 export * from './orders/models/order_model';
@@ -24,6 +29,9 @@ export * from './invoices';
 export * from './chat';
 export * from './rewards';
 export * from './schedule';
+export * from './group_order';
+export * from './dietary';
+export * from './driver_tip';
 
 // Default Singleton Repositories (Service Locator / DI)
 export const orderRepository = new OrderRepositoryImpl();
@@ -33,6 +41,13 @@ export const invoiceRepository = new InvoiceRepositoryImpl();
 export const driverChatRepository = new DriverChatRepositoryImpl();
 export const loyaltyRepository = new LoyaltyRepositoryImpl();
 export const scheduleRepository = new ScheduleRepositoryImpl({ foodRepository });
+export const groupOrderRepository = new GroupOrderRepositoryImpl();
+export const dietaryRepository = new DietaryRepositoryImpl({
+  localDataSource: new DietaryLocalDataSource(),
+});
+export const driverTipRepository = new DriverTipRepositoryImpl({
+  localDataSource: new DriverTipLocalDataSource(),
+});
 
 
 

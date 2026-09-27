@@ -4,6 +4,8 @@ import { useCart } from '../use_cart';
 import { formatUsd, formatKhr, useTranslation } from '../../../core';
 import { AppRoutes } from '../../../routes/app_routes';
 import { DeliveryScheduleSelector } from '../../schedule';
+import { useGroupOrder, GroupCartSection } from '../../group_order';
+import { CartNutritionBar } from '../../dietary';
 
 export function CartDrawer() {
   const { t } = useTranslation();
@@ -23,6 +25,8 @@ export function CartDrawer() {
     applyVoucher,
     removeVoucher,
   } = useCart();
+
+  const { isGroupOrderActive } = useGroupOrder();
 
   const [inputCode, setInputCode] = useState('');
   const [voucherMsg, setVoucherMsg] = useState(null);
@@ -102,7 +106,9 @@ export function CartDrawer() {
 
           {/* Items List */}
           <div className="flex-1 overflow-y-auto p-3.5 sm:p-5 space-y-3 sm:space-y-4">
-            {items.length === 0 ? (
+            {isGroupOrderActive ? (
+              <GroupCartSection />
+            ) : items.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4">
                 <div className="w-20 h-20 rounded-full bg-orange-100/60 dark:bg-orange-950/30 flex items-center justify-center text-4xl">
                   🥣
@@ -123,7 +129,9 @@ export function CartDrawer() {
                 </button>
               </div>
             ) : (
-              items.map((item) => (
+              <>
+                <CartNutritionBar cartItems={items} />
+                {items.map((item) => (
                 <div
                   key={item.food.id}
                   className="flex items-center space-x-2.5 sm:space-x-3 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800"
@@ -190,8 +198,9 @@ export function CartDrawer() {
                     </svg>
                   </button>
                 </div>
-              ))
-            )}
+              ))}
+            </>
+          )}
           </div>
 
           {/* Footer Checkout Summary */}

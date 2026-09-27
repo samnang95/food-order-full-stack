@@ -7,6 +7,9 @@ import { FavoritesProvider } from './features/favorites';
 import { NotificationsProvider } from './features/notifications';
 import { RewardsProvider } from './features/rewards';
 import { ScheduleProvider } from './features/schedule';
+import { GroupOrderProvider } from './features/group_order';
+import { DietaryProvider } from './features/dietary';
+import { DriverTipProvider } from './features/driver_tip';
 
 export default function App() {
   return (
@@ -18,7 +21,13 @@ export default function App() {
               <NotificationsProvider>
                 <RewardsProvider>
                   <ScheduleProvider>
-                    <RouterProvider router={appRouter} />
+                    <GroupOrderProvider>
+                      <DietaryProvider>
+                        <DriverTipProvider>
+                          <RouterProvider router={appRouter} />
+                        </DriverTipProvider>
+                      </DietaryProvider>
+                    </GroupOrderProvider>
                   </ScheduleProvider>
                 </RewardsProvider>
               </NotificationsProvider>
