@@ -22,5 +22,9 @@ export class IOrderRepository {
   async cancelOrder() {
     throw new Error('Method cancelOrder() must be implemented.');
   }
+
+  async getOrderAnalytics() {
+    throw new Error('Method getOrderAnalytics() must be implemented.');
+  }
 }
 

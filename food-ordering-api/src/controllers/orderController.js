@@ -37,9 +37,19 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+const getOrderAnalytics = async (req, res) => {
+  try {
+    const analytics = await orderService.getUserOrderAnalytics(req.user.id);
+    res.json(analytics);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   placeOrder,
   getMyOrders,
+  getOrderAnalytics,
   getOrderById,
   updateOrderStatus
 };

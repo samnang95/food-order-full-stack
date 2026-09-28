@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { container } from '../../core/di/container';
 import { socketService } from '../../core/services/socket_service';
-import { formatUsd, formatKhr, useTranslation, AppAssets } from '../../core';
+import { formatUsd, formatKhr, useTranslation, AppAssets, soundService } from '../../core';
 import { AppRoutes, getTrackingRoute } from '../../routes/app_routes';
 import { DeliveryMapCard } from './components';
 import { OrderRatingModal, useReviews } from '../reviews';
@@ -102,6 +102,7 @@ export function OrderDetailView() {
 
     const unsubStatus = socketService.onOrderStatusChanged(({ orderId, status }) => {
       if (orderId === id) {
+        soundService.playBell();
         setOrder((prev) => (prev ? { ...prev, status: status.toLowerCase() } : prev));
       }
     });

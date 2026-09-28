@@ -49,5 +49,10 @@ export class OrderRemoteDataSource {
     });
     return response?.order || response?.data || response;
   }
+
+  async fetchOrderAnalytics() {
+    const response = await this.api.get('/orders/analytics');
+    return response?.data || response;
+  }
 }
 

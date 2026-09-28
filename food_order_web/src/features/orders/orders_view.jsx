@@ -245,21 +245,31 @@ export function OrdersView() {
           </p>
         </div>
 
-        {/* Live Simulation Control */}
-        <button
-          onClick={handleSimulateNextStep}
-          disabled={simulating}
-          className="w-full sm:w-auto px-4 py-2.5 rounded-2xl bg-slate-900 dark:bg-slate-800 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-md flex items-center justify-center space-x-2"
-        >
-          <span>⚡</span>
-          <span>
-            {simulating
-              ? 'Updating Status...'
-              : activeStepIdx === 3
-              ? 'Restart Simulation Demo'
-              : 'Advance Order Status (Demo)'}
-          </span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          <Link
+            to="/profile#spending-insights"
+            className="flex-1 sm:flex-initial px-3.5 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all flex items-center justify-center space-x-1.5 shadow-xs"
+          >
+            <span>📊</span>
+            <span>Spending Insights</span>
+          </Link>
+
+          {/* Live Simulation Control */}
+          <button
+            onClick={handleSimulateNextStep}
+            disabled={simulating}
+            className="flex-1 sm:flex-initial px-4 py-2.5 rounded-2xl bg-slate-900 dark:bg-slate-800 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-md flex items-center justify-center space-x-2"
+          >
+            <span>⚡</span>
+            <span>
+              {simulating
+                ? 'Updating Status...'
+                : activeStepIdx === 3
+                ? 'Restart Simulation Demo'
+                : 'Advance Order Status (Demo)'}
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Mobile Quick Order Switcher */}

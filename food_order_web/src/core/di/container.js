@@ -12,6 +12,7 @@ import {
   GetOrderByIdUseCase,
   CreateOrderUseCase,
   CancelOrderUseCase,
+  GetOrderAnalyticsUseCase,
   GetVouchersUseCase,
   ValidateVoucherUseCase,
   SubmitReviewUseCase,
@@ -88,6 +89,7 @@ const getOrdersUseCase = new GetOrdersUseCase(orderRepository);
 const getOrderByIdUseCase = new GetOrderByIdUseCase(orderRepository);
 const createOrderUseCase = new CreateOrderUseCase(orderRepository);
 const cancelOrderUseCase = new CancelOrderUseCase(orderRepository);
+const getOrderAnalyticsUseCase = new GetOrderAnalyticsUseCase(orderRepository);
 
 const getVouchersUseCase = new GetVouchersUseCase(voucherRepository);
 const validateVoucherUseCase = new ValidateVoucherUseCase(voucherRepository);
@@ -144,10 +146,12 @@ export const container = {
   getOrderByIdUseCase,
   createOrderUseCase,
   cancelOrderUseCase,
+  getOrderAnalyticsUseCase,
   getGetOrdersUseCase: () => getOrdersUseCase,
   getGetOrderByIdUseCase: () => getOrderByIdUseCase,
   getCreateOrderUseCase: () => createOrderUseCase,
   getCancelOrderUseCase: () => cancelOrderUseCase,
+  getGetOrderAnalyticsUseCase: () => getOrderAnalyticsUseCase,
 
   // Vouchers Use Cases
   getVouchersUseCase,
@@ -326,6 +330,7 @@ export {
   submitDriverFeedbackUseCase,
   getOrderTipStatusUseCase,
   generateBakongTipQrUseCase,
+  getOrderAnalyticsUseCase,
   trackingRepository,
   getTrackingByOrderIdUseCase,
   getActiveDeliveriesUseCase,

@@ -3,6 +3,7 @@ import { useTranslation } from '../../core';
 import {
   ProfileHeaderCard,
   ProfileStatsCard,
+  SpendingInsightsCard,
   SavedAddressesCard,
   AccountSecurityCard,
   AppPreferencesCard,
@@ -56,8 +57,11 @@ export function ProfileView() {
       {/* Profile Header Hero */}
       <ProfileHeaderCard onOpenEditModal={() => onIntent(ProfileIntent.openEditModal())} />
 
-      {/* Customer Quick Stats (Orders, Points, Favorites) */}
+      {/* Customer Quick Stats (Orders, Points, Favorites, Insights) */}
       <ProfileStatsCard />
+
+      {/* Order History Analytics & Spending Insights */}
+      <SpendingInsightsCard />
 
       {/* Main Grid: Addresses, Security & Preferences */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">

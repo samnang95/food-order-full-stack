@@ -4,3 +4,4 @@ export { SavedAddressesCard } from './SavedAddressesCard';
 export { AccountSecurityCard } from './AccountSecurityCard';
 export { AppPreferencesCard } from './AppPreferencesCard';
 export { EditProfileModal } from './EditProfileModal';
+export { SpendingInsightsCard } from './SpendingInsightsCard';

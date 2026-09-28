@@ -238,6 +238,147 @@ const orderService = {
     }
 
     return await orderRepository.updateStatus(orderId, status, paymentStatus);
+  },
+
+  getUserOrderAnalytics: async (userId) => {
+    const orders = await orderRepository.findByUserId(userId);
+
+    let totalSpent = 0;
+    let totalSavings = 0;
+    let deliveredCount = 0;
+    let pendingCount = 0;
+    let cancelledCount = 0;
+
+    const dishCounts = {};
+    const monthsMap = {};
+    const daysMap = { Sun: 0, Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0 };
+    const hoursMap = { Morning: 0, Lunch: 0, Afternoon: 0, Dinner: 0, LateNight: 0 };
+    const paymentMap = {};
+
+    // Initialize last 6 calendar months
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const monthLabel = d.toLocaleString('en-US', { month: 'short' });
+      monthsMap[key] = { key, month: monthLabel, year: d.getFullYear(), spent: 0, orders: 0 };
+    }
+
+    orders.forEach((order) => {
+      const status = (order.status || 'pending').toLowerCase();
+      const amount = Number(order.totalAmount) || 0;
+      const discount = Number(order.discountAmount) || 0;
+
+      if (status === 'delivered') deliveredCount++;
+      else if (status === 'cancelled') cancelledCount++;
+      else pendingCount++;
+
+      // Count spending & savings for valid orders (not cancelled)
+      if (status !== 'cancelled') {
+        totalSpent += amount;
+        totalSavings += discount;
+
+        // Payment method distribution
+        const pMethod = order.paymentMethod || 'cash';
+        paymentMap[pMethod] = (paymentMap[pMethod] || 0) + 1;
+
+        // Items and Dishes
+        if (Array.isArray(order.items)) {
+          order.items.forEach((item) => {
+            const foodName = item.food?.name || 'Delicious Dish';
+            const foodImage = item.food?.imageUrl || '';
+            const qty = Number(item.quantity) || 1;
+            const price = Number(item.price) || (Number(item.food?.price) || 0);
+
+            if (!dishCounts[foodName]) {
+              dishCounts[foodName] = {
+                name: foodName,
+                imageUrl: foodImage,
+                quantity: 0,
+                totalSpent: 0,
+                ordersCount: 0,
+              };
+            }
+            dishCounts[foodName].quantity += qty;
+            dishCounts[foodName].totalSpent += price * qty;
+            dishCounts[foodName].ordersCount += 1;
+            if (!dishCounts[foodName].imageUrl && foodImage) {
+              dishCounts[foodName].imageUrl = foodImage;
+            }
+          });
+        }
+
+        // Monthly trend
+        const orderDate = new Date(order.createdAt || Date.now());
+        const monthKey = `${orderDate.getFullYear()}-${String(orderDate.getMonth() + 1).padStart(2, '0')}`;
+        if (monthsMap[monthKey]) {
+          monthsMap[monthKey].spent += amount;
+          monthsMap[monthKey].orders += 1;
+        }
+
+        // Day of week
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const dayName = dayNames[orderDate.getDay()];
+        if (dayName) daysMap[dayName] = (daysMap[dayName] || 0) + 1;
+
+        // Hour intervals
+        const hour = orderDate.getHours();
+        if (hour >= 6 && hour < 11) hoursMap.Morning++;
+        else if (hour >= 11 && hour < 14) hoursMap.Lunch++;
+        else if (hour >= 14 && hour < 17) hoursMap.Afternoon++;
+        else if (hour >= 17 && hour < 22) hoursMap.Dinner++;
+        else hoursMap.LateNight++;
+      }
+    });
+
+    // Top dishes sorted by quantity
+    const topDishes = Object.values(dishCounts)
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
+
+    // Monthly trends array with peak flag
+    const monthlySpending = Object.values(monthsMap);
+    const maxSpent = Math.max(...monthlySpending.map((m) => m.spent), 0);
+    monthlySpending.forEach((m) => {
+      m.isPeak = maxSpent > 0 && m.spent === maxSpent;
+      m.spent = Number(m.spent.toFixed(2));
+    });
+
+    // Habits
+    const topDay = Object.entries(daysMap).reduce(
+      (best, [day, count]) => (count > best.count ? { day, count } : best),
+      { day: 'Friday', count: 0 }
+    ).day;
+
+    const topTimeSlot = Object.entries(hoursMap).reduce(
+      (best, [slot, count]) => (count > best.count ? { slot, count } : best),
+      { slot: 'Dinner', count: 0 }
+    ).slot;
+
+    const topPayment = Object.entries(paymentMap).reduce(
+      (best, [method, count]) => (count > best.count ? { method, count } : best),
+      { method: 'Bakong KHQR', count: 0 }
+    ).method;
+
+    const validOrderCount = deliveredCount + pendingCount;
+    const averageOrderValue = validOrderCount > 0 ? Number((totalSpent / validOrderCount).toFixed(2)) : 0;
+
+    return {
+      totalSpent: Number(totalSpent.toFixed(2)),
+      totalSavings: Number(totalSavings.toFixed(2)),
+      totalOrders: orders.length,
+      deliveredCount,
+      pendingCount,
+      cancelledCount,
+      averageOrderValue,
+      monthlySpending,
+      topDishes,
+      habits: {
+        topDay,
+        topTimeSlot,
+        preferredPayment: topPayment === 'bakong_khqr' ? 'Bakong KHQR' : 'Cash on Delivery',
+      },
+    };
   }
 };
 

@@ -37,6 +37,8 @@ export class OrderEntity {
     customerPhone = '',
     items = [],
     totalAmount = 0,
+    voucherCode = '',
+    discountAmount = 0,
     deliveryAddress = 'Phnom Penh, Cambodia',
     status = OrderStatus.PENDING,
     paymentMethod = 'cash',
@@ -56,6 +58,8 @@ export class OrderEntity {
       item instanceof OrderItemEntity ? item : new OrderItemEntity(item)
     );
     this.totalAmount = Number(totalAmount) || 0;
+    this.voucherCode = voucherCode || '';
+    this.discountAmount = Number(discountAmount) || 0;
     this.deliveryAddress = deliveryAddress;
     this.status = (status || OrderStatus.PENDING).toLowerCase();
     this.paymentMethod = paymentMethod;

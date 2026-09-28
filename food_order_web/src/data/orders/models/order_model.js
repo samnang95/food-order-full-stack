@@ -61,6 +61,8 @@ export class OrderModel {
       customerPhone,
       items,
       totalAmount: Number(raw.totalAmount) || 0,
+      voucherCode: raw.voucherCode || '',
+      discountAmount: Number(raw.discountAmount) || 0,
       deliveryAddress:
         typeof raw.deliveryAddress === 'string'
           ? raw.deliveryAddress

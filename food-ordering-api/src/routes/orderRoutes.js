@@ -12,6 +12,9 @@ router.post('/', orderController.placeOrder);
 // Customer gets their orders / Staff gets all orders
 router.get('/', orderController.getMyOrders);
 
+// Customer gets spending & order history analytics
+router.get('/analytics', orderController.getOrderAnalytics);
+
 // View specific order details
 router.get('/:id', orderController.getOrderById);
 
