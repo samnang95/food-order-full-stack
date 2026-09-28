@@ -11,6 +11,8 @@ import { DietaryRepositoryImpl } from './dietary/repositories/dietary_repository
 import { DietaryLocalDataSource } from './dietary/datasources/dietary_local_datasource';
 import { DriverTipRepositoryImpl } from './driver_tip/repositories/driver_tip_repository_impl';
 import { DriverTipLocalDataSource } from './driver_tip/datasources/driver_tip_local_datasource';
+import { TrackingRepositoryImpl } from './delivery_tracking/repositories/tracking_repository_impl';
+import { TrackingLocalDataSource } from './delivery_tracking/datasources/tracking_local_datasource';
 
 // Export models & implementations
 export * from './orders/models/order_model';
@@ -32,6 +34,7 @@ export * from './schedule';
 export * from './group_order';
 export * from './dietary';
 export * from './driver_tip';
+export * from './delivery_tracking';
 
 // Default Singleton Repositories (Service Locator / DI)
 export const orderRepository = new OrderRepositoryImpl();
@@ -47,6 +50,9 @@ export const dietaryRepository = new DietaryRepositoryImpl({
 });
 export const driverTipRepository = new DriverTipRepositoryImpl({
   localDataSource: new DriverTipLocalDataSource(),
+});
+export const trackingRepository = new TrackingRepositoryImpl({
+  localDataSource: new TrackingLocalDataSource(),
 });
 
 

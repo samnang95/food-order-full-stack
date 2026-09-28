@@ -1,7 +1,9 @@
+import { Link } from 'react-router-dom';
 import { StatusPill } from './status_pill';
 import { QuickReorderButton } from '../../schedule';
 import { useDriverTip } from '../../driver_tip';
 import { useTranslation } from '../../../core';
+import { getTrackingRoute } from '../../../routes/app_routes';
 
 export function OrderCard({ order, onSelect, onUpdateStatus, onRateOrder, onViewInvoice }) {
   const { t } = useTranslation();
@@ -103,6 +105,16 @@ export function OrderCard({ order, onSelect, onUpdateStatus, onRateOrder, onView
           )}
 
           <QuickReorderButton order={order} size="sm" />
+
+          {['pending', 'confirmed', 'preparing', 'on_the_way', 'out_for_delivery'].includes(status) && (
+            <Link
+              to={getTrackingRoute(orderId)}
+              className="px-3 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center space-x-1 shrink-0"
+            >
+              <span>🛵</span>
+              <span className="hidden sm:inline">Track</span>
+            </Link>
+          )}
 
           {status === 'pending' && (
             <button

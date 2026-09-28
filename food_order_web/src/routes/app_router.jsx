@@ -10,6 +10,7 @@ import { FavoritesView } from '../features/favorites';
 import { CheckoutView } from '../features/checkout';
 import { ProfileView } from '../features/profile';
 import { NotificationsView } from '../features/notifications';
+import { TrackingView } from '../features/delivery_tracking';
 import { NotFoundView } from '../components/common/NotFoundView';
 import { AppRoutes } from './app_routes';
 
@@ -65,6 +66,10 @@ export const appRouter = createBrowserRouter([
       {
         path: 'notifications',
         element: <NotificationsView />,
+      },
+      {
+        path: 'tracking/:id',
+        element: <TrackingView />,
       },
       {
         path: '*',

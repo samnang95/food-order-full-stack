@@ -11,6 +11,7 @@ export const AppRoutes = Object.freeze({
   CHECKOUT: '/checkout',
   PROFILE: '/profile',
   NOTIFICATIONS: '/notifications',
+  TRACKING: '/tracking/:id',
   SETTINGS: '/settings',
   NOT_FOUND: '*',
 });
@@ -18,6 +19,7 @@ export const AppRoutes = Object.freeze({
 export const getOrderDetailRoute = (id) => `/orders/${id}`;
 export const getCategoryDetailRoute = (id) => `/category/${encodeURIComponent(id)}`;
 export const getSearchRoute = (q) => `/search${q ? `?q=${encodeURIComponent(q)}` : ''}`;
+export const getTrackingRoute = (id) => `/tracking/${id}`;
 
 
 

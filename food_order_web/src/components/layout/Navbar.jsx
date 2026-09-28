@@ -44,7 +44,7 @@ export function Navbar() {
   }, []);
 
   const getNavClass = ({ isActive }) =>
-    `group inline-flex items-center justify-center space-x-1.5 whitespace-nowrap px-2.5 py-1.5 xl:px-3.5 xl:py-2 rounded-xl text-xs font-bold transition-all duration-200 shrink-0 ${
+    `group inline-flex items-center justify-center space-x-1.5 whitespace-nowrap px-2.5 py-1.5 xl:px-3 rounded-xl text-xs font-bold transition-all duration-200 shrink-0 ${
       isActive
         ? 'bg-orange-500 text-white shadow-md shadow-orange-500/25 ring-1 ring-orange-400/40 hover:bg-orange-600'
         : 'text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-white dark:hover:bg-slate-700/90 hover:shadow-xs hover:-translate-y-0.5 active:translate-y-0'
@@ -58,8 +58,9 @@ export function Navbar() {
     }`;
 
   return (
-    <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
-      <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-2">
+    <>
+      <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
+        <div className="w-full max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 h-16 sm:h-18 flex items-center justify-between gap-2">
         {/* Brand Logo & Name */}
         <Link to={AppRoutes.ROOT} className="flex items-center space-x-2.5 sm:space-x-3 group shrink-0 min-w-max">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white text-lg sm:text-xl font-bold shadow-md shadow-orange-500/25 group-hover:scale-105 transition-transform shrink-0">
@@ -81,14 +82,14 @@ export function Navbar() {
                 {t('common.location')}
               </span>
             </div>
-            <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 hidden xl:block whitespace-nowrap">
+            <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 hidden 2xl:block whitespace-nowrap">
               {t('common.tagline')}
             </p>
           </div>
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center space-x-0.5 xl:space-x-1 bg-slate-100/80 dark:bg-slate-800/60 p-1 xl:p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shrink-0">
+        <nav className="hidden lg:flex items-center space-x-0.5 bg-slate-100/80 dark:bg-slate-800/60 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 shrink-0">
           <NavLink to={AppRoutes.ROOT} className={getNavClass} end>
             <span>{t('navigation.home')}</span>
           </NavLink>
@@ -189,15 +190,17 @@ export function Navbar() {
         </nav>
 
         {/* Right side controls: Rewards, Search, Cart, Auth, Language, Theme, Mobile toggle */}
-        <div className="flex items-center space-x-1 sm:space-x-1.5 xl:space-x-2 shrink-0">
+        <div className="flex items-center space-x-1 sm:space-x-1.5 xl:space-x-1.5 2xl:space-x-2 shrink-0">
           {/* BitePoints VIP Rewards Pill */}
-          <NavbarRewardsPill />
+          <div className="hidden md:inline-flex shrink-0">
+            <NavbarRewardsPill />
+          </div>
 
           {/* Group Order Pill */}
           <button
             type="button"
             onClick={openGroupModal}
-            className={`p-2 sm:px-2.5 sm:py-2 xl:px-3 xl:py-2 rounded-xl sm:rounded-2xl border flex items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs active:scale-95 shrink-0 ${
+            className={`hidden md:inline-flex p-2 sm:px-2.5 py-1.5 2xl:px-3 rounded-xl border items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs active:scale-95 shrink-0 ${
               isGroupOrderActive
                 ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-orange-400 shadow-sm shadow-orange-500/20'
                 : 'bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400'
@@ -205,9 +208,15 @@ export function Navbar() {
             title={t('groupOrder.navTooltip', 'Group Order & Split Bill')}
           >
             <span className="text-base leading-none">👥</span>
-            <span className="text-xs font-bold hidden lg:inline">
-              {isGroupOrderActive ? groupOrder.code : t('groupOrder.groupOrder', 'Group Order')}
-            </span>
+            {isGroupOrderActive ? (
+              <span className="text-xs font-black font-mono">
+                {groupOrder?.code}
+              </span>
+            ) : (
+              <span className="text-xs font-bold hidden 2xl:inline">
+                {t('groupOrder.groupOrder', 'Group Order')}
+              </span>
+            )}
             {isGroupOrderActive && (
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             )}
@@ -217,7 +226,7 @@ export function Navbar() {
           <button
             type="button"
             onClick={openPreferencesModal}
-            className={`p-2 sm:px-2.5 sm:py-2 xl:px-3 xl:py-2 rounded-xl sm:rounded-2xl border flex items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs active:scale-95 shrink-0 ${
+            className={`hidden md:inline-flex p-2 sm:px-2.5 py-1.5 2xl:px-3 rounded-xl border items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs active:scale-95 shrink-0 ${
               dietaryAlertsCount > 0
                 ? 'bg-amber-500/10 border-amber-500/40 text-amber-800 dark:text-amber-300'
                 : 'bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400'
@@ -225,7 +234,7 @@ export function Navbar() {
             title={t('dietary.preferencesTooltip', 'Customize dietary lifestyle & allergen alerts')}
           >
             <span className="text-base leading-none">🥗</span>
-            <span className="text-xs font-bold hidden xl:inline">
+            <span className="text-xs font-bold hidden 2xl:inline">
               {t('dietary.dietNav', 'Diet')}
             </span>
             {dietaryAlertsCount > 0 && (
@@ -238,11 +247,12 @@ export function Navbar() {
           {/* Quick Search Button */}
           <Link
             to={AppRoutes.SEARCH}
-            className="p-2 sm:px-2.5 sm:py-2 xl:px-3 xl:py-2 rounded-xl sm:rounded-2xl bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 hover:border-orange-500/40 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 flex items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs active:scale-95 shrink-0"
+            className="p-2 rounded-xl bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 hover:border-orange-500/40 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 flex items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs active:scale-95 shrink-0"
             aria-label="Search"
+            title={t('navigation.search', 'Search')}
           >
             <span className="text-base leading-none">🔍</span>
-            <span className="text-xs font-bold hidden xl:inline">{t('navigation.search')}</span>
+            <span className="text-xs font-bold hidden 2xl:inline">{t('navigation.search')}</span>
           </Link>
 
           {/* Notifications Bell Dropdown */}
@@ -250,8 +260,9 @@ export function Navbar() {
             <button
               type="button"
               onClick={toggleDropdown}
-              className="relative p-2 sm:px-2.5 sm:py-2 xl:px-3 xl:py-2 rounded-xl sm:rounded-2xl bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 hover:border-orange-500/40 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 flex items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs active:scale-95"
+              className="relative p-2 rounded-xl bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 hover:border-orange-500/40 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 flex items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs active:scale-95"
               aria-label="Notifications"
+              title={t('navigation.notifications', 'Notifications')}
             >
               <span className="text-base leading-none">🔔</span>
               {unreadCount > 0 && (
@@ -266,11 +277,12 @@ export function Navbar() {
           {/* Cart Button */}
           <button
             onClick={openCart}
-            className="relative p-2 sm:px-2.5 sm:py-2 xl:px-3 xl:py-2 rounded-xl sm:rounded-2xl bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/40 dark:hover:bg-orange-950/70 border border-orange-200 dark:border-orange-900/60 hover:border-orange-400 text-orange-600 dark:text-orange-400 flex items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-orange-500/15 active:scale-95 shrink-0"
+            className="relative p-2 sm:px-2.5 py-1.5 2xl:px-3 rounded-xl bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/40 dark:hover:bg-orange-950/70 border border-orange-200 dark:border-orange-900/60 hover:border-orange-400 text-orange-600 dark:text-orange-400 flex items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-orange-500/15 active:scale-95 shrink-0"
             aria-label="Open Cart"
+            title={t('navigation.cart', 'Cart')}
           >
             <span className="text-base leading-none">🛍️</span>
-            <span className="text-xs font-black hidden xl:inline">{t('navigation.cart')}</span>
+            <span className="text-xs font-black hidden 2xl:inline">{t('navigation.cart')}</span>
             {totalCount > 0 && (
               <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-orange-500 text-white animate-pulse">
                 {totalCount}
@@ -282,7 +294,8 @@ export function Navbar() {
           {isAuthenticated ? (
             <Link
               to={AppRoutes.PROFILE}
-              className="hidden sm:flex items-center space-x-2 bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 px-2 sm:px-2.5 xl:px-3 py-1.5 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-orange-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs shrink-0"
+              className="flex items-center space-x-2 bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 px-2 sm:px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-orange-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs shrink-0"
+              title={user?.username || 'Profile'}
             >
               <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full overflow-hidden bg-orange-500 text-white font-black text-[10px] sm:text-xs flex items-center justify-center uppercase shrink-0">
                 {user?.avatar ? (
@@ -298,14 +311,14 @@ export function Navbar() {
                   user?.username?.[0] || 'U'
                 )}
               </div>
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 hidden xl:inline max-w-[80px] truncate">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 hidden 2xl:inline max-w-[80px] truncate">
                 {user?.username || 'Foodie'}
               </span>
             </Link>
           ) : (
             <button
               onClick={() => openAuthModal('login')}
-              className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold shadow-md hover:opacity-90 active:scale-95 transition-all hidden sm:block shrink-0"
+              className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold shadow-md hover:opacity-90 active:scale-95 transition-all shrink-0 whitespace-nowrap"
             >
               {t('navigation.signIn')}
             </button>
@@ -529,5 +542,8 @@ export function Navbar() {
       )}
 
     </header>
+      {/* Spacer preserving exact document flow height below fixed appbar */}
+      <div className="h-16 sm:h-18 shrink-0" aria-hidden="true" />
+    </>
   );
 }

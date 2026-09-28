@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { container } from '../../core/di/container';
 import { socketService } from '../../core/services/socket_service';
 import { formatUsd, formatKhr, useTranslation, AppAssets } from '../../core';
-import { AppRoutes } from '../../routes/app_routes';
+import { AppRoutes, getTrackingRoute } from '../../routes/app_routes';
 import { DeliveryMapCard } from './components';
 import { OrderRatingModal, useReviews } from '../reviews';
 import { InvoiceModal, useInvoiceStore } from '../invoices';
@@ -257,6 +257,16 @@ export function OrderDetailView() {
           </button>
 
           <QuickReorderButton order={order} size="sm" />
+
+          {isLive && (
+            <Link
+              to={getTrackingRoute(id)}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-bold shadow-md shadow-orange-500/20 active:scale-95 transition-all flex items-center space-x-1.5"
+            >
+              <span>🛵</span>
+              <span>Track Live</span>
+            </Link>
+          )}
 
           {isDelivered && (
             <button

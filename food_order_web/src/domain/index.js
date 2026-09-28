@@ -15,3 +15,4 @@ export * from './schedule';
 export * from './group_order';
 export * from './dietary';
 export * from './driver_tip';
+export * from './delivery_tracking';

@@ -1,7 +1,7 @@
 import { ApiClient } from '../services/api_client';
 import { socketService } from '../services/socket_service';
 import { LocalDB, indexedDBService, DBKeys } from '../db';
-import { orderRepository, foodRepository, voucherRepository, reviewRepository, invoiceRepository, driverChatRepository, loyaltyRepository, scheduleRepository, groupOrderRepository, dietaryRepository, driverTipRepository } from '../../data';
+import { orderRepository, foodRepository, voucherRepository, reviewRepository, invoiceRepository, driverChatRepository, loyaltyRepository, scheduleRepository, groupOrderRepository, dietaryRepository, driverTipRepository, trackingRepository } from '../../data';
 import {
   GetFoodsUseCase,
   GetFoodByIdUseCase,
@@ -45,6 +45,10 @@ import {
   SubmitDriverFeedbackUseCase,
   GetOrderTipStatusUseCase,
   GenerateBakongTipQrUseCase,
+  GetTrackingByOrderIdUseCase,
+  GetActiveDeliveriesUseCase,
+  UpdateDriverLocationUseCase,
+  UpdateTrackingStatusUseCase,
 } from '../../domain';
 
 // Use Cases Singletons
@@ -67,6 +71,11 @@ const submitDriverTipUseCase = new SubmitDriverTipUseCase(driverTipRepository);
 const submitDriverFeedbackUseCase = new SubmitDriverFeedbackUseCase(driverTipRepository);
 const getOrderTipStatusUseCase = new GetOrderTipStatusUseCase(driverTipRepository);
 const generateBakongTipQrUseCase = new GenerateBakongTipQrUseCase(driverTipRepository);
+
+const getTrackingByOrderIdUseCase = new GetTrackingByOrderIdUseCase(trackingRepository);
+const getActiveDeliveriesUseCase = new GetActiveDeliveriesUseCase(trackingRepository);
+const updateDriverLocationUseCase = new UpdateDriverLocationUseCase(trackingRepository);
+const updateTrackingStatusUseCase = new UpdateTrackingStatusUseCase(trackingRepository);
 
 // Use Cases Singletons
 const getFoodsUseCase = new GetFoodsUseCase(foodRepository);
@@ -232,6 +241,18 @@ export const container = {
   getGetOrderTipStatusUseCase: () => getOrderTipStatusUseCase,
   getGenerateBakongTipQrUseCase: () => generateBakongTipQrUseCase,
 
+  // Delivery Tracking Use Cases
+  trackingRepository,
+  getTrackingByOrderIdUseCase,
+  getActiveDeliveriesUseCase,
+  updateDriverLocationUseCase,
+  updateTrackingStatusUseCase,
+  getTrackingRepository: () => trackingRepository,
+  getGetTrackingByOrderIdUseCase: () => getTrackingByOrderIdUseCase,
+  getGetActiveDeliveriesUseCase: () => getActiveDeliveriesUseCase,
+  getUpdateDriverLocationUseCase: () => updateDriverLocationUseCase,
+  getUpdateTrackingStatusUseCase: () => updateTrackingStatusUseCase,
+
   // Services & Storage
   getApiClient: () => ApiClient,
   getSocketService: () => socketService,
@@ -305,6 +326,11 @@ export {
   submitDriverFeedbackUseCase,
   getOrderTipStatusUseCase,
   generateBakongTipQrUseCase,
+  trackingRepository,
+  getTrackingByOrderIdUseCase,
+  getActiveDeliveriesUseCase,
+  updateDriverLocationUseCase,
+  updateTrackingStatusUseCase,
 };
 
 
