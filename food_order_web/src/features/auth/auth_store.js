@@ -89,9 +89,12 @@ export function useAuthStore() {
     }
   }, [state.token]);
 
-  const saveAuthSession = useCallback((tokenStr, userData) => {
+  const saveAuthSession = useCallback((tokenStr, userData, refreshTokenStr) => {
     dispatch(AuthIntent.setAuthSession({ token: tokenStr, user: userData }));
     ApiClient.setToken(tokenStr);
+    if (refreshTokenStr) {
+      ApiClient.setRefreshToken(refreshTokenStr);
+    }
     LocalDB.setJSON(DBKeys.USER_PROFILE, userData);
     firebaseService.syncTokenWithBackend();
   }, []);
@@ -102,7 +105,7 @@ export function useAuthStore() {
       dispatch(AuthIntent.setAuthError(null));
       try {
         const res = await ApiClient.post('/auth/login', { username, password });
-        saveAuthSession(res.token, res.user);
+        saveAuthSession(res.token, res.user, res.refreshToken);
         dispatch(AuthIntent.closeAuthModal());
         return res;
       } catch (err) {
@@ -122,7 +125,7 @@ export function useAuthStore() {
       dispatch(AuthIntent.setAuthError(null));
       try {
         const res = await ApiClient.post('/auth/register', { username, password, email });
-        saveAuthSession(res.token, res.user);
+        saveAuthSession(res.token, res.user, res.refreshToken);
         dispatch(AuthIntent.closeAuthModal());
         return res;
       } catch (err) {
@@ -142,7 +145,7 @@ export function useAuthStore() {
       dispatch(AuthIntent.setAuthError(null));
       try {
         const res = await ApiClient.post('/auth/google', { token: idToken });
-        saveAuthSession(res.token, res.user);
+        saveAuthSession(res.token, res.user, res.refreshToken);
         dispatch(AuthIntent.closeAuthModal());
         return res;
       } catch (err) {
@@ -172,7 +175,7 @@ export function useAuthStore() {
       });
 
       if (res && res.token) {
-        saveAuthSession(res.token, res.user);
+        saveAuthSession(res.token, res.user, res.refreshToken);
         return res;
       }
     } catch (err) {
@@ -192,7 +195,7 @@ export function useAuthStore() {
 
   const logout = useCallback(() => {
     dispatch(AuthIntent.clearAuthSession());
-    ApiClient.clearToken();
+    ApiClient.clearTokens();
     LocalDB.remove(DBKeys.USER_PROFILE);
   }, []);
 

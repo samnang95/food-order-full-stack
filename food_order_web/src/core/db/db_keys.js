@@ -1,5 +1,6 @@
 export const DBKeys = {
   AUTH_TOKEN: 'bitecraft_auth_token',
+  REFRESH_TOKEN: 'bitecraft_refresh_token',
   USER_PROFILE: 'bitecraft_user_profile',
   CART_ITEMS: 'bitecraft_cart_items',
   THEME_MODE: 'app_theme_mode',

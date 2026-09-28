@@ -3,6 +3,46 @@ import { LocalDB, DBKeys } from '../db';
 
 const BASE_URL = AppConfig.apiBaseUrl;
 
+let refreshPromise = null;
+
+async function refreshAccessToken() {
+  if (refreshPromise) return refreshPromise;
+
+  const refreshToken = ApiClient.getRefreshToken();
+  if (!refreshToken) {
+    throw new Error('No refresh token available');
+  }
+
+  refreshPromise = (async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      if (!response.ok) {
+        ApiClient.clearTokens();
+        throw new Error('Failed to refresh access token');
+      }
+
+      const data = await response.json();
+      if (data?.token) {
+        ApiClient.setToken(data.token);
+        if (data.refreshToken) {
+          ApiClient.setRefreshToken(data.refreshToken);
+        }
+        return data.token;
+      }
+      throw new Error('Invalid refresh response');
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+}
+
 export const ApiClient = {
   getToken() {
     return LocalDB.getString(DBKeys.AUTH_TOKEN);
@@ -18,6 +58,27 @@ export const ApiClient = {
 
   clearToken() {
     LocalDB.remove(DBKeys.AUTH_TOKEN);
+  },
+
+  getRefreshToken() {
+    return LocalDB.getString(DBKeys.REFRESH_TOKEN);
+  },
+
+  setRefreshToken(refreshToken) {
+    if (refreshToken) {
+      LocalDB.setString(DBKeys.REFRESH_TOKEN, refreshToken);
+    } else {
+      LocalDB.remove(DBKeys.REFRESH_TOKEN);
+    }
+  },
+
+  clearRefreshToken() {
+    LocalDB.remove(DBKeys.REFRESH_TOKEN);
+  },
+
+  clearTokens() {
+    this.clearToken();
+    this.clearRefreshToken();
   },
 
   getHeaders(customHeaders = {}) {
@@ -47,58 +108,56 @@ export const ApiClient = {
     return await response.json();
   },
 
-  async get(endpoint, customHeaders = {}) {
+  async request(endpoint, options = {}, isRetry = false) {
+    const url = `${BASE_URL}${endpoint}`;
+    const customHeaders = options.headers || {};
+    const headers = this.getHeaders(customHeaders);
+    const config = { ...options, headers };
+
     try {
-      const response = await fetch(`${BASE_URL}${endpoint}`, {
-        method: 'GET',
-        headers: this.getHeaders(customHeaders),
-      });
+      const response = await fetch(url, config);
+
+      // Auto-refresh token if 401 returned and not an auth endpoint
+      if (response.status === 401 && !isRetry && !endpoint.includes('/auth/')) {
+        try {
+          const newToken = await refreshAccessToken();
+          if (newToken) {
+            return await this.request(endpoint, options, true);
+          }
+        } catch (refreshErr) {
+          console.warn('[ApiClient] Silent token refresh failed:', refreshErr);
+        }
+      }
+
       return await this.handleResponse(response);
     } catch (error) {
-      console.error(`[ApiClient] GET ${endpoint} failed:`, error);
+      console.error(`[ApiClient] ${options.method || 'GET'} ${endpoint} failed:`, error);
       throw error;
     }
+  },
+
+  async get(endpoint, customHeaders = {}) {
+    return this.request(endpoint, { method: 'GET', headers: customHeaders });
   },
 
   async post(endpoint, data, customHeaders = {}) {
-    try {
-      const response = await fetch(`${BASE_URL}${endpoint}`, {
-        method: 'POST',
-        headers: this.getHeaders(customHeaders),
-        body: JSON.stringify(data),
-      });
-      return await this.handleResponse(response);
-    } catch (error) {
-      console.error(`[ApiClient] POST ${endpoint} failed:`, error);
-      throw error;
-    }
+    return this.request(endpoint, {
+      method: 'POST',
+      headers: customHeaders,
+      body: JSON.stringify(data),
+    });
   },
 
   async put(endpoint, data, customHeaders = {}) {
-    try {
-      const response = await fetch(`${BASE_URL}${endpoint}`, {
-        method: 'PUT',
-        headers: this.getHeaders(customHeaders),
-        body: JSON.stringify(data),
-      });
-      return await this.handleResponse(response);
-    } catch (error) {
-      console.error(`[ApiClient] PUT ${endpoint} failed:`, error);
-      throw error;
-    }
+    return this.request(endpoint, {
+      method: 'PUT',
+      headers: customHeaders,
+      body: JSON.stringify(data),
+    });
   },
 
   async delete(endpoint, customHeaders = {}) {
-    try {
-      const response = await fetch(`${BASE_URL}${endpoint}`, {
-        method: 'DELETE',
-        headers: this.getHeaders(customHeaders),
-      });
-      return await this.handleResponse(response);
-    } catch (error) {
-      console.error(`[ApiClient] DELETE ${endpoint} failed:`, error);
-      throw error;
-    }
+    return this.request(endpoint, { method: 'DELETE', headers: customHeaders });
   },
 };
 
