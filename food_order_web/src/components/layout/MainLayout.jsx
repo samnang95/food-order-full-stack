@@ -1,6 +1,8 @@
+import { Suspense } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { MobileBottomNav } from './MobileBottomNav';
+import { PageLoadingFallback } from '../common';
 import { CartDrawer } from '../../features/cart/components/CartDrawer';
 import { CheckoutModal } from '../../features/cart/components/CheckoutModal';
 import { AuthModal } from '../../features/auth/components/AuthModal';
@@ -14,9 +16,11 @@ export function MainLayout() {
       {/* Top Navigation */}
       <Navbar />
 
-      {/* Main Outlet */}
+      {/* Main Outlet with Suspense boundary for code-split views */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 pb-24 md:pb-8">
-        <Outlet />
+        <Suspense fallback={<PageLoadingFallback />}>
+          <Outlet />
+        </Suspense>
       </main>
 
       {/* Persistent Mobile Bottom Navigation */}

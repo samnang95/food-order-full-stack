@@ -1,16 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { MainLayout } from '../components/layout/MainLayout';
-import { HomeView } from '../features/home/home_view';
-import { MenuView } from '../features/menu/menu_view';
-import { OrdersView, OrderDetailView } from '../features/orders';
-import { CategoriesView, CategoryDetailView } from '../features/categories';
-import { SearchView } from '../features/search';
-import { VouchersView } from '../features/vouchers';
-import { FavoritesView } from '../features/favorites';
-import { CheckoutView } from '../features/checkout';
-import { ProfileView } from '../features/profile';
-import { NotificationsView } from '../features/notifications';
-import { TrackingView } from '../features/delivery_tracking';
 import { NotFoundView } from '../components/common/NotFoundView';
 import { AppRoutes } from './app_routes';
 
@@ -21,55 +10,94 @@ export const appRouter = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <HomeView />,
+        lazy: async () => {
+          const { HomeView } = await import('../features/home/home_view');
+          return { Component: HomeView };
+        },
       },
       {
         path: 'menu',
-        element: <MenuView />,
+        lazy: async () => {
+          const { MenuView } = await import('../features/menu/menu_view');
+          return { Component: MenuView };
+        },
       },
       {
         path: 'categories',
-        element: <CategoriesView />,
+        lazy: async () => {
+          const { CategoriesView } = await import('../features/categories/categories_view');
+          return { Component: CategoriesView };
+        },
       },
       {
         path: 'category/:id',
-        element: <CategoryDetailView />,
+        lazy: async () => {
+          const { CategoryDetailView } = await import('../features/categories/category_detail_view');
+          return { Component: CategoryDetailView };
+        },
       },
       {
         path: 'search',
-        element: <SearchView />,
+        lazy: async () => {
+          const { SearchView } = await import('../features/search/search_view');
+          return { Component: SearchView };
+        },
       },
       {
         path: 'vouchers',
-        element: <VouchersView />,
+        lazy: async () => {
+          const { VouchersView } = await import('../features/vouchers/vouchers_view');
+          return { Component: VouchersView };
+        },
       },
       {
         path: 'orders',
-        element: <OrdersView />,
+        lazy: async () => {
+          const { OrdersView } = await import('../features/orders/orders_view');
+          return { Component: OrdersView };
+        },
       },
       {
         path: 'orders/:id',
-        element: <OrderDetailView />,
+        lazy: async () => {
+          const { OrderDetailView } = await import('../features/orders/order_detail_view');
+          return { Component: OrderDetailView };
+        },
       },
       {
         path: 'favorites',
-        element: <FavoritesView />,
+        lazy: async () => {
+          const { FavoritesView } = await import('../features/favorites/favorites_view');
+          return { Component: FavoritesView };
+        },
       },
       {
         path: 'checkout',
-        element: <CheckoutView />,
+        lazy: async () => {
+          const { CheckoutView } = await import('../features/checkout/checkout_view');
+          return { Component: CheckoutView };
+        },
       },
       {
         path: 'profile',
-        element: <ProfileView />,
+        lazy: async () => {
+          const { ProfileView } = await import('../features/profile/profile_view');
+          return { Component: ProfileView };
+        },
       },
       {
         path: 'notifications',
-        element: <NotificationsView />,
+        lazy: async () => {
+          const { NotificationsView } = await import('../features/notifications/notifications_view');
+          return { Component: NotificationsView };
+        },
       },
       {
         path: 'tracking/:id',
-        element: <TrackingView />,
+        lazy: async () => {
+          const { TrackingView } = await import('../features/delivery_tracking/tracking_view');
+          return { Component: TrackingView };
+        },
       },
       {
         path: '*',

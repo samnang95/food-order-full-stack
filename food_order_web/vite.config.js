@@ -19,4 +19,26 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/leaflet')) {
+            return 'vendor-leaflet';
+          }
+          if (
+            id.includes('node_modules/react/') ||
+            id.includes('node_modules/react-dom/') ||
+            id.includes('node_modules/react-router')
+          ) {
+            return 'vendor-react';
+          }
+          if (id.includes('node_modules/socket.io-client')) {
+            return 'vendor-socket';
+          }
+        },
+      },
+    },
+  },
 })

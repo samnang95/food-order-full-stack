@@ -4,7 +4,6 @@ export { useNotifications } from './use_notifications';
 export { useNotificationsStore, notificationsReducer } from './notifications_store';
 export { NotificationsIntentType, NotificationsIntent } from './notifications_intent';
 export { createInitialNotificationsState } from './notifications_state';
-export { NotificationsView } from './notifications_view';
 export { NotificationDropdown } from './components/NotificationDropdown';
 export { NotificationItem } from './components/NotificationItem';
 export { NotificationToast } from './components/NotificationToast';
