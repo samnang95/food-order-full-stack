@@ -62,6 +62,14 @@ export class LocalDB {
     return val === 'true';
   }
 
+  static setBoolean(key, value) {
+    return this.setBool(key, value);
+  }
+
+  static getBoolean(key, defaultValue = false) {
+    return this.getBool(key, defaultValue);
+  }
+
   // --- Number Methods ---
 
   static setNumber(key, value) {

@@ -330,6 +330,16 @@ export function Navbar() {
           {/* Theme Toggle */}
           <ThemeToggle />
 
+          {/* Settings Quick Link */}
+          <Link
+            to={AppRoutes.SETTINGS}
+            className="hidden sm:flex p-2 rounded-xl bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 hover:border-orange-500/40 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 items-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs active:scale-95 shrink-0"
+            title={t('settings.navTooltip', 'Settings & Preferences')}
+            aria-label="Settings"
+          >
+            <span className="text-base leading-none">⚙️</span>
+          </Link>
+
           {/* Mobile Menu Toggle Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -482,9 +492,20 @@ export function Navbar() {
                 {dietaryAlertsCount} {t('dietary.active', 'active')}
               </span>
             ) : (
-              <span className="text-orange-500">⚙️</span>
+              <span className="text-orange-500">➔</span>
             )}
           </button>
+
+          <NavLink
+            to={AppRoutes.SETTINGS}
+            onClick={() => setMobileMenuOpen(false)}
+            className={getMobileNavClass}
+          >
+            <div className="flex items-center space-x-2">
+              <span className="text-lg">⚙️</span>
+              <span>{t('settings.title', 'Settings & Preferences')}</span>
+            </div>
+          </NavLink>
 
           {isAuthenticated ? (
             <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2 px-2">

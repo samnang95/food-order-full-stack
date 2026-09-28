@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation, useTheme } from '../../../core';
 import { useAuth } from '../../auth/use_auth';
 import { useNotifications } from '../../notifications';
+import { AppRoutes } from '../../../routes/app_routes';
 
 export function AppPreferencesCard() {
   const { isKhmer, setLanguage, t } = useTranslation();
@@ -29,18 +31,26 @@ export function AppPreferencesCard() {
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
-      <div className="flex items-center space-x-2.5">
-        <span className="w-8 h-8 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center text-sm font-black">
-          ⚙️
-        </span>
-        <div>
-          <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight">
-            {t('profile.preferences') || 'Preferences & Settings'}
-          </h3>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400">
-            Customize language, theme, notifications, and account sessions
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2.5">
+          <span className="w-8 h-8 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center text-sm font-black">
+            ⚙️
+          </span>
+          <div>
+            <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight">
+              {t('profile.preferences') || 'Preferences & Settings'}
+            </h3>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Customize language, theme, notifications, and account sessions
+            </p>
+          </div>
         </div>
+        <Link
+          to={AppRoutes.SETTINGS}
+          className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline shrink-0"
+        >
+          Open Settings →
+        </Link>
       </div>
 
       <div className="divide-y divide-slate-100 dark:divide-slate-800">

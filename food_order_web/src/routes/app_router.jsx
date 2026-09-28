@@ -100,6 +100,13 @@ export const appRouter = createBrowserRouter([
         },
       },
       {
+        path: 'settings',
+        lazy: async () => {
+          const { SettingsView } = await import('../features/settings/settings_view');
+          return { Component: SettingsView };
+        },
+      },
+      {
         path: '*',
         element: <NotFoundView />,
       },
