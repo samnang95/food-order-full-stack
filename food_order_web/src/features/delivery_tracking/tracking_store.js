@@ -2,6 +2,7 @@ import { useReducer, useCallback, useEffect, useRef } from 'react';
 import { createInitialTrackingState } from './tracking_state';
 import { TrackingIntentType } from './tracking_intent';
 import { container } from '../../core/di/container';
+import { socketService } from '../../core/services/socket_service';
 
 /**
  * Pure Reducer: receives current state and intent, returns new state.
@@ -61,7 +62,7 @@ export function trackingReducer(state, action) {
 
 /**
  * Custom Hook Store: Coordinates MVI flow and side-effects for Delivery Tracking.
- * Includes live simulation of driver movement toward delivery destination.
+ * Integrates real-time Socket.IO room subscriptions with fallback simulation.
  */
 export function useTrackingStore(orderId = null) {
   const [state, dispatch] = useReducer(trackingReducer, undefined, createInitialTrackingState);
@@ -92,7 +93,7 @@ export function useTrackingStore(orderId = null) {
     }
   }, []);
 
-  // Simulate driver movement toward destination
+  // Simulate driver movement toward destination as fallback
   const simulateDriverMovement = useCallback(async (id) => {
     if (!id) return;
     try {
@@ -101,8 +102,8 @@ export function useTrackingStore(orderId = null) {
       if (!session || !session.isLive || !session.deliveryLat || !session.deliveryLng) return;
 
       // Move driver slightly toward destination
-      const moveFactor = 0.08 + Math.random() * 0.04; // 8-12% closer per tick
-      const jitter = () => (Math.random() - 0.5) * 0.0008; // Small random jitter
+      const moveFactor = 0.08 + Math.random() * 0.04;
+      const jitter = () => (Math.random() - 0.5) * 0.0008;
 
       const newLat =
         session.driverLat + (session.deliveryLat - session.driverLat) * moveFactor + jitter();
@@ -118,15 +119,38 @@ export function useTrackingStore(orderId = null) {
     }
   }, []);
 
-  // Auto-load tracking when orderId changes
+  // Auto-load tracking and subscribe to real-time socket room when orderId changes
   useEffect(() => {
-    if (orderId) {
-      loadTracking(orderId);
+    if (!orderId) {
+      dispatch({ type: TrackingIntentType.CLEAR_TRACKING });
+      return;
     }
+
+    loadTracking(orderId);
+
+    // Join real-time socket room for live driver location and status updates
+    socketService.joinOrder(orderId);
+
+    const unsubLocation = socketService.onDriverLocation((data) => {
+      if (data?.orderId === orderId) {
+        loadTracking(orderId);
+      }
+    });
+
+    const unsubStatus = socketService.onOrderStatusChanged((data) => {
+      if (data?.orderId === orderId) {
+        loadTracking(orderId);
+      }
+    });
+
     return () => {
+      socketService.leaveOrder(orderId);
+      unsubLocation?.();
+      unsubStatus?.();
       dispatch({ type: TrackingIntentType.CLEAR_TRACKING });
     };
   }, [orderId, loadTracking]);
+
 
   // Start/stop live simulation when tracking is active
   useEffect(() => {

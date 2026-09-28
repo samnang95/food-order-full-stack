@@ -1,45 +1,84 @@
 import { DeliveryTrackingEntity, TrackingTimelineEvent } from '../../../domain/delivery_tracking';
 
-/**
- * DeliveryTracking Model (Data Layer)
- * Maps API/local data into the domain DeliveryTrackingEntity.
- */
 export class TrackingModel {
   static fromJson(json) {
-    const timeline = Array.isArray(json.timeline)
-      ? json.timeline.map(
+    if (!json) return null;
+    const raw = json.tracking || json;
+    const driver = raw.driver || {};
+    const driverLoc = raw.driverLocation || {};
+    const restLoc = raw.restaurantLocation || {};
+    const delivLoc = raw.deliveryLocation || {};
+
+    const timeline = Array.isArray(raw.timeline)
+      ? raw.timeline.map(
           (e) =>
             new TrackingTimelineEvent({
-              key: e.key,
-              label: e.label,
-              icon: e.icon,
+              key: e.key || (e.title || '').toLowerCase().replace(/\s+/g, '_'),
+              label: e.label || e.title,
+              icon: e.icon || '📍',
+              time: e.time,
               timestamp: e.timestamp ? new Date(e.timestamp) : null,
-              isCompleted: !!e.isCompleted,
-              isCurrent: !!e.isCurrent,
+              isCompleted: e.isCompleted != null ? !!e.isCompleted : !!e.completed,
+              isCurrent: e.isCurrent != null ? !!e.isCurrent : !!e.current,
             })
         )
       : [];
 
     return new DeliveryTrackingEntity({
-      orderId: json.orderId || json.order_id || json._id,
-      status: (json.status || 'pending').toLowerCase(),
-      driverName: json.driverName || json.driver_name || null,
-      driverPhone: json.driverPhone || json.driver_phone || null,
-      driverAvatar: json.driverAvatar || json.driver_avatar || null,
-      driverRating: json.driverRating != null ? Number(json.driverRating) : null,
-      vehiclePlate: json.vehiclePlate || json.vehicle_plate || null,
-      vehicleType: json.vehicleType || json.vehicle_type || null,
-      driverLat: json.driverLat != null ? Number(json.driverLat) : null,
-      driverLng: json.driverLng != null ? Number(json.driverLng) : null,
-      restaurantLat: json.restaurantLat != null ? Number(json.restaurantLat) : null,
-      restaurantLng: json.restaurantLng != null ? Number(json.restaurantLng) : null,
-      deliveryLat: json.deliveryLat != null ? Number(json.deliveryLat) : null,
-      deliveryLng: json.deliveryLng != null ? Number(json.deliveryLng) : null,
-      estimatedMinutes: json.estimatedMinutes != null ? Number(json.estimatedMinutes) : null,
-      distanceKm: json.distanceKm != null ? Number(json.distanceKm) : null,
+      orderId: raw.orderId || raw.order_id || raw._id,
+      status: (raw.status || 'pending').toLowerCase(),
+      driverName: raw.driverName || driver.name || null,
+      driverPhone: raw.driverPhone || driver.phone || null,
+      driverAvatar: raw.driverAvatar || driver.avatar || null,
+      driverRating:
+        raw.driverRating != null
+          ? Number(raw.driverRating)
+          : driver.rating != null
+          ? Number(driver.rating)
+          : null,
+      vehiclePlate: raw.vehiclePlate || driver.vehiclePlate || null,
+      vehicleType: raw.vehicleType || driver.vehicleType || null,
+      driverLat:
+        raw.driverLat != null
+          ? Number(raw.driverLat)
+          : driverLoc.lat != null
+          ? Number(driverLoc.lat)
+          : null,
+      driverLng:
+        raw.driverLng != null
+          ? Number(raw.driverLng)
+          : driverLoc.lng != null
+          ? Number(driverLoc.lng)
+          : null,
+      restaurantLat:
+        raw.restaurantLat != null
+          ? Number(raw.restaurantLat)
+          : restLoc.lat != null
+          ? Number(restLoc.lat)
+          : null,
+      restaurantLng:
+        raw.restaurantLng != null
+          ? Number(raw.restaurantLng)
+          : restLoc.lng != null
+          ? Number(restLoc.lng)
+          : null,
+      deliveryLat:
+        raw.deliveryLat != null
+          ? Number(raw.deliveryLat)
+          : delivLoc.lat != null
+          ? Number(delivLoc.lat)
+          : null,
+      deliveryLng:
+        raw.deliveryLng != null
+          ? Number(raw.deliveryLng)
+          : delivLoc.lng != null
+          ? Number(delivLoc.lng)
+          : null,
+      estimatedMinutes: raw.estimatedMinutes != null ? Number(raw.estimatedMinutes) : null,
+      distanceKm: raw.distanceKm != null ? Number(raw.distanceKm) : null,
       timeline,
-      createdAt: json.createdAt ? new Date(json.createdAt) : null,
-      updatedAt: json.updatedAt ? new Date(json.updatedAt) : null,
+      createdAt: raw.createdAt ? new Date(raw.createdAt) : null,
+      updatedAt: raw.updatedAt ? new Date(raw.updatedAt) : null,
     });
   }
 
@@ -61,9 +100,14 @@ export class TrackingModel {
       deliveryLng: entity.deliveryLng,
       estimatedMinutes: entity.estimatedMinutes,
       distanceKm: entity.distanceKm,
-      timeline: entity.timeline,
-      createdAt: entity.createdAt?.toISOString() || null,
-      updatedAt: entity.updatedAt?.toISOString() || null,
+      timeline: entity.timeline.map((e) => ({
+        key: e.key,
+        label: e.label,
+        icon: e.icon,
+        timestamp: e.timestamp?.toISOString() || null,
+        isCompleted: e.isCompleted,
+        isCurrent: e.isCurrent,
+      })),
     };
   }
 }

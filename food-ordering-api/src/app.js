@@ -38,6 +38,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const groupOrderRoutes = require('./routes/groupOrderRoutes');
 const driverTipRoutes = require('./routes/driverTipRoutes');
 const dietaryRoutes = require('./routes/dietaryRoutes');
+const trackingRoutes = require('./routes/trackingRoutes');
 
 // Public Auth Routes
 app.use('/auth', authRoutes);
@@ -71,6 +72,9 @@ app.use('/driver-tips', driverTipRoutes);
 
 // Dietary & Allergen Profile Routes
 app.use('/dietary', dietaryRoutes);
+
+// Live Delivery Tracking Routes
+app.use('/tracking', trackingRoutes);
 
 
 

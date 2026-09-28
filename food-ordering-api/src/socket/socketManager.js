@@ -155,6 +155,38 @@ const initSocket = (httpServer) => {
       }
     });
 
+    // --- Live Delivery GPS & Tracking Status Events ---
+    socket.on('tracking:location', (payload) => {
+      const { orderId, location, heading = 0, speed = 25, estimatedMinutes } = payload || {};
+      if (orderId && location) {
+        const updatePayload = {
+          orderId,
+          location,
+          heading,
+          speed,
+          estimatedMinutes,
+          timestamp: new Date().toISOString(),
+        };
+        io.to(`order_${orderId}`).emit('tracking:location_update', updatePayload);
+        io.to(`order_${orderId}`).emit('driver_location', updatePayload);
+      }
+    });
+
+    socket.on('tracking:status', (payload) => {
+      const { orderId, status, stepIndex, note } = payload || {};
+      if (orderId && status) {
+        const updatePayload = {
+          orderId,
+          status,
+          stepIndex,
+          note,
+          timestamp: new Date().toISOString(),
+        };
+        io.to(`order_${orderId}`).emit('tracking:status_update', updatePayload);
+        io.to(`order_${orderId}`).emit('order_status_changed', updatePayload);
+      }
+    });
+
     socket.on('disconnect', () => {
       console.log(`❌ [Socket] Client disconnected: ${socket.id}`);
     });
