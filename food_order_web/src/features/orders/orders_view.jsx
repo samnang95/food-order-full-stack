@@ -45,6 +45,8 @@ export function OrdersView() {
     copiedRef,
   } = useInvoiceStore();
 
+  const selectedOrder = orders.find((o) => o.id === selectedOrderId) || orders[0];
+
   const {
     driver: chatDriver,
     messages: chatMessages,
@@ -140,8 +142,6 @@ export function OrdersView() {
       return () => socketService.leaveOrder(selectedOrderId);
     }
   }, [selectedOrderId]);
-
-  const selectedOrder = orders.find((o) => o.id === selectedOrderId) || orders[0];
 
   const getStepIndex = (status) => {
     const s = (status || '').toLowerCase();
