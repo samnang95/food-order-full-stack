@@ -3,6 +3,7 @@ import { initialChatState } from './chat_state';
 import { ChatIntentType, ChatIntent } from './chat_intent';
 import { container } from '../../core/di/container';
 import { socketService } from '../../core/services/socket_service';
+import { soundService } from '../../core';
 
 export function chatReducer(state, action) {
   switch (action.type) {
@@ -201,6 +202,9 @@ export function useDriverChatStore(order) {
     const unsubChat = socketService.onChatMessage((msg) => {
       if (msg.orderId === orderId) {
         dispatch(ChatIntent.receiveMessage(msg));
+        if (msg.sender === 'driver') {
+          soundService.playBell();
+        }
       }
     });
 
@@ -244,6 +248,7 @@ export function useDriverChatStore(order) {
 
         const created = await container.sendDriverMessageUseCase.execute(orderId, payload);
         dispatch(ChatIntent.sendMessageSuccess(created));
+        soundService.playPop();
       } catch (err) {
         console.error('Failed to send driver message:', err);
         dispatch(ChatIntent.sendMessageFailure(err.message));

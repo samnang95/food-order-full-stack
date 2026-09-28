@@ -3,6 +3,7 @@ import { createInitialTrackingState } from './tracking_state';
 import { TrackingIntentType } from './tracking_intent';
 import { container } from '../../core/di/container';
 import { socketService } from '../../core/services/socket_service';
+import { soundService } from '../../core';
 
 /**
  * Pure Reducer: receives current state and intent, returns new state.
@@ -139,6 +140,7 @@ export function useTrackingStore(orderId = null) {
 
     const unsubStatus = socketService.onOrderStatusChanged((data) => {
       if (data?.orderId === orderId) {
+        soundService.playBell();
         loadTracking(orderId);
       }
     });

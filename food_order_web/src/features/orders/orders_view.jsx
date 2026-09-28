@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { container } from '../../core/di/container';
 import { socketService } from '../../core/services/socket_service';
-import { formatUsd, formatKhr, useTranslation } from '../../core';
+import { formatUsd, formatKhr, useTranslation, soundService } from '../../core';
 import { AppRoutes } from '../../routes/app_routes';
 import { DeliveryMapCard } from './components';
 import { OrderRatingModal, useReviews } from '../reviews';
@@ -112,12 +112,14 @@ export function OrdersView() {
   // Socket listener for live status updates & notifications
   useEffect(() => {
     const unsubStatus = socketService.onOrderStatusChanged(({ orderId, status }) => {
+      soundService.playBell();
       setOrders((prev) =>
         prev.map((o) => (o.id === orderId ? { ...o, status: status.toLowerCase() } : o))
       );
     });
 
     const unsubNotif = socketService.onPushNotification((notif) => {
+      soundService.playBell();
       setNotification(notif);
       setTimeout(() => setNotification(null), 5000);
       refetchOrders();
@@ -166,6 +168,7 @@ export function OrdersView() {
     setSimulating(true);
     try {
       await orderRepo.updateOrderStatus(selectedOrder.id, nextStatus);
+      soundService.playBell();
       await refetchOrders();
     } catch (err) {
       console.error('Status transition error:', err);

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../use_cart';
 import { useAuth } from '../../auth/use_auth';
 import { container } from '../../../core/di/container';
-import { formatUsd, formatKhr, useTranslation } from '../../../core';
+import { formatUsd, formatKhr, useTranslation, soundService } from '../../../core';
 import { AppRoutes } from '../../../routes/app_routes';
 import { KhqrPaymentModal } from '../../checkout/components/KhqrPaymentModal';
 import { useSavedAddresses } from '../../profile/use_saved_addresses';
@@ -99,6 +99,7 @@ export function CheckoutModal() {
       const created = await orderRepo.createOrder(orderPayload);
 
       setPlacedOrder(created);
+      soundService.playSuccess();
       clearCart();
       setShowKhqrModal(false);
     } catch (err) {

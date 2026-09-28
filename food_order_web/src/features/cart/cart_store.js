@@ -1,7 +1,7 @@
 import { useReducer, useEffect, useCallback } from 'react';
 import { createInitialCartState, computeCartFinancials } from './cart_state';
 import { CartIntentType } from './cart_intent';
-import { LocalDB, DBKeys } from '../../core';
+import { LocalDB, DBKeys, soundService } from '../../core';
 import { container } from '../../core/di/container';
 
 /**
@@ -205,6 +205,7 @@ export function useCartStore() {
             type: CartIntentType.SET_APPLIED_VOUCHER,
             payload: res,
           });
+          soundService.playSuccess();
           return { success: true, message: res.message || `Voucher ${res.code} applied!` };
         } else {
           return { success: false, message: res.message || 'Invalid or expired voucher' };
@@ -219,6 +220,12 @@ export function useCartStore() {
   const onIntent = useCallback(
     (intent) => {
       switch (intent.type) {
+        case CartIntentType.ADD_ITEM:
+        case CartIntentType.ADD_ITEMS_BATCH:
+          soundService.playPop();
+          dispatch(intent);
+          break;
+
         case CartIntentType.APPLY_VOUCHER:
           return applyVoucher(intent.payload);
 

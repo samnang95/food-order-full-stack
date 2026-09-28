@@ -3,6 +3,7 @@ import { initialRewardsState } from './rewards_state';
 import { RewardsIntentType, RewardsIntent } from './rewards_intent';
 import { container } from '../../core/di/container';
 import { RewardTierEntity } from '../../domain/rewards/entities/reward_tier_entity';
+import { soundService } from '../../core';
 
 export function rewardsReducer(state, action) {
   switch (action.type) {
@@ -162,6 +163,7 @@ export function useRewardsStore() {
       dispatch(RewardsIntent.claimCheckInStart());
       const updated = await container.claimDailyCheckInUseCase.execute();
       dispatch(RewardsIntent.claimCheckInSuccess(updated));
+      soundService.playSuccess();
     } catch (err) {
       console.error('Failed to claim daily check-in:', err);
       dispatch(RewardsIntent.claimCheckInFailure(err.message));
@@ -174,6 +176,7 @@ export function useRewardsStore() {
       dispatch(RewardsIntent.redeemRewardStart());
       const result = await container.redeemRewardUseCase.execute(reward);
       dispatch(RewardsIntent.redeemRewardSuccess(result));
+      soundService.playSuccess();
       return result.voucher;
     } catch (err) {
       console.error('Failed to redeem reward:', err);
@@ -188,6 +191,7 @@ export function useRewardsStore() {
       const updated = await container.earnPointsUseCase.execute(orderId, amount);
       if (updated) {
         dispatch(RewardsIntent.earnPointsSuccess(updated));
+        soundService.playPop();
       }
     } catch (err) {
       console.error('Failed to award points from order:', err);

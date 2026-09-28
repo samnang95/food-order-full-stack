@@ -2,6 +2,7 @@ import { useReducer, useCallback } from 'react';
 import { createInitialCheckoutState, buildFullDeliveryAddress } from './checkout_state';
 import { CheckoutIntentType, CheckoutIntent } from './checkout_intent';
 import { container } from '../../core/di/container';
+import { soundService } from '../../core';
 
 /**
  * Pure Reducer: receives current checkout state and intent, returns new state
@@ -133,6 +134,7 @@ export function useCheckoutStore(user, cartProps = {}) {
         await ensureCustomerSession?.();
         const created = await container.createOrderUseCase.execute(orderPayload);
         dispatch(CheckoutIntent.setPlacedOrder(created));
+        soundService.playSuccess();
         clearCart?.();
         dispatch(CheckoutIntent.setShowKhqrModal(false));
         return created;
@@ -145,6 +147,7 @@ export function useCheckoutStore(user, cartProps = {}) {
             await ensureCustomerSession?.(true);
             const retried = await container.createOrderUseCase.execute(orderPayload);
             dispatch(CheckoutIntent.setPlacedOrder(retried));
+            soundService.playSuccess();
             clearCart?.();
             dispatch(CheckoutIntent.setShowKhqrModal(false));
             return retried;
