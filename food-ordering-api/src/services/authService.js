@@ -34,12 +34,12 @@ const authService = {
     const token = jwt.sign(
       { id: newUser._id, username: newUser.username, role: newUser.role },
       JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '30d' }
     );
     const refreshToken = jwt.sign(
       { id: newUser._id, username: newUser.username, role: newUser.role },
       REFRESH_TOKEN_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '90d' }
     );
 
     // Return user and tokens
@@ -67,13 +67,13 @@ const authService = {
     const token = jwt.sign(
       { id: user._id, username: user.username, role: user.role },
       JWT_SECRET,
-      { expiresIn: '1h' } // Token expires in 1 hour
+      { expiresIn: '30d' } // Token expires in 30 days
     );
     
     const refreshToken = jwt.sign(
       { id: user._id, username: user.username, role: user.role },
       REFRESH_TOKEN_SECRET,
-      { expiresIn: '7d' } // Refresh token expires in 7 days
+      { expiresIn: '90d' } // Refresh token expires in 90 days
     );
     
     return { token, refreshToken, user: { id: user._id, username: user.username, role: user.role } };
@@ -183,13 +183,13 @@ const authService = {
     const token = jwt.sign(
       { id: user._id, username: user.username, role: user.role },
       JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '30d' }
     );
 
     const refreshToken = jwt.sign(
       { id: user._id, username: user.username, role: user.role },
       REFRESH_TOKEN_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '90d' }
     );
 
     return {
@@ -213,13 +213,13 @@ const authService = {
       const token = jwt.sign(
         { id: decoded.id, username: decoded.username, role: decoded.role },
         JWT_SECRET,
-        { expiresIn: '1h' }
+        { expiresIn: '30d' }
       );
       
       const newRefreshToken = jwt.sign(
         { id: decoded.id, username: decoded.username, role: decoded.role },
         REFRESH_TOKEN_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: '90d' }
       );
       
       return { token, refreshToken: newRefreshToken };

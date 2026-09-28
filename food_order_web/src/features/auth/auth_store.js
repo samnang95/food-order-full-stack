@@ -156,8 +156,10 @@ export function useAuthStore() {
     [saveAuthSession]
   );
 
-  const ensureCustomerSession = useCallback(async () => {
-    if (state.token && state.user) return { token: state.token, user: state.user };
+  const ensureCustomerSession = useCallback(async (forceRefresh = false) => {
+    if (!forceRefresh && state.token && state.user && state.token !== 'token_phnom_penh_verified') {
+      return { token: state.token, user: state.user };
+    }
 
     try {
       const guestUsername = `guest_${Math.floor(1000 + Math.random() * 9000)}`;
@@ -173,13 +175,13 @@ export function useAuthStore() {
         saveAuthSession(res.token, res.user);
         return res;
       }
-    } catch {
-      // Fallback local session
+    } catch (err) {
+      console.warn('[AuthStore] Guest registration error, using fallback:', err);
     }
 
     const fallbackUser = {
-      id: 'cust_phnom_penh_101',
-      name: 'Phnom Penh Foodie',
+      id: '6ab8774eabb2e4cd2315bb6b',
+      name: 'Samnang',
       phone: '+855 12 888 999',
       address: 'Street 240, Daun Penh, Phnom Penh',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',

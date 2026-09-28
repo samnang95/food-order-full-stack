@@ -138,6 +138,21 @@ export function useCheckoutStore(user, cartProps = {}) {
         return created;
       } catch (err) {
         console.error('[CheckoutStore] Order placement error:', err);
+
+        // Auto-heal on expired or invalid token
+        if (err.message && err.message.toLowerCase().includes('token failed')) {
+          try {
+            await ensureCustomerSession?.(true);
+            const retried = await container.createOrderUseCase.execute(orderPayload);
+            dispatch(CheckoutIntent.setPlacedOrder(retried));
+            clearCart?.();
+            dispatch(CheckoutIntent.setShowKhqrModal(false));
+            return retried;
+          } catch (retryErr) {
+            console.error('[CheckoutStore] Auto-heal retry error:', retryErr);
+          }
+        }
+
         dispatch(
           CheckoutIntent.setErrorMsg(
             err.message || 'We could not place your order. Please check your details and try again.'
