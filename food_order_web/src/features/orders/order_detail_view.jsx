@@ -6,6 +6,7 @@ import { formatUsd, formatKhr, useTranslation, AppAssets, soundService } from '.
 import { AppRoutes, getTrackingRoute } from '../../routes/app_routes';
 import { DeliveryMapCard } from './components';
 import { OrderRatingModal, useReviews } from '../reviews';
+import { OrderIssueReportModal, useSupport } from '../support';
 import { InvoiceModal, useInvoiceStore } from '../invoices';
 import {
   DriverChatButton,
@@ -33,8 +34,10 @@ export function OrderDetailView() {
   const [copied, setCopied] = useState(false);
   const [showMap, setShowMap] = useState(true);
   const [showRatingModal, setShowRatingModal] = useState(false);
+  const [showIssueModal, setShowIssueModal] = useState(false);
 
   const { getReviewForOrder } = useReviews();
+  const { submitTicket } = useSupport();
   const existingReview = id ? getReviewForOrder(id) : null;
 
   const {
@@ -777,6 +780,16 @@ export function OrderDetailView() {
 
                 {/* Instant 1-Click Quick Reorder Full-Width CTA */}
                 <QuickReorderButton order={order} size="md" />
+
+                {/* Report Order Issue CTA */}
+                <button
+                  type="button"
+                  onClick={() => setShowIssueModal(true)}
+                  className="w-full py-2.5 px-4 rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50/50 hover:bg-red-50 dark:bg-red-950/20 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-bold transition-all flex items-center justify-center space-x-1.5 shadow-2xs cursor-pointer"
+                >
+                  <span>🚨</span>
+                  <span>Report an Issue with this Order</span>
+                </button>
               </div>
             </div>
           </div>
@@ -798,6 +811,14 @@ export function OrderDetailView() {
         isOpen={showRatingModal}
         onClose={() => setShowRatingModal(false)}
         order={order}
+      />
+
+      {/* Order Issue Reporting Modal */}
+      <OrderIssueReportModal
+        isOpen={showIssueModal}
+        onClose={() => setShowIssueModal(false)}
+        initialOrder={order}
+        onSubmitted={submitTicket}
       />
 
       {/* Official Tax Invoice & Receipt Modal */}

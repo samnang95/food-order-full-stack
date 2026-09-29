@@ -340,6 +340,16 @@ export function Navbar() {
             <span className="text-base leading-none">⚙️</span>
           </Link>
 
+          {/* Help Center Quick Link */}
+          <Link
+            to={AppRoutes.HELP}
+            className="hidden sm:flex p-2 rounded-xl bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 hover:border-orange-500/40 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 items-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs active:scale-95 shrink-0"
+            title={t('help.navTooltip', 'Help Center & Support')}
+            aria-label="Help Center"
+          >
+            <span className="text-base leading-none">❓</span>
+          </Link>
+
           {/* Mobile Menu Toggle Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -501,6 +511,17 @@ export function Navbar() {
             <div className="flex items-center space-x-2">
               <span className="text-lg">⚙️</span>
               <span>{t('settings.title', 'Settings & Preferences')}</span>
+            </div>
+          </NavLink>
+
+          <NavLink
+            to={AppRoutes.HELP}
+            onClick={() => setMobileMenuOpen(false)}
+            className={getMobileNavClass}
+          >
+            <div className="flex items-center space-x-2">
+              <span className="text-lg">❓</span>
+              <span>{t('help.title', 'Help & Customer Care')}</span>
             </div>
           </NavLink>
 

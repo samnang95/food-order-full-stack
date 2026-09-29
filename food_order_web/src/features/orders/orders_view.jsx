@@ -6,6 +6,7 @@ import { formatUsd, formatKhr, useTranslation, soundService } from '../../core';
 import { AppRoutes } from '../../routes/app_routes';
 import { DeliveryMapCard } from './components';
 import { OrderRatingModal, useReviews } from '../reviews';
+import { OrderIssueReportModal, useSupport } from '../support';
 import { InvoiceModal, useInvoiceStore } from '../invoices';
 import {
   DriverChatButton,
@@ -32,8 +33,11 @@ export function OrdersView() {
   const [simulating, setSimulating] = useState(false);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [ratingTargetOrder, setRatingTargetOrder] = useState(null);
+  const [showIssueModal, setShowIssueModal] = useState(false);
+  const [issueTargetOrder, setIssueTargetOrder] = useState(null);
 
   const { getReviewForOrder, hasReviewedOrder } = useReviews();
+  const { submitTicket } = useSupport();
 
   const {
     invoice,
@@ -394,6 +398,19 @@ export function OrdersView() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
+                          setIssueTargetOrder(order);
+                          setShowIssueModal(true);
+                        }}
+                        className="text-[10px] font-bold text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/40 px-2 py-0.5 rounded-md transition-all cursor-pointer"
+                        title="Report issue or missing item"
+                      >
+                        <span>🚨</span>
+                        <span>Help</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
                           openInvoice(order);
                         }}
                         className="text-[10px] font-bold text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 flex items-center space-x-1 bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/60 px-2 py-0.5 rounded-md hover:scale-102 transition-all cursor-pointer"
@@ -697,6 +714,17 @@ export function OrdersView() {
           setRatingTargetOrder(null);
         }}
         order={ratingTargetOrder || selectedOrder}
+      />
+
+      {/* Order Issue & Problem Reporting Modal */}
+      <OrderIssueReportModal
+        isOpen={showIssueModal}
+        onClose={() => {
+          setShowIssueModal(false);
+          setIssueTargetOrder(null);
+        }}
+        initialOrder={issueTargetOrder || selectedOrder}
+        onSubmitted={submitTicket}
       />
 
       {/* Official Tax Invoice & Receipt Modal */}

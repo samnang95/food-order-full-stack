@@ -114,6 +114,13 @@ export const appRouter = createBrowserRouter([
         },
       },
       {
+        path: 'help',
+        lazy: async () => {
+          const { HelpView } = await import('../features/support/help_view');
+          return { Component: HelpView };
+        },
+      },
+      {
         path: '*',
         element: <NotFoundView />,
       },

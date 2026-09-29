@@ -34,6 +34,7 @@ export * from './dietary';
 export * from './driver_tip';
 export * from './delivery_tracking';
 export * from './account';
+export * from './support';
 
 // Default Singleton Repositories (Service Locator / DI)
 export const orderRepository = new OrderRepositoryImpl();

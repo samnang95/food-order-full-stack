@@ -643,6 +643,23 @@
     "expiresIn": "Expires in",
     "tipRider": "Tip Rider",
     "tipRiderTooltip": "Tip & Compliment Rider"
+  },
+  "help": {
+    "title": "Help & Customer Care",
+    "navTooltip": "Help Center & Support",
+    "heroTitle": "How can we help you today?",
+    "heroSubtitle": "Find answers to delivery questions, track courier routes, or report an issue with your meal for instant resolution.",
+    "reportIssue": "Report Order Issue",
+    "reportIssueSubtitle": "Missing item, cold food, or spill",
+    "myTickets": "My Tickets",
+    "myTicketsSubtitle": "View active & resolved reports",
+    "hotline": "+855 23 999 888",
+    "hotlineSubtitle": "Hotline 8:00 AM – 11:30 PM",
+    "telegram": "Telegram Chat",
+    "telegramSubtitle": "@BiteCraftSupport",
+    "faqTab": "Help Articles & FAQs",
+    "ticketsTab": "My Support Tickets",
+    "searchPlaceholder": "Search FAQs (e.g. refund, missing item, delivery zone, ABA KHQR)..."
   }
 }
 

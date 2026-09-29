@@ -105,6 +105,12 @@ export function MainLayout() {
                     <span>BitePoints VIP Rewards</span>
                   </Link>
                 </li>
+                <li>
+                  <Link to={AppRoutes.HELP} className="hover:text-orange-500 transition-colors flex items-center space-x-1">
+                    <span>❓</span>
+                    <span>Help Center & Issue Reporting</span>
+                  </Link>
+                </li>
               </ul>
             </div>
 
