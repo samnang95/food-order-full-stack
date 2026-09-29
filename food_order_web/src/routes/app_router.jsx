@@ -107,6 +107,13 @@ export const appRouter = createBrowserRouter([
         },
       },
       {
+        path: 'rewards',
+        lazy: async () => {
+          const { RewardsView } = await import('../features/rewards/rewards_view');
+          return { Component: RewardsView };
+        },
+      },
+      {
         path: '*',
         element: <NotFoundView />,
       },

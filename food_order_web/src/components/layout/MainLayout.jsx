@@ -99,6 +99,12 @@ export function MainLayout() {
                     Notifications & Alerts
                   </Link>
                 </li>
+                <li>
+                  <Link to={AppRoutes.REWARDS} className="hover:text-orange-500 transition-colors flex items-center space-x-1">
+                    <span>🪙</span>
+                    <span>BitePoints VIP Rewards</span>
+                  </Link>
+                </li>
               </ul>
             </div>
 

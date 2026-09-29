@@ -13,6 +13,7 @@ export const AppRoutes = Object.freeze({
   NOTIFICATIONS: '/notifications',
   TRACKING: '/tracking/:id',
   SETTINGS: '/settings',
+  REWARDS: '/rewards',
   NOT_FOUND: '*',
 });
 

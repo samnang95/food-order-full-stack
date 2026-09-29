@@ -19,7 +19,7 @@ export function Navbar() {
   const { isAuthenticated, user, openAuthModal, logout } = useAuth();
   const { favoritesCount } = useFavorites();
   const { unreadCount, toggleDropdown } = useNotifications();
-  const { currentTier, pointsBalance, openRewardsModal } = useRewards();
+  const { currentTier, pointsBalance } = useRewards();
   const { isGroupOrderActive, groupOrder, openGroupModal } = useGroupOrder();
   const { preferences, openPreferencesModal } = useDietary();
   const dietaryAlertsCount = (preferences?.activeDiets?.length || 0) + (preferences?.allergensToAvoid?.length || 0);
@@ -435,12 +435,9 @@ export function Navbar() {
           </NavLink>
 
           {/* Mobile BitePoints Banner */}
-          <button
-            type="button"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              openRewardsModal();
-            }}
+          <Link
+            to={AppRoutes.REWARDS}
+            onClick={() => setMobileMenuOpen(false)}
             className="w-full flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-transparent border border-amber-500/30 text-amber-800 dark:text-amber-300 font-bold text-xs"
           >
             <div className="flex items-center space-x-2">
@@ -450,7 +447,7 @@ export function Navbar() {
             <span className="font-mono text-orange-600 dark:text-orange-400 font-black">
               {pointsBalance} pts →
             </span>
-          </button>
+          </Link>
 
           {/* Mobile Group Order Button */}
           <button

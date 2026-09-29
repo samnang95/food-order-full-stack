@@ -9,7 +9,7 @@ import { AppRoutes } from '../../../routes/app_routes';
 export function ProfileStatsCard() {
   const { t } = useTranslation();
   const { favoritesCount } = useFavorites();
-  const { pointsBalance, currentTier, openRewardsModal } = useRewards();
+  const { pointsBalance, currentTier } = useRewards();
   const [ordersCount, setOrdersCount] = useState(0);
 
   useEffect(() => {
@@ -29,11 +29,6 @@ export function ProfileStatsCard() {
       isMounted = false;
     };
   }, []);
-
-  const handleOpenRewards = () => {
-    soundService.playPop();
-    openRewardsModal();
-  };
 
   const handleScrollToInsights = () => {
     soundService.playPop();
@@ -65,10 +60,10 @@ export function ProfileStatsCard() {
         </span>
       </Link>
 
-      {/* 2. Rewards Points (Interactive Modal Trigger) */}
-      <button
-        type="button"
-        onClick={handleOpenRewards}
+      {/* 2. Rewards Points (Link to Dedicated /rewards Hub) */}
+      <Link
+        to={AppRoutes.REWARDS}
+        onClick={() => soundService.playPop()}
         className="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-amber-500/50 hover:shadow-md transition-all text-center flex flex-col items-center justify-center relative overflow-hidden group cursor-pointer"
       >
         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl sm:text-2xl shadow-xs group-hover:scale-110 transition-transform">
@@ -83,7 +78,7 @@ export function ProfileStatsCard() {
         <span className="text-[9px] font-black uppercase text-amber-600 dark:text-amber-400 mt-0.5">
           {tierName}
         </span>
-      </button>
+      </Link>
 
       {/* 3. Favorites */}
       <Link
