@@ -59,6 +59,12 @@ class SocketService {
     return () => this.socket?.off('chat:typing', callback);
   }
 
+  onReviewCreated(callback) {
+    if (!this.socket) this.connect();
+    this.socket.on('review:created', callback);
+    return () => this.socket?.off('review:created', callback);
+  }
+
   sendChatMessage(payload) {
     if (!this.socket) this.connect();
     this.socket.emit('chat:message', payload);

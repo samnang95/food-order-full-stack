@@ -20,6 +20,7 @@ export const SocketEvents = Object.freeze({
   PUSH_NOTIFICATION: 'push_notification',
   JOIN_ORDER: 'join_order',
   LEAVE_ORDER: 'leave_order',
+  REVIEW_CREATED: 'review:created',
 });
 
 export const AppRoutes = Object.freeze({

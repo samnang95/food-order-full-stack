@@ -2,7 +2,7 @@ import { useReducer, useEffect, useCallback } from 'react';
 import { createInitialReviewsState, computeReviewStats } from './reviews_state';
 import { ReviewsIntentType } from './reviews_intent';
 import { container } from '../../core/di/container';
-import { LocalDB, DBKeys } from '../../core';
+import { LocalDB, DBKeys, socketService } from '../../core';
 import { ReviewModel } from '../../data/reviews/models/review_model';
 
 /**
@@ -145,17 +145,31 @@ export function useReviewsStore() {
     [fetchReviews, submitReview]
   );
 
-  // Synchronize across tabs and local storage updates
+  // Fetch reviews on mount & synchronize across tabs, local storage, and real-time socket events
   useEffect(() => {
-    const unsub = LocalDB.addListener(DBKeys.ORDER_REVIEWS, (updated) => {
+    fetchReviews();
+
+    const unsubLocal = LocalDB.addListener(DBKeys.ORDER_REVIEWS, (updated) => {
       if (Array.isArray(updated)) {
         const parsed = updated.map((r) => ReviewModel.fromJson(r));
         dispatch({ type: ReviewsIntentType.REVIEWS_UPDATED, payload: parsed });
       }
     });
 
-    return () => unsub?.();
-  }, []);
+    const unsubSocket = socketService.onReviewCreated?.((reviewData) => {
+      if (reviewData) {
+        const parsed = ReviewModel.fromJson(reviewData);
+        if (parsed) {
+          dispatch({ type: ReviewsIntentType.SUBMIT_SUCCESS, payload: parsed });
+        }
+      }
+    });
+
+    return () => {
+      unsubLocal?.();
+      unsubSocket?.();
+    };
+  }, [fetchReviews]);
 
   // Helper query selectors
   const getReviewForOrder = useCallback(
@@ -175,9 +189,15 @@ export function useReviewsStore() {
   );
 
   const getReviewsForFood = useCallback(
-    (foodId) => {
-      if (!foodId) return state.reviews;
-      return state.reviews.filter((r) => r.foodId === foodId || !r.foodId);
+    (foodId, foodName) => {
+      if (!foodId && !foodName) return state.reviews;
+      const strId = foodId ? String(foodId) : '';
+      const strName = foodName ? String(foodName).toLowerCase() : '';
+      return state.reviews.filter((r) => {
+        if (strId && (r.foodId === strId || String(r.foodId) === strId)) return true;
+        if (strName && r.foodName && r.foodName.toLowerCase() === strName) return true;
+        return false;
+      });
     },
     [state.reviews]
   );

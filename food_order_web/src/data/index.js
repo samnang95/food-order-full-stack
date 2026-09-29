@@ -18,11 +18,9 @@ import { TrackingLocalDataSource } from './delivery_tracking/datasources/trackin
 export * from './orders/models/order_model';
 export * from './orders/datasources/order_remote_datasource';
 export * from './orders/repositories/order_repository_impl';
-
 export * from './foods/models/food_model';
 export * from './foods/datasources/food_remote_datasource';
 export * from './foods/repositories/food_repository_impl';
-
 export * from './vouchers/models/voucher_model';
 export * from './vouchers/datasources/voucher_remote_datasource';
 export * from './vouchers/repositories/voucher_repository_impl';
@@ -35,6 +33,7 @@ export * from './group_order';
 export * from './dietary';
 export * from './driver_tip';
 export * from './delivery_tracking';
+export * from './account';
 
 // Default Singleton Repositories (Service Locator / DI)
 export const orderRepository = new OrderRepositoryImpl();

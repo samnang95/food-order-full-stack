@@ -16,7 +16,11 @@ export function FoodDetailModal({ food, onClose }) {
   const [notes, setNotes] = useState('');
   const [added, setAdded] = useState(false);
 
-  const foodReviews = food ? getReviewsForFood(food.id) : [];
+  const targetFoodId = food?._id || food?.id;
+  const foodReviews = food ? getReviewsForFood(targetFoodId, food?.name) : [];
+  const avgRating = foodReviews.length > 0
+    ? (foodReviews.reduce((sum, r) => sum + (Number(r.overallRating) || 5), 0) / foodReviews.length).toFixed(1)
+    : (food?.rating ? Number(food.rating).toFixed(1) : '5.0');
 
   if (!food) return null;
 
@@ -70,7 +74,7 @@ export function FoodDetailModal({ food, onClose }) {
             </span>
             <div className="flex items-center space-x-1.5 bg-black/40 backdrop-blur-md px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold">
               <span>⭐</span>
-              <span>4.9 (120+ reviews)</span>
+              <span>{avgRating} ({foodReviews.length > 0 ? `${foodReviews.length} ${foodReviews.length === 1 ? 'review' : 'reviews'}` : 'New'})</span>
             </div>
           </div>
         </div>
@@ -121,7 +125,7 @@ export function FoodDetailModal({ food, onClose }) {
                   {t('reviews.reviewsTitle')}
                 </span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400">
-                  ★ {food.rating || 4.9}
+                  ★ {avgRating}
                 </span>
               </div>
               <span className="text-[11px] text-slate-400">
