@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { formatUsd } from '../../core';
 import { AppRoutes, getOrderDetailRoute } from '../../routes/app_routes';
@@ -8,11 +8,9 @@ import { LiveEtaBanner } from './components/LiveEtaBanner';
 import { TrackingMapView } from './components/TrackingMapView';
 import { TrackingTimeline } from './components/TrackingTimeline';
 import { DriverInfoCard } from './components/DriverInfoCard';
+import { DriverChatButton, DriverChatDrawer, useDriverChatStore } from '../chat';
+import { DeliveryInstructionsCard } from '../chat/components/DeliveryInstructionsCard';
 
-/**
- * TrackingView — Full-page delivery tracking experience.
- * Shows live map, driver info, timeline, and ETA for an active order.
- */
 export function TrackingView() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -28,11 +26,43 @@ export function TrackingView() {
     loadTracking,
   } = useTrackingStore(id);
 
-  // Load the order data for context
+  const orderNumber = order?.orderNumber || `#${(id || '').slice(-6).toUpperCase()}`;
+
+  const chatOrder = useMemo(() => {
+    if (!order && !tracking) return null;
+    const base = order ? { ...order } : { id, orderNumber };
+    if (tracking) {
+      base.driver = {
+        name: tracking.driverName || 'Sok Dara',
+        phone: tracking.driverPhone || '+85512889900',
+        avatar: tracking.driverAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120',
+        rating: tracking.driverRating || 4.9,
+        plate: tracking.vehiclePlate || 'PP-0000',
+        vehicle: tracking.vehicleType || 'Motorbike',
+        status: tracking.status || 'on_the_way',
+      };
+    }
+    return base;
+  }, [order, tracking, id, orderNumber]);
+
+  const {
+    driver: chatDriver,
+    messages: chatMessages,
+    isOpen: isChatOpen,
+    unreadCount: chatUnreadCount,
+    isDriverTyping,
+    driverTypingName,
+    deliveryInstruction,
+    openChat,
+    closeChat,
+    sendMessage: sendChatMessage,
+    sendPreset: sendChatPreset,
+    saveDeliveryInstruction,
+  } = useDriverChatStore(chatOrder);
+
   useEffect(() => {
     if (!id) return;
     let mounted = true;
-
     async function loadOrder() {
       try {
         setOrderLoading(true);
@@ -44,12 +74,10 @@ export function TrackingView() {
         if (mounted) setOrderLoading(false);
       }
     }
-
     loadOrder();
     return () => { mounted = false; };
   }, [id]);
 
-  // Loading state
   if (isLoading || orderLoading) {
     return (
       <div className="py-20 text-center space-y-4 animate-in fade-in duration-300">
@@ -91,7 +119,6 @@ export function TrackingView() {
     );
   }
 
-  const orderNumber = order?.orderNumber || `#${(id || '').slice(-6).toUpperCase()}`;
   const isLive = tracking.isLive;
 
   return (
@@ -171,8 +198,19 @@ export function TrackingView() {
             />
           </div>
 
-          {/* Driver Info Card */}
-          <DriverInfoCard tracking={tracking} />
+          {/* Driver Info Card with Live Chat & Call Trigger */}
+          <DriverInfoCard
+            tracking={tracking}
+            onChatDriver={openChat}
+            unreadCount={chatUnreadCount}
+          />
+
+          {/* Delivery Instructions & Drop-off Notes */}
+          <DeliveryInstructionsCard
+            currentInstruction={deliveryInstruction}
+            onSaveInstruction={saveDeliveryInstruction}
+            onSendPresetToChat={sendChatPreset}
+          />
 
           {/* Order Items Summary (if order loaded) */}
           {order?.items?.length > 0 && (
@@ -307,6 +345,29 @@ export function TrackingView() {
           </div>
         </div>
       </div>
+
+      {/* Floating Driver Chat Trigger (visible when rider is assigned) */}
+      {tracking?.driverName && (
+        <DriverChatButton
+          variant="floating"
+          driver={chatDriver}
+          unreadCount={chatUnreadCount}
+          onClick={openChat}
+        />
+      )}
+
+      {/* Live Driver Chat Slide-over Drawer */}
+      <DriverChatDrawer
+        isOpen={isChatOpen}
+        onClose={closeChat}
+        driver={chatDriver}
+        messages={chatMessages}
+        isDriverTyping={isDriverTyping}
+        driverTypingName={driverTypingName}
+        deliveryInstruction={deliveryInstruction}
+        onSendMessage={sendChatMessage}
+        onSendPreset={sendChatPreset}
+      />
     </div>
   );
 }

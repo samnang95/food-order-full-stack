@@ -437,6 +437,8 @@
     "customInstructionPlaceholder": "e.g. Leave at apartment lobby reception, ring intercom #402, or call upon arrival...",
     "oneTapPresets": "1-Tap Delivery Presets",
     "sendPhotoProof": "Send drop-off photo proof",
+    "uploadGatePhoto": "Upload photo of your gate or drop-off location",
+    "sendSamplePhoto": "Send sample drop-off spot",
     "inputPlaceholder": "Message your driver...",
     "callRider": "Call Rider",
     "todayLiveExpress": "Today • Live Express Delivery",

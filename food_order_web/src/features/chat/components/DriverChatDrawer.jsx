@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useTranslation } from '../../../core';
+import { useTranslation, ApiClient } from '../../../core';
 import { DeliveryInstructionEntity } from '../../../domain/chat/entities/delivery_instruction_entity';
 
 export function DriverChatDrawer({
@@ -16,8 +16,10 @@ export function DriverChatDrawer({
   const { t } = useTranslation();
   const presets = DeliveryInstructionEntity.getDefaultPresets();
   const [inputText, setInputText] = useState('');
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   // Auto-scroll to bottom of chat when new messages or typing state changes
   useEffect(() => {
@@ -54,7 +56,44 @@ export function DriverChatDrawer({
   };
 
   const handlePhotoDropoff = () => {
-    // Simulated photo of delivered package or drop-off spot
+    // Open native file picker for gate/location photo
+    fileInputRef.current?.click();
+  };
+
+  const handleImageFileSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploadingPhoto(true);
+      let photoUrl = null;
+
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await ApiClient.post('/upload', formData);
+        photoUrl = res.url || res.imageUrl;
+      } catch {
+        // Fallback to local Data URL
+        photoUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      if (photoUrl) {
+        onSendMessage(file.name ? `📷 Photo: ${file.name}` : '📷 Drop-off Spot Photo', 'photo', photoUrl);
+      }
+    } catch (err) {
+      console.error('Failed to attach photo:', err);
+    } finally {
+      setIsUploadingPhoto(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleSampleDropoffPhoto = () => {
     const photoUrl = 'https://images.unsplash.com/photo-1526367790999-0150786686a2?w=500';
     onSendMessage('📷 Photo Confirmation: Delivery drop-off spot', 'photo', photoUrl);
   };
@@ -256,15 +295,40 @@ export function DriverChatDrawer({
           onSubmit={handleSend}
           className="p-3 sm:p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center space-x-2"
         >
-          {/* Photo drop-off simulator */}
-          <button
-            type="button"
-            onClick={handlePhotoDropoff}
-            title={t('chat.sendPhotoProof') || 'Send drop-off photo proof'}
-            className="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-orange-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-orange-600 flex items-center justify-center text-base transition-colors shrink-0 cursor-pointer"
-          >
-            📷
-          </button>
+          {/* Hidden File Input for Native Photo Upload */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleImageFileSelect}
+          />
+
+          {/* Photo drop-off / gate photo upload */}
+          <div className="flex items-center space-x-1 shrink-0">
+            <button
+              type="button"
+              onClick={handlePhotoDropoff}
+              disabled={isUploadingPhoto}
+              title={t('chat.uploadGatePhoto') || 'Upload photo of your gate or drop-off location'}
+              className="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-orange-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-orange-600 flex items-center justify-center text-base transition-colors shrink-0 cursor-pointer disabled:opacity-50"
+            >
+              {isUploadingPhoto ? (
+                <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                '📷'
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleSampleDropoffPhoto}
+              title={t('chat.sendSamplePhoto') || 'Send sample drop-off spot'}
+              className="hidden sm:flex w-7 h-7 rounded-xl bg-slate-50 hover:bg-orange-50 dark:bg-slate-800/60 dark:hover:bg-slate-700 text-slate-400 hover:text-orange-600 items-center justify-center text-xs transition-colors shrink-0 cursor-pointer"
+            >
+              🖼️
+            </button>
+          </div>
 
           {/* Text Input */}
           <input
@@ -279,7 +343,7 @@ export function DriverChatDrawer({
           {/* Send Button */}
           <button
             type="submit"
-            disabled={!inputText.trim()}
+            disabled={!inputText.trim() || isUploadingPhoto}
             className="w-10 h-10 rounded-2xl bg-orange-500 hover:bg-orange-600 disabled:opacity-40 text-white flex items-center justify-center text-sm font-bold shadow-md shadow-orange-500/25 active:scale-95 transition-all shrink-0 cursor-pointer disabled:cursor-not-allowed"
           >
             ➤
