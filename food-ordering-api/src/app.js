@@ -39,6 +39,9 @@ const groupOrderRoutes = require('./routes/groupOrderRoutes');
 const driverTipRoutes = require('./routes/driverTipRoutes');
 const dietaryRoutes = require('./routes/dietaryRoutes');
 const trackingRoutes = require('./routes/trackingRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
+const accountRoutes = require('./routes/accountRoutes');
+const supportRoutes = require('./routes/supportRoutes');
 
 // Public Auth Routes
 app.use('/auth', authRoutes);
@@ -76,7 +79,14 @@ app.use('/dietary', dietaryRoutes);
 // Live Delivery Tracking Routes
 app.use('/tracking', trackingRoutes);
 
+// Customer Reviews & Food Ratings Routes
+app.use('/reviews', reviewRoutes);
 
+// Cloud Account Sync (Saved Addresses & Favorite Dishes)
+app.use('/account', accountRoutes);
+
+// Customer Support, Help Center & Issue Reporting Routes
+app.use('/support', supportRoutes);
 
 // Connect to MongoDB
 connectDB();
