@@ -2,20 +2,56 @@ import type { FoodEntity, CategoryEntity } from '../../../domain/foods/entities/
 import type { FoodRepository } from '../../../domain/foods/repositories/food_repository';
 import { FoodModel, CategoryModel, type FoodModelData, type CategoryModelData } from '../models/food_model';
 import { mockFoodsData, mockCategoriesData } from '../datasources/foods_mock_data';
+import { indexedDBService, DB_STORES } from '../../../core/db';
 
 export class FoodRepositoryImpl implements FoodRepository {
-  private localFoods: FoodModelData[] = [...mockFoodsData];
-  private localCategories: CategoryModelData[] = [...mockCategoriesData];
+  private localFoods: FoodModelData[] = [];
+  private localCategories: CategoryModelData[] = [];
+  private isInitialized = false;
+
+  private async ensureInitialized(): Promise<void> {
+    if (this.isInitialized) return;
+
+    try {
+      const [storedFoods, storedCats] = await Promise.all([
+        indexedDBService.getAll<FoodModelData>(DB_STORES.FOODS),
+        indexedDBService.getAll<CategoryModelData>(DB_STORES.CATEGORIES),
+      ]);
+
+      if (storedFoods && storedFoods.length > 0) {
+        this.localFoods = storedFoods;
+      } else {
+        this.localFoods = [...mockFoodsData];
+        await indexedDBService.putAll(DB_STORES.FOODS, this.localFoods);
+      }
+
+      if (storedCats && storedCats.length > 0) {
+        this.localCategories = storedCats;
+      } else {
+        this.localCategories = [...mockCategoriesData];
+        await indexedDBService.putAll(DB_STORES.CATEGORIES, this.localCategories);
+      }
+    } catch {
+      this.localFoods = [...mockFoodsData];
+      this.localCategories = [...mockCategoriesData];
+    }
+
+    this.isInitialized = true;
+  }
 
   async getFoods(): Promise<FoodEntity[]> {
+    await this.ensureInitialized();
     return this.localFoods.map((f) => FoodModel.toEntity(f));
   }
 
   async getCategories(): Promise<CategoryEntity[]> {
+    await this.ensureInitialized();
     return this.localCategories.map((c) => CategoryModel.toEntity(c));
   }
 
   async saveFood(food: Partial<FoodEntity>): Promise<FoodEntity> {
+    await this.ensureInitialized();
+
     if (food.id) {
       const idx = this.localFoods.findIndex((f) => f.id === food.id);
       if (idx !== -1) {
@@ -23,6 +59,7 @@ export class FoodRepositoryImpl implements FoodRepository {
           ...this.localFoods[idx],
           ...food,
         } as FoodModelData;
+        await indexedDBService.put(DB_STORES.FOODS, this.localFoods[idx]);
         return FoodModel.toEntity(this.localFoods[idx]);
       }
     }
@@ -41,26 +78,33 @@ export class FoodRepositoryImpl implements FoodRepository {
       calories: Number(food.calories) || 500,
       tags: food.tags || ['New'],
     };
+
     this.localFoods.unshift(newFoodData);
+    await indexedDBService.put(DB_STORES.FOODS, newFoodData);
+
     return FoodModel.toEntity(newFoodData);
   }
 
   async deleteFood(id: string): Promise<boolean> {
-    const prevLength = this.localFoods.length;
+    await this.ensureInitialized();
     this.localFoods = this.localFoods.filter((f) => f.id !== id);
-    return this.localFoods.length < prevLength;
+    return await indexedDBService.delete(DB_STORES.FOODS, id);
   }
 
   async toggleAvailability(id: string): Promise<FoodEntity> {
+    await this.ensureInitialized();
     const item = this.localFoods.find((f) => f.id === id);
     if (!item) {
       throw new Error(`Food item with ID ${id} not found`);
     }
     item.isAvailable = !item.isAvailable;
+    await indexedDBService.put(DB_STORES.FOODS, item);
+
     return FoodModel.toEntity(item);
   }
 
   async saveCategory(category: Partial<CategoryEntity>): Promise<CategoryEntity> {
+    await this.ensureInitialized();
     const newCat: CategoryModelData = {
       id: category.id || `cat-${Date.now()}`,
       name: category.name || 'New Category',
@@ -70,6 +114,8 @@ export class FoodRepositoryImpl implements FoodRepository {
       isActive: category.isActive ?? true,
     };
     this.localCategories.push(newCat);
+    await indexedDBService.put(DB_STORES.CATEGORIES, newCat);
+
     return CategoryModel.toEntity(newCat);
   }
 }

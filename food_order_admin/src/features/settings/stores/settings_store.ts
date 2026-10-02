@@ -1,13 +1,20 @@
 import { defineStore } from 'pinia';
 import { reactive, computed } from 'vue';
 import { checkApiHealth } from '../../../core/services/api_client';
+import { LocalDB, DBKeys } from '../../../core/db';
 import { useAppStore } from '../../layout/stores/app_store';
 import { SettingsIntentType, type SettingsIntent, SettingsIntents } from '../settings_intent';
 import { initialSettingsState, type SettingsState, type RestaurantProfile } from '../settings_state';
 
 export const useSettingsStore = defineStore('settings', () => {
   const appStore = useAppStore();
-  const state = reactive<SettingsState>({ ...initialSettingsState });
+
+  // Load persisted profile from LocalDB if available
+  const savedProfile = LocalDB.getJson<RestaurantProfile>(DBKeys.STORE_PROFILE);
+  const state = reactive<SettingsState>({
+    ...initialSettingsState,
+    profile: savedProfile ? { ...initialSettingsState.profile, ...savedProfile } : { ...initialSettingsState.profile },
+  });
 
   async function dispatch(intent: SettingsIntent) {
     switch (intent.type) {
@@ -25,11 +32,14 @@ export const useSettingsStore = defineStore('settings', () => {
           ...state.profile,
           ...intent.payload,
         } as RestaurantProfile;
+        LocalDB.setJson(DBKeys.STORE_PROFILE, state.profile);
         break;
       }
 
       case SettingsIntentType.SAVE_SETTINGS: {
         appStore.soundEnabled = state.profile.soundAlerts;
+        LocalDB.setJson(DBKeys.STORE_PROFILE, state.profile);
+        LocalDB.setBool(DBKeys.SOUND_ENABLED, state.profile.soundAlerts);
         state.isSavedToastVisible = true;
         setTimeout(() => {
           state.isSavedToastVisible = false;
