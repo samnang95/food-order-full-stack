@@ -7,6 +7,7 @@ import CategoriesView from '../features/categories/views/CategoriesView.vue';
 import CustomersView from '../features/customers/views/CustomersView.vue';
 import SettingsView from '../features/settings/views/SettingsView.vue';
 import { VouchersView } from '../features/vouchers';
+import { KdsView } from '../features/kds';
 import { LoginView } from '../features/auth';
 import { LocalDB } from '../core/db/local_db';
 import { DBKeys } from '../core/db/db_keys';
@@ -29,6 +30,12 @@ const routes: RouteRecordRaw[] = [
     name: 'orders',
     component: OrdersView,
     meta: { title: 'Live Orders & Operations • FoodHub', requiresAuth: true },
+  },
+  {
+    path: AppRoutes.KDS,
+    name: 'kds',
+    component: KdsView,
+    meta: { title: 'Kitchen Display System (KDS) • FoodHub', requiresAuth: true },
   },
   {
     path: AppRoutes.MENU,

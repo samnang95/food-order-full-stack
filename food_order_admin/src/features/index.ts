@@ -7,3 +7,4 @@ export * from './settings';
 export * from './layout';
 export * from './auth';
 export * from './vouchers';
+export * from './kds';

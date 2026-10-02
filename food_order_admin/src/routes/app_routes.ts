@@ -1,6 +1,7 @@
 export const AppRoutes = Object.freeze({
   ROOT: '/',
   ORDERS: '/orders',
+  KDS: '/kds',
   MENU: '/menu',
   CATEGORIES: '/categories',
   CUSTOMERS: '/customers',

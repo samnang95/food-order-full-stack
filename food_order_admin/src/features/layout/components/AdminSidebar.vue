@@ -8,6 +8,7 @@ import { AppRoutes } from '../../../routes/app_routes';
 import {
   LayoutDashboard,
   ShoppingBag,
+  ChefHat,
   UtensilsCrossed,
   Layers,
   Users,
@@ -35,6 +36,7 @@ const pendingCount = computed(() => ordersStore.statusCounts.pending || 0);
 const navItems = [
   { name: 'Dashboard', path: AppRoutes.ROOT, icon: LayoutDashboard },
   { name: 'Orders', path: AppRoutes.ORDERS, icon: ShoppingBag, badge: pendingCount },
+  { name: 'Kitchen KDS', path: AppRoutes.KDS, icon: ChefHat },
   { name: 'Menu Catalog', path: AppRoutes.MENU, icon: UtensilsCrossed },
   { name: 'Categories', path: AppRoutes.CATEGORIES, icon: Layers },
   { name: 'Customers', path: AppRoutes.CUSTOMERS, icon: Users },
