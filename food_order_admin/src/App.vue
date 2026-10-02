@@ -1,11 +1,23 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { AdminSidebar, AdminHeader } from './features/layout';
 import OrderDetailModal from './features/orders/components/OrderDetailModal.vue';
 import FoodFormModal from './features/menu/components/FoodFormModal.vue';
+import { AppRoutes } from './routes/app_routes';
+
+const route = useRoute();
+const isAuthRoute = computed(() => route.path === AppRoutes.LOGIN);
 </script>
 
 <template>
-  <div class="h-screen bg-slate-950 text-slate-100 flex antialiased selection:bg-orange-500 selection:text-white overflow-hidden">
+  <!-- Fullscreen Auth View (Login / Register) -->
+  <div v-if="isAuthRoute" class="h-screen w-screen overflow-hidden bg-slate-950 text-slate-100">
+    <router-view />
+  </div>
+
+  <!-- Authenticated Admin Operations Shell -->
+  <div v-else class="h-screen bg-slate-950 text-slate-100 flex antialiased selection:bg-orange-500 selection:text-white overflow-hidden">
     <!-- Left Navigation Sidebar -->
     <AdminSidebar />
 

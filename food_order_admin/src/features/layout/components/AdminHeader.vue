@@ -12,6 +12,7 @@ import {
   Info,
   Clock,
 } from 'lucide-vue-next';
+import { UserMenuDropdown } from '../../auth';
 
 const route = useRoute();
 const appStore = useAppStore();
@@ -146,6 +147,9 @@ const statusOptions = [
           </div>
         </div>
       </div>
+
+      <!-- User Profile & Session Menu -->
+      <UserMenuDropdown />
     </div>
   </header>
 </template>

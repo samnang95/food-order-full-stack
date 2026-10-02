@@ -1,5 +1,7 @@
 import axios, { type AxiosInstance } from 'axios';
 import { AppConfig } from '../config/app_config';
+import { LocalDB } from '../db/local_db';
+import { DBKeys } from '../db/db_keys';
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL: AppConfig.apiBaseUrl,
@@ -7,6 +9,14 @@ export const apiClient: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+});
+
+apiClient.interceptors.request.use((config) => {
+  const token = LocalDB.getString(DBKeys.AUTH_TOKEN);
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export async function checkApiHealth(): Promise<boolean> {

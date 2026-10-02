@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useOrdersStore } from '../../orders/stores/orders_store';
 import { useAppStore } from '../stores/app_store';
+import { useAuthStore } from '../../auth/stores/auth_store';
 import { AppRoutes } from '../../../routes/app_routes';
 import {
   LayoutDashboard,
@@ -14,11 +15,19 @@ import {
   ChevronLeft,
   ChevronRight,
   Flame,
+  LogOut,
 } from 'lucide-vue-next';
 
 const route = useRoute();
+const router = useRouter();
 const ordersStore = useOrdersStore();
 const appStore = useAppStore();
+const authStore = useAuthStore();
+
+async function handleLogout() {
+  await authStore.logout();
+  router.push(AppRoutes.LOGIN);
+}
 
 const pendingCount = computed(() => ordersStore.statusCounts.pending || 0);
 
@@ -195,25 +204,41 @@ const navItems = [
         </div>
       </div>
 
-      <!-- User Profile snippet -->
+      <!-- User Profile snippet & Quick Logout -->
       <div
         :class="[
-          'flex items-center rounded-xl hover:bg-slate-800/50',
-          appStore.isSidebarCollapsed ? 'justify-center p-1' : 'gap-3 p-1.5'
+          'flex items-center justify-between rounded-xl hover:bg-slate-800/50 group',
+          appStore.isSidebarCollapsed ? 'justify-center p-1' : 'p-1.5'
         ]"
       >
-        <div class="relative shrink-0">
-          <img
-            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
-            alt="Admin"
-            class="w-9 h-9 rounded-xl object-cover ring-2 ring-orange-500/30"
-          />
-          <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900" />
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="relative shrink-0">
+            <img
+              :src="authStore.currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'"
+              :alt="authStore.currentUser?.username || 'Admin'"
+              class="w-9 h-9 rounded-xl object-cover ring-2 ring-orange-500/30"
+            />
+            <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900" />
+          </div>
+          <div v-if="!appStore.isSidebarCollapsed" class="flex flex-col min-w-0">
+            <span class="text-xs font-semibold text-slate-200 truncate">
+              {{ authStore.currentUser?.username || 'Elena Vance' }}
+            </span>
+            <span class="text-[11px] text-slate-400 truncate">
+              {{ authStore.currentUser?.title || 'Kitchen Director' }}
+            </span>
+          </div>
         </div>
-        <div v-if="!appStore.isSidebarCollapsed" class="flex flex-col min-w-0">
-          <span class="text-xs font-semibold text-slate-200 truncate">Elena Vance</span>
-          <span class="text-[11px] text-slate-400 truncate">Kitchen Director</span>
-        </div>
+
+        <!-- Quick Logout Icon Button (Expanded Mode) -->
+        <button
+          v-if="!appStore.isSidebarCollapsed"
+          @click="handleLogout"
+          class="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition cursor-pointer opacity-70 group-hover:opacity-100"
+          title="Sign Out"
+        >
+          <LogOut class="w-4 h-4" />
+        </button>
       </div>
     </div>
   </aside>
