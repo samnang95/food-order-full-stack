@@ -13,6 +13,7 @@ import {
   Layers,
   Users,
   Ticket,
+  Star,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -25,7 +26,6 @@ const router = useRouter();
 const ordersStore = useOrdersStore();
 const appStore = useAppStore();
 const authStore = useAuthStore();
-
 async function handleLogout() {
   await authStore.logout();
   router.push(AppRoutes.LOGIN);
@@ -41,10 +41,10 @@ const navItems = [
   { name: 'Categories', path: AppRoutes.CATEGORIES, icon: Layers },
   { name: 'Customers', path: AppRoutes.CUSTOMERS, icon: Users },
   { name: 'Vouchers', path: AppRoutes.VOUCHERS, icon: Ticket },
+  { name: 'Reviews', path: AppRoutes.REVIEWS, icon: Star },
   { name: 'Settings', path: AppRoutes.SETTINGS, icon: Settings },
 ];
 </script>
-
 <template>
   <aside
     :class="[

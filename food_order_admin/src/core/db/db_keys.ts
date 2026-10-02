@@ -10,6 +10,7 @@ export const DBKeys = Object.freeze({
   CACHED_CATEGORIES: 'foodhub_cached_categories',
   CACHED_CUSTOMERS: 'foodhub_cached_customers',
   CACHED_VOUCHERS: 'foodhub_cached_vouchers',
+  CACHED_REVIEWS: 'foodhub_cached_reviews',
   NOTIFICATIONS: 'foodhub_notifications',
 } as const);
 

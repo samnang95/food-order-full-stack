@@ -8,3 +8,4 @@ export * from './layout';
 export * from './auth';
 export * from './vouchers';
 export * from './kds';
+export * from './reviews';
