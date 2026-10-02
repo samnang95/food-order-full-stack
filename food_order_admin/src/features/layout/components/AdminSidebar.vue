@@ -35,14 +35,14 @@ const navItems = [
 <template>
   <aside
     :class="[
-      'h-screen sticky top-0 flex flex-col border-r border-slate-800/80 bg-slate-900/95 backdrop-blur-xl transition-[width] duration-300 z-30 select-none shrink-0 relative',
+      'h-screen sticky top-0 flex flex-col border-r border-slate-800/80 bg-slate-900/95 backdrop-blur-xl transition-[width] duration-300 z-30 select-none shrink-0 relative overflow-hidden',
       appStore.isSidebarCollapsed ? 'w-20' : 'w-64'
     ]"
   >
-    <!-- Floating Edge Toggle Button (No collision with logo) -->
+    <!-- Floating Edge Toggle Button -->
     <button
       @click="appStore.toggleSidebar"
-      class="absolute -right-3.5 top-5 z-40 w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center border border-slate-700/80 shadow-lg shadow-black/50 transition-transform hover:scale-110 active:scale-95 cursor-pointer"
+      class="absolute -right-3.5 top-5 z-40 w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center border border-slate-700/80 shadow-lg shadow-black/50 hover:scale-110 active:scale-95 cursor-pointer"
       :title="appStore.isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
       aria-label="Toggle sidebar"
     >
@@ -53,7 +53,7 @@ const navItems = [
     <!-- Brand Header -->
     <div
       :class="[
-        'h-16 flex items-center border-b border-slate-800/60 transition-all duration-200 overflow-hidden',
+        'h-16 flex items-center border-b border-slate-800/60 overflow-hidden shrink-0',
         appStore.isSidebarCollapsed ? 'justify-center px-0' : 'px-4'
       ]"
     >
@@ -69,7 +69,7 @@ const navItems = [
         </div>
         <div
           v-if="!appStore.isSidebarCollapsed"
-          class="flex flex-col min-w-0 transition-opacity duration-200"
+          class="flex flex-col min-w-0"
         >
           <span class="font-display font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent truncate">
             FoodHub<span class="text-orange-500">.</span>
@@ -81,11 +81,11 @@ const navItems = [
       </router-link>
     </div>
 
-    <!-- Navigation List -->
-    <nav class="flex-1 px-2.5 py-4 space-y-1.5 overflow-y-auto overflow-x-hidden">
+    <!-- Navigation List (Locked, non-scrollable) -->
+    <nav class="flex-1 px-2.5 py-4 space-y-1.5 overflow-hidden">
       <div
         v-if="!appStore.isSidebarCollapsed"
-        class="px-3 pb-1 text-[11px] font-semibold tracking-wider text-slate-400 uppercase transition-opacity"
+        class="px-3 pb-1 text-[11px] font-semibold tracking-wider text-slate-400 uppercase"
       >
         Management
       </div>
@@ -95,7 +95,7 @@ const navItems = [
         :key="item.path"
         :to="item.path"
         :class="[
-          'flex items-center rounded-xl text-sm font-medium transition-all group relative',
+          'flex items-center rounded-xl text-sm font-medium group relative',
           appStore.isSidebarCollapsed ? 'justify-center py-3 px-0' : 'gap-3 px-3 py-2.5',
           route.path === item.path
             ? 'bg-gradient-to-r from-orange-500/15 to-orange-500/5 text-orange-400 border border-orange-500/25 shadow-sm'
@@ -106,7 +106,7 @@ const navItems = [
         <component
           :is="item.icon"
           :class="[
-            'w-5 h-5 shrink-0 transition-transform duration-200 group-hover:scale-110',
+            'w-5 h-5 shrink-0',
             route.path === item.path ? 'text-orange-400' : 'text-slate-400 group-hover:text-slate-300'
           ]"
         />
@@ -114,7 +114,7 @@ const navItems = [
         <!-- Title Label (Expanded) -->
         <span
           v-if="!appStore.isSidebarCollapsed"
-          class="truncate min-w-0 transition-opacity duration-200"
+          class="truncate min-w-0"
         >
           {{ item.name }}
         </span>
@@ -122,7 +122,7 @@ const navItems = [
         <!-- Floating Tooltip (Collapsed on Hover) -->
         <div
           v-if="appStore.isSidebarCollapsed"
-          class="absolute left-full ml-3.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs font-semibold whitespace-nowrap shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-150 z-50 flex items-center gap-2"
+          class="absolute left-full ml-3.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs font-semibold whitespace-nowrap shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none z-50 flex items-center gap-2"
         >
           <span>{{ item.name }}</span>
           <span
@@ -137,7 +137,7 @@ const navItems = [
         <span
           v-if="!appStore.isSidebarCollapsed && item.badge && item.badge.value > 0"
           :class="[
-            'ml-auto text-xs px-2 py-0.5 rounded-full font-bold transition-transform animate-pulse shrink-0',
+            'ml-auto text-xs px-2 py-0.5 rounded-full font-bold shrink-0',
             route.path === item.path
               ? 'bg-orange-500 text-white shadow-sm'
               : 'bg-orange-500/20 text-orange-300 border border-orange-500/30'
@@ -146,10 +146,10 @@ const navItems = [
           {{ item.badge.value }}
         </span>
 
-        <!-- Badge Indicator in Collapsed Mode (Top-right pill) -->
+        <!-- Badge Indicator in Collapsed Mode -->
         <span
           v-else-if="appStore.isSidebarCollapsed && item.badge && item.badge.value > 0"
-          class="absolute top-1.5 right-2 w-4 h-4 rounded-full bg-orange-500 text-[10px] font-bold text-white flex items-center justify-center shadow-md animate-pulse pointer-events-none"
+          class="absolute top-1.5 right-2 w-4 h-4 rounded-full bg-orange-500 text-[10px] font-bold text-white flex items-center justify-center shadow-md pointer-events-none"
         >
           {{ item.badge.value }}
         </span>
@@ -163,11 +163,11 @@ const navItems = [
     </nav>
 
     <!-- Operational Status Card & Profile -->
-    <div class="p-3 border-t border-slate-800/60 overflow-hidden">
+    <div class="p-3 border-t border-slate-800/60 overflow-hidden shrink-0">
       <!-- Live Kitchen Indicator -->
       <div
         v-if="!appStore.isSidebarCollapsed"
-        class="p-3 rounded-xl bg-slate-800/40 border border-slate-700/30 flex items-center justify-between mb-3 transition-opacity"
+        class="p-3 rounded-xl bg-slate-800/40 border border-slate-700/30 flex items-center justify-between mb-3"
       >
         <div class="flex items-center gap-2">
           <span class="relative flex h-2.5 w-2.5">
@@ -190,7 +190,7 @@ const navItems = [
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
         </span>
-        <div class="absolute left-full ml-3 px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-emerald-400 font-semibold whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+        <div class="absolute left-full ml-3 px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-emerald-400 font-semibold whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none z-50">
           Kitchen Live (PORT 3000)
         </div>
       </div>
@@ -198,7 +198,7 @@ const navItems = [
       <!-- User Profile snippet -->
       <div
         :class="[
-          'flex items-center rounded-xl hover:bg-slate-800/50 transition',
+          'flex items-center rounded-xl hover:bg-slate-800/50',
           appStore.isSidebarCollapsed ? 'justify-center p-1' : 'gap-3 p-1.5'
         ]"
       >
@@ -210,7 +210,7 @@ const navItems = [
           />
           <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900" />
         </div>
-        <div v-if="!appStore.isSidebarCollapsed" class="flex flex-col min-w-0 transition-opacity">
+        <div v-if="!appStore.isSidebarCollapsed" class="flex flex-col min-w-0">
           <span class="text-xs font-semibold text-slate-200 truncate">Elena Vance</span>
           <span class="text-[11px] text-slate-400 truncate">Kitchen Director</span>
         </div>
