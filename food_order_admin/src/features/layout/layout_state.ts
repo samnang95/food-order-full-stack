@@ -8,6 +8,7 @@ export interface NotificationItem {
 
 export interface LayoutState {
   isSidebarCollapsed: boolean;
+  isMobileSidebarOpen: boolean;
   restaurantStatus: 'open' | 'busy' | 'closed';
   apiStatus: 'connected' | 'checking' | 'offline';
   soundEnabled: boolean;
@@ -16,6 +17,7 @@ export interface LayoutState {
 
 export const initialLayoutState: LayoutState = {
   isSidebarCollapsed: false,
+  isMobileSidebarOpen: false,
   restaurantStatus: 'open',
   apiStatus: 'connected',
   soundEnabled: true,

@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Flame,
   LogOut,
+  X,
 } from 'lucide-vue-next';
 
 const route = useRoute();
@@ -46,16 +47,27 @@ const navItems = [
 ];
 </script>
 <template>
+  <!-- Mobile Backdrop Overlay -->
+  <div
+    v-if="appStore.isMobileSidebarOpen"
+    class="fixed inset-0 bg-black/70 backdrop-blur-xs z-40 lg:hidden transition-opacity"
+    @click="appStore.closeMobileSidebar"
+    aria-hidden="true"
+  />
+
   <aside
     :class="[
-      'h-screen sticky top-0 flex flex-col border-r border-slate-800/80 bg-slate-900/95 backdrop-blur-xl transition-[width] duration-300 z-30 select-none shrink-0 relative overflow-hidden',
-      appStore.isSidebarCollapsed ? 'w-20' : 'w-64'
+      'h-screen sticky top-0 flex flex-col border-r border-slate-800/80 bg-slate-900/95 backdrop-blur-xl select-none shrink-0 relative overflow-hidden transition-all duration-300',
+      'fixed inset-y-0 left-0 z-50 lg:static',
+      appStore.isMobileSidebarOpen ? 'translate-x-0 shadow-2xl shadow-black' : '-translate-x-full lg:translate-x-0',
+      'w-72 lg:w-auto',
+      appStore.isSidebarCollapsed ? 'lg:w-20' : 'lg:w-64'
     ]"
   >
-    <!-- Floating Edge Toggle Button -->
+    <!-- Floating Edge Toggle Button (Desktop Only) -->
     <button
       @click="appStore.toggleSidebar"
-      class="absolute -right-3.5 top-5 z-40 w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center border border-slate-700/80 shadow-lg shadow-black/50 hover:scale-110 active:scale-95 cursor-pointer"
+      class="hidden lg:flex absolute -right-3.5 top-5 z-40 w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white items-center justify-center border border-slate-700/80 shadow-lg shadow-black/50 hover:scale-110 active:scale-95 cursor-pointer"
       :title="appStore.isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
       aria-label="Toggle sidebar"
     >
@@ -66,15 +78,16 @@ const navItems = [
     <!-- Brand Header -->
     <div
       :class="[
-        'h-16 flex items-center border-b border-slate-800/60 overflow-hidden shrink-0',
-        appStore.isSidebarCollapsed ? 'justify-center px-0' : 'px-4'
+        'h-16 flex items-center justify-between border-b border-slate-800/60 overflow-hidden shrink-0 px-4',
+        appStore.isSidebarCollapsed ? 'lg:justify-center lg:px-0' : ''
       ]"
     >
       <router-link
         to="/"
+        @click="appStore.closeMobileSidebar"
         :class="[
           'flex items-center gap-3 overflow-hidden',
-          appStore.isSidebarCollapsed ? 'justify-center' : ''
+          appStore.isSidebarCollapsed ? 'lg:justify-center' : ''
         ]"
       >
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/20 shrink-0">
@@ -92,6 +105,16 @@ const navItems = [
           </span>
         </div>
       </router-link>
+
+      <!-- Mobile Close Button -->
+      <button
+        type="button"
+        @click="appStore.closeMobileSidebar"
+        class="lg:hidden p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+        aria-label="Close sidebar"
+      >
+        <X class="w-5 h-5" />
+      </button>
     </div>
 
     <!-- Navigation List (Locked, non-scrollable) -->
@@ -107,9 +130,10 @@ const navItems = [
         v-for="item in navItems"
         :key="item.path"
         :to="item.path"
+        @click="appStore.closeMobileSidebar"
         :class="[
           'flex items-center rounded-xl text-sm font-medium group relative',
-          appStore.isSidebarCollapsed ? 'justify-center py-3 px-0' : 'gap-3 px-3 py-2.5',
+          appStore.isSidebarCollapsed ? 'lg:justify-center lg:py-3 lg:px-0 px-3 py-2.5 gap-3' : 'gap-3 px-3 py-2.5',
           route.path === item.path
             ? 'bg-gradient-to-r from-orange-500/15 to-orange-500/5 text-orange-400 border border-orange-500/25 shadow-sm'
             : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'

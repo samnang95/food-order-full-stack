@@ -11,6 +11,12 @@ export const useAppStore = defineStore('app', () => {
       case LayoutIntentType.TOGGLE_SIDEBAR:
         state.isSidebarCollapsed = !state.isSidebarCollapsed;
         break;
+      case LayoutIntentType.TOGGLE_MOBILE_SIDEBAR:
+        state.isMobileSidebarOpen = !state.isMobileSidebarOpen;
+        break;
+      case LayoutIntentType.CLOSE_MOBILE_SIDEBAR:
+        state.isMobileSidebarOpen = false;
+        break;
       case LayoutIntentType.SET_RESTAURANT_STATUS:
         state.restaurantStatus = intent.payload;
         break;
@@ -41,17 +47,21 @@ export const useAppStore = defineStore('app', () => {
     get: () => state.soundEnabled,
     set: (val: boolean) => dispatch(LayoutIntents.setSoundEnabled(val)),
   });
+  const isMobileSidebarOpen = computed(() => state.isMobileSidebarOpen);
   const notifications = computed(() => state.notifications);
 
   return {
     state,
     dispatch,
     isSidebarCollapsed,
+    isMobileSidebarOpen,
     restaurantStatus,
     apiStatus,
     soundEnabled,
     notifications,
     toggleSidebar: () => dispatch(LayoutIntents.toggleSidebar()),
+    toggleMobileSidebar: () => dispatch(LayoutIntents.toggleMobileSidebar()),
+    closeMobileSidebar: () => dispatch(LayoutIntents.closeMobileSidebar()),
     setRestaurantStatus: (s: 'open' | 'busy' | 'closed') => dispatch(LayoutIntents.setRestaurantStatus(s)),
     markNotificationsAsRead: () => dispatch(LayoutIntents.markNotificationsRead()),
   };
