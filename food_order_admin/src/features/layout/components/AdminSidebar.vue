@@ -11,6 +11,7 @@ import {
   UtensilsCrossed,
   Layers,
   Users,
+  Ticket,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -37,6 +38,7 @@ const navItems = [
   { name: 'Menu Catalog', path: AppRoutes.MENU, icon: UtensilsCrossed },
   { name: 'Categories', path: AppRoutes.CATEGORIES, icon: Layers },
   { name: 'Customers', path: AppRoutes.CUSTOMERS, icon: Users },
+  { name: 'Vouchers', path: AppRoutes.VOUCHERS, icon: Ticket },
   { name: 'Settings', path: AppRoutes.SETTINGS, icon: Settings },
 ];
 </script>

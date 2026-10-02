@@ -6,3 +6,4 @@ export * from './customers';
 export * from './settings';
 export * from './layout';
 export * from './auth';
+export * from './vouchers';

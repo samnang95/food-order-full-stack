@@ -6,6 +6,7 @@ import MenuView from '../features/menu/views/MenuView.vue';
 import CategoriesView from '../features/categories/views/CategoriesView.vue';
 import CustomersView from '../features/customers/views/CustomersView.vue';
 import SettingsView from '../features/settings/views/SettingsView.vue';
+import { VouchersView } from '../features/vouchers';
 import { LoginView } from '../features/auth';
 import { LocalDB } from '../core/db/local_db';
 import { DBKeys } from '../core/db/db_keys';
@@ -46,6 +47,12 @@ const routes: RouteRecordRaw[] = [
     name: 'customers',
     component: CustomersView,
     meta: { title: 'Customer Directory • FoodHub', requiresAuth: true },
+  },
+  {
+    path: AppRoutes.VOUCHERS,
+    name: 'vouchers',
+    component: VouchersView,
+    meta: { title: 'Vouchers & Promotions • FoodHub', requiresAuth: true },
   },
   {
     path: AppRoutes.SETTINGS,
