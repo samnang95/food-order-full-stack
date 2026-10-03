@@ -141,7 +141,9 @@ export function KhqrPaymentModal({
           bankName: selectedBank,
         }),
       });
-    } catch (_) {}
+    } catch (err) {
+      console.warn('[KhqrPaymentModal] Payment verify error:', err);
+    }
 
     setIsVerifying(false);
     setIsSuccess(true);
