@@ -29,8 +29,11 @@ export function TrackingMapView({ tracking, className = '' }) {
   const polylinesRef = useRef({ traveled: null, remaining: null });
   const [mapType, setMapType] = useState('streets');
   const [followRider, setFollowRider] = useState(true);
-  const [telemetrySpeed, setTelemetrySpeed] = useState(32);
   const prevDriverCoordsRef = useRef(null);
+
+  const telemetrySpeed = tracking?.driverLat && tracking?.driverLng
+    ? 26 + (Math.abs(Math.round((tracking.driverLat + tracking.driverLng) * 10000)) % 9)
+    : 32;
 
   const isDarkMode = useMemo(
     () => document.documentElement.classList.contains('dark'),
@@ -45,7 +48,7 @@ export function TrackingMapView({ tracking, className = '' }) {
         html: `
           <div style="position:relative; width:${size}px; height:${size}px; display:flex; align-items:center; justify-content:center;">
             <div style="position:absolute; width:${size + 14}px; height:${size + 14}px; border-radius:9999px; background:rgba(249,115,22,0.35); animation:pulse 1.8s ease-in-out infinite;"></div>
-            <div style="position:relative; width:${size}px; height:${size}px; background:${bgColor}; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:${Math.round(size * 0.52)}px; box-shadow:0 6px 16px rgba(249,115,22,0.5); border:2.5px solid #ffffff; transform: rotate(${heading > 90 && heading < 270 ? '0deg' : '0deg'}); transition:transform 0.3s ease;">
+            <div style="position:relative; width:${size}px; height:${size}px; background:${bgColor}; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:${Math.round(size * 0.52)}px; box-shadow:0 6px 16px rgba(249,115,22,0.5); border:2.5px solid #ffffff; transform: ${heading > 90 && heading < 270 ? 'scaleX(-1)' : 'scaleX(1)'}; transition:transform 0.3s ease;">
               ${emoji}
             </div>
             <div style="position:absolute; bottom:-6px; right:-4px; width:14px; height:14px; border-radius:9999px; background:#10b981; border:2px solid #ffffff; box-shadow:0 2px 4px rgba(0,0,0,0.2);"></div>
@@ -168,26 +171,20 @@ export function TrackingMapView({ tracking, className = '' }) {
 
     // Driver marker with smooth coordinate animation
     if (driverCoords) {
-      let heading = 0;
-      if (prevDriverCoordsRef.current) {
-        heading = calculateBearing(
-          prevDriverCoordsRef.current[0],
-          prevDriverCoordsRef.current[1],
-          driverCoords[0],
-          driverCoords[1]
-        );
-      } else {
-        heading = calculateBearing(
-          driverCoords[0],
-          driverCoords[1],
-          deliveryCoords[0],
-          deliveryCoords[1]
-        );
-      }
+      const heading = prevDriverCoordsRef.current
+        ? calculateBearing(
+            prevDriverCoordsRef.current[0],
+            prevDriverCoordsRef.current[1],
+            driverCoords[0],
+            driverCoords[1]
+          )
+        : calculateBearing(
+            driverCoords[0],
+            driverCoords[1],
+            deliveryCoords[0],
+            deliveryCoords[1]
+          );
       prevDriverCoordsRef.current = driverCoords;
-
-      // Simulated speed variance
-      setTelemetrySpeed(Math.floor(26 + Math.random() * 9));
 
       if (!markersRef.current.driver) {
         markersRef.current.driver = L.marker(driverCoords, {

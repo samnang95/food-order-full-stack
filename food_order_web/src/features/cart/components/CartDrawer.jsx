@@ -30,7 +30,6 @@ export function CartDrawer() {
     isGroupOrderActive,
     groupOrder,
     isHost,
-    isLocked,
     openSplitBillModal,
   } = useGroupOrder();
 

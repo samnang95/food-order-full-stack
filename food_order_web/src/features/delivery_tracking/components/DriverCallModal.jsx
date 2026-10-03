@@ -85,14 +85,7 @@ export function DriverCallModal({ isOpen, onClose, driver }) {
   };
 
   useEffect(() => {
-    if (!isOpen) {
-      setCallState('calling');
-      setSeconds(0);
-      setIsMuted(false);
-      if (timerRef.current) clearInterval(timerRef.current);
-      if (ringIntervalRef.current) clearInterval(ringIntervalRef.current);
-      return;
-    }
+    if (!isOpen) return;
 
     // Start ringing
     playRingTone();
@@ -122,6 +115,9 @@ export function DriverCallModal({ isOpen, onClose, driver }) {
     setCallState('ended');
     setTimeout(() => {
       onClose();
+      setCallState('calling');
+      setSeconds(0);
+      setIsMuted(false);
     }, 450);
   };
 

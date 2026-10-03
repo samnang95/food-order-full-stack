@@ -60,8 +60,8 @@ export function OrderSummaryCard({
 
       {/* Itemized Food List */}
       <div className="max-h-60 overflow-y-auto space-y-2.5 pr-1 divide-y divide-slate-100 dark:divide-slate-800/60">
-        {items.map((item) => (
-          <div key={item.food.id || item.food._id || Math.random()} className="pt-2.5 first:pt-0 flex items-start justify-between gap-3 text-xs">
+        {items.map((item, idx) => (
+          <div key={item.food.id || item.food._id || `item-${idx}`} className="pt-2.5 first:pt-0 flex items-start justify-between gap-3 text-xs">
             <div className="flex items-start space-x-2.5 min-w-0">
               <span className="w-5 h-5 rounded-md bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 font-bold flex items-center justify-center shrink-0 text-[11px] mt-0.5">
                 {item.quantity}×

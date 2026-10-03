@@ -4,6 +4,7 @@ import { GroupMemberEntity, MEMBER_AVATAR_COLORS } from '../../../domain/group_o
 import { GroupItemEntity } from '../../../domain/group_order/entities/group_item_entity';
 import { GroupOrderLocalDataSource } from '../datasources/group_order_local_datasource';
 import { GroupOrderRemoteDataSource } from '../datasources/group_order_remote_datasource';
+import { GroupOrderModel } from '../models/group_order_model';
 import { socketService } from '../../../core/services/socket_service';
 
 export class GroupOrderRepositoryImpl extends GroupOrderRepository {

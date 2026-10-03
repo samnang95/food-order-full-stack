@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from '../../../core';
 import { useGroupOrder } from '../use_group_order';
 
@@ -17,23 +17,16 @@ export function GroupOrderModal() {
     error,
   } = useGroupOrder();
 
-  const [activeTab, setActiveTab] = useState(groupOrder ? 'manage' : 'create');
+  const initialUrlCode = typeof window !== 'undefined' && !groupOrder
+    ? (new URLSearchParams(window.location.search).get('group') || new URLSearchParams(window.location.search).get('join') || '').toUpperCase()
+    : '';
+
+  const [activeTab, setActiveTab] = useState(() => (groupOrder ? 'manage' : initialUrlCode ? 'join' : 'create'));
   const [newTitle, setNewTitle] = useState('Team Feast 🍱');
   const [hostName, setHostName] = useState('');
-  const [joinCode, setJoinCode] = useState('');
+  const [joinCode, setJoinCode] = useState(() => initialUrlCode);
   const [joinName, setJoinName] = useState('');
   const [copiedCode, setCopiedCode] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !groupOrder) {
-      const params = new URLSearchParams(window.location.search);
-      const urlCode = params.get('group') || params.get('join');
-      if (urlCode) {
-        setJoinCode(urlCode.toUpperCase());
-        setActiveTab('join');
-      }
-    }
-  }, [groupOrder, isGroupModalOpen]);
 
   if (!isGroupModalOpen) return null;
 
