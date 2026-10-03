@@ -21,12 +21,12 @@ const userRepository = {
     return await User.findById(id);
   },
   
-  create: async (username, hashedPassword, email) => {
+  create: async (username, hashedPassword, email, role = 'user') => {
     const newUser = new User({
       username,
       password: hashedPassword,
       email: email || undefined,
-      role: 'user'
+      role: role || 'user'
     });
     await newUser.save();
     return newUser;

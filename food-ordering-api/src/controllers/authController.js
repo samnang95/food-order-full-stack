@@ -2,13 +2,13 @@ const { authService } = require('../services/authService');
 
 const register = async (req, res) => {
   try {
-    const { username, password, email } = req.body;
+    const { username, password, email, role } = req.body;
     
     if (!username || !password) {
       return res.status(400).json({ message: 'Username and password are required' });
     }
     
-    const { token, refreshToken, user } = await authService.register(username, password, email);
+    const { token, refreshToken, user } = await authService.register(username, password, email, role);
     res.status(201).json({ message: 'User registered successfully', token, refreshToken, user });
   } catch (error) {
     res.status(400).json({ message: error.message });

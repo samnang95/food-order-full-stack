@@ -9,6 +9,7 @@ import SettingsView from '../features/settings/views/SettingsView.vue';
 import { VouchersView } from '../features/vouchers';
 import { KdsView } from '../features/kds';
 import { ReviewsView } from '../features/reviews';
+import { StaffView } from '../features/staff';
 import { LoginView } from '../features/auth';
 import { LocalDB } from '../core/db/local_db';
 import { DBKeys } from '../core/db/db_keys';
@@ -67,6 +68,12 @@ const routes: RouteRecordRaw[] = [
     name: 'reviews',
     component: ReviewsView,
     meta: { title: 'Reviews & Reputation • FoodHub', requiresAuth: true },
+  },
+  {
+    path: AppRoutes.STAFF,
+    name: 'staff',
+    component: StaffView,
+    meta: { title: 'Staff & Team Management • FoodHub', requiresAuth: true },
   },
   {
     path: AppRoutes.SETTINGS,

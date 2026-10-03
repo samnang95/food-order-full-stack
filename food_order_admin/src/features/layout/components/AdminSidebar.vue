@@ -15,6 +15,7 @@ import {
   Ticket,
   Star,
   Settings,
+  UserCheck,
   ChevronLeft,
   ChevronRight,
   Flame,
@@ -55,6 +56,7 @@ const navItems: NavItem[] = [
   { name: 'Customers', path: AppRoutes.CUSTOMERS, icon: Users, roles: ['admin', 'manager'] },
   { name: 'Vouchers', path: AppRoutes.VOUCHERS, icon: Ticket, roles: ['admin', 'manager'] },
   { name: 'Reviews', path: AppRoutes.REVIEWS, icon: Star, roles: ['admin', 'manager'] },
+  { name: 'Staff & Team', path: AppRoutes.STAFF, icon: UserCheck, roles: ['admin', 'manager'] },
   { name: 'Settings', path: AppRoutes.SETTINGS, icon: Settings, roles: ['admin'] },
 ];
 

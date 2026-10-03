@@ -73,10 +73,10 @@ const userService = {
   },
 
   updateUserRole: async (userIdToUpdate, newRole) => {
-    const validRoles = ['user'];
+    const validRoles = ['admin', 'manager', 'kitchen', 'staff', 'user'];
     
     if (!validRoles.includes(newRole)) {
-      throw new Error('Invalid role specified. Role must be user.');
+      throw new Error(`Invalid role specified. Role must be one of: ${validRoles.join(', ')}`);
     }
 
     const user = await userRepository.findById(userIdToUpdate);

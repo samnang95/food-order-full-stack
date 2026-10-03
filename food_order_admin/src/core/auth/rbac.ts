@@ -33,6 +33,7 @@ export const ROLE_CONFIGS: Record<UserRole, RoleConfig> = {
       AppRoutes.CUSTOMERS,
       AppRoutes.VOUCHERS,
       AppRoutes.REVIEWS,
+      AppRoutes.STAFF,
       AppRoutes.SETTINGS,
     ],
     themeColor: {
@@ -57,6 +58,7 @@ export const ROLE_CONFIGS: Record<UserRole, RoleConfig> = {
       AppRoutes.CUSTOMERS,
       AppRoutes.VOUCHERS,
       AppRoutes.REVIEWS,
+      AppRoutes.STAFF,
     ],
     themeColor: {
       bg: 'bg-sky-500/15',

@@ -9,7 +9,7 @@ const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'my_refresh_sec
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const authService = {
-  register: async (username, password, email) => {
+  register: async (username, password, email, role = 'user') => {
     // 1. Check if user already exists
     const existingUser = await userRepository.findByUsername(username);
     if (existingUser) {
@@ -27,8 +27,8 @@ const authService = {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     
-    // 3. Save the new user
-    const newUser = await userRepository.create(username, hashedPassword, email);
+    // 3. Save the new user with specified role
+    const newUser = await userRepository.create(username, hashedPassword, email, role);
     
     // 4. Generate tokens for automatic login after register
     const token = jwt.sign(

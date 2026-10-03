@@ -7,6 +7,7 @@ export const AppRoutes = Object.freeze({
   CUSTOMERS: '/customers',
   VOUCHERS: '/vouchers',
   REVIEWS: '/reviews',
+  STAFF: '/staff',
   SETTINGS: '/settings',
   LOGIN: '/login',
   NOT_FOUND: '/:pathMatch(.*)*',
