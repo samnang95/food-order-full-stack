@@ -73,18 +73,20 @@ const startSimulation = (orderId, deliveryLocation, onDelivered) => {
   console.log(`   🏠 Delivery:   (${deliveryLocation.lat.toFixed(4)}, ${deliveryLocation.lng.toFixed(4)})`);
 
   // Emit initial position immediately
-  io.to(`order_${orderId}`).emit('driver_location', {
+  const initialPayload = {
     orderId,
     lat: waypoints[0].lat,
     lng: waypoints[0].lng,
     heading: calculateHeading(waypoints[0], waypoints[1]),
-    eta: Math.ceil((totalSteps - currentIndex) * 3 / 60), // minutes
+    eta: Math.ceil(((totalSteps - currentIndex) * 3) / 60), // minutes
     restaurantLat: restaurant.lat,
     restaurantLng: restaurant.lng,
     deliveryLat: deliveryLocation.lat,
     deliveryLng: deliveryLocation.lng,
     progress: 0,
-  });
+  };
+  io.to(`order_${orderId}`).emit('driver_location', initialPayload);
+  io.emit('driver_location', initialPayload);
 
   // Move driver every 3 seconds
   const intervalId = setInterval(() => {
@@ -95,7 +97,7 @@ const startSimulation = (orderId, deliveryLocation, onDelivered) => {
       clearInterval(intervalId);
       activeSimulations.delete(orderId);
 
-      io.to(`order_${orderId}`).emit('driver_location', {
+      const arrivedPayload = {
         orderId,
         lat: deliveryLocation.lat,
         lng: deliveryLocation.lng,
@@ -106,14 +108,20 @@ const startSimulation = (orderId, deliveryLocation, onDelivered) => {
         deliveryLat: deliveryLocation.lat,
         deliveryLng: deliveryLocation.lng,
         progress: 1,
-      });
+      };
+      io.to(`order_${orderId}`).emit('driver_location', arrivedPayload);
+      io.emit('driver_location', arrivedPayload);
 
       io.to(`order_${orderId}`).emit('order_status_changed', {
         orderId,
         status: 'delivered',
       });
+      io.emit('order:status_updated', {
+        orderId,
+        status: 'delivered',
+      });
 
-      io.to(`order_${orderId}`).emit('push_notification', {
+      const deliverNotif = {
         id: `notif_${Date.now()}`,
         type: 'delivery',
         title: '🎉 Order Delivered!',
@@ -121,7 +129,9 @@ const startSimulation = (orderId, deliveryLocation, onDelivered) => {
         orderId,
         timestamp: new Date().toISOString(),
         isRead: false,
-      });
+      };
+      io.to(`order_${orderId}`).emit('push_notification', deliverNotif);
+      io.emit('push_notification', deliverNotif);
 
       console.log(`✅ [Driver] Order ${orderId} delivered!`);
 
@@ -139,7 +149,7 @@ const startSimulation = (orderId, deliveryLocation, onDelivered) => {
 
     // When driver is approximately 2 minutes away, send push notification
     if (currentIndex === Math.floor(totalSteps * 0.7)) {
-      io.to(`order_${orderId}`).emit('push_notification', {
+      const nearNotif = {
         id: `notif_${Date.now()}`,
         type: 'order',
         title: '🛵 Driver is Almost There!',
@@ -147,10 +157,12 @@ const startSimulation = (orderId, deliveryLocation, onDelivered) => {
         orderId,
         timestamp: new Date().toISOString(),
         isRead: false,
-      });
+      };
+      io.to(`order_${orderId}`).emit('push_notification', nearNotif);
+      io.emit('push_notification', nearNotif);
     }
 
-    io.to(`order_${orderId}`).emit('driver_location', {
+    const stepPayload = {
       orderId,
       lat: current.lat,
       lng: current.lng,
@@ -161,7 +173,9 @@ const startSimulation = (orderId, deliveryLocation, onDelivered) => {
       deliveryLat: deliveryLocation.lat,
       deliveryLng: deliveryLocation.lng,
       progress: currentIndex / totalSteps,
-    });
+    };
+    io.to(`order_${orderId}`).emit('driver_location', stepPayload);
+    io.emit('driver_location', stepPayload);
   }, 3000);
 
   activeSimulations.set(orderId, intervalId);

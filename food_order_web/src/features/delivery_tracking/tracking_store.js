@@ -28,9 +28,18 @@ export function trackingReducer(state, action) {
       return { ...state, activeDeliveries: action.payload || [] };
 
     case TrackingIntentType.DRIVER_LOCATION_UPDATED:
+      if (!state.activeTracking) return state;
       return {
         ...state,
-        activeTracking: action.payload,
+        activeTracking: {
+          ...state.activeTracking,
+          driverLat: action.payload.lat ?? action.payload.driverLat ?? state.activeTracking.driverLat,
+          driverLng: action.payload.lng ?? action.payload.driverLng ?? state.activeTracking.driverLng,
+          heading: action.payload.heading ?? state.activeTracking.heading,
+          estimatedArrivalMinutes:
+            action.payload.eta ?? action.payload.estimatedArrivalMinutes ?? state.activeTracking.estimatedArrivalMinutes,
+          progress: action.payload.progress ?? state.activeTracking.progress,
+        },
       };
 
     case TrackingIntentType.STATUS_UPDATED:
@@ -134,7 +143,10 @@ export function useTrackingStore(orderId = null) {
 
     const unsubLocation = socketService.onDriverLocation((data) => {
       if (data?.orderId === orderId) {
-        loadTracking(orderId);
+        dispatch({
+          type: TrackingIntentType.DRIVER_LOCATION_UPDATED,
+          payload: data,
+        });
       }
     });
 
