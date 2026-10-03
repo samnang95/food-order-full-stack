@@ -2,6 +2,7 @@ import { useReducer, useEffect, useCallback, useMemo } from 'react';
 import { initialMenuState, computeProcessedFoods } from './menu_state';
 import { MenuIntentType } from './menu_intent';
 import { container } from '../../core/di/container';
+import { socketService } from '../../core/services/socket_service';
 
 /**
  * Pure Reducer: receives current menu state and intent, returns new state
@@ -112,6 +113,23 @@ export function useMenuStore(initialOverrides = {}) {
 
   useEffect(() => {
     loadMenu();
+
+    const socket = socketService.connect();
+    const handleMenuChange = () => {
+      loadMenu();
+    };
+
+    socket?.on('menu:updated', handleMenuChange);
+    socket?.on('food:created', handleMenuChange);
+    socket?.on('food:updated', handleMenuChange);
+    socket?.on('food:deleted', handleMenuChange);
+
+    return () => {
+      socket?.off('menu:updated', handleMenuChange);
+      socket?.off('food:created', handleMenuChange);
+      socket?.off('food:updated', handleMenuChange);
+      socket?.off('food:deleted', handleMenuChange);
+    };
   }, [loadMenu]);
 
   const processedFoods = useMemo(() => {

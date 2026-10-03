@@ -9,7 +9,7 @@ router.get('/:id', foodController.getFoodById);
 
 // Protected routes (authenticated users can modify food)
 router.use(protect);
-router.use(authorizeRoles('user'));
+router.use(authorizeRoles('admin', 'manager', 'staff', 'user'));
 
 router.post('/', foodController.createFood);
 router.put('/:id', foodController.updateFood);

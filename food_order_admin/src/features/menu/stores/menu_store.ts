@@ -6,6 +6,7 @@ import { GetFoodsUseCase } from '../../../domain/foods/usecases/get_foods_usecas
 import { SaveFoodUseCase } from '../../../domain/foods/usecases/save_food_usecase';
 import { MenuIntentType, type MenuIntent, MenuIntents } from '../menu_intent';
 import { initialMenuState, computeFilteredFoods, type MenuState } from '../menu_state';
+import { adminSocketService } from '../../../core/services/socket_service';
 
 export const useMenuStore = defineStore('menu', () => {
   const getFoodsUseCase = new GetFoodsUseCase(foodRepository);
@@ -137,6 +138,11 @@ export const useMenuStore = defineStore('menu', () => {
 
   // Initial Fetch on store instantiation
   dispatch(MenuIntents.fetchMenu());
+
+  // Real-time menu updates
+  adminSocketService.onMenuUpdated(() => {
+    dispatch(MenuIntents.fetchMenu());
+  });
 
   // Direct accessors & computed bindings
   const foods = computed(() => state.foods);

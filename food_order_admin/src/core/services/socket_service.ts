@@ -65,6 +65,21 @@ class AdminSocketService {
     };
   }
 
+  onMenuUpdated(callback: () => void): () => void {
+    if (!this.socket) this.connect();
+    const handler = () => callback();
+    this.socket?.on('menu:updated', handler);
+    this.socket?.on('food:created', handler);
+    this.socket?.on('food:updated', handler);
+    this.socket?.on('food:deleted', handler);
+    return () => {
+      this.socket?.off('menu:updated', handler);
+      this.socket?.off('food:created', handler);
+      this.socket?.off('food:updated', handler);
+      this.socket?.off('food:deleted', handler);
+    };
+  }
+
   disconnect(): void {
     if (this.socket) {
       this.socket.disconnect();
