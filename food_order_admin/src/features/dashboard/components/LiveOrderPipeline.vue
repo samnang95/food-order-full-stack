@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useOrdersStore } from '../../orders/stores/orders_store';
 import { Clock, ChefHat, Bike, CheckCircle2 } from 'lucide-vue-next';
 
 const router = useRouter();
+const { t } = useI18n();
 const ordersStore = useOrdersStore();
 
 const stages = computed(() => [
   {
     key: 'pending',
-    label: 'Pending Approval',
+    label: t('orders.pending'),
     count: ordersStore.statusCounts.pending || 0,
     icon: Clock,
     color: 'from-orange-500/20 to-orange-500/5',
@@ -20,7 +22,7 @@ const stages = computed(() => [
   },
   {
     key: 'preparing',
-    label: 'In The Kitchen',
+    label: t('orders.preparing'),
     count: ordersStore.statusCounts.preparing || 0,
     icon: ChefHat,
     color: 'from-amber-500/20 to-amber-500/5',
@@ -30,7 +32,7 @@ const stages = computed(() => [
   },
   {
     key: 'on_delivery',
-    label: 'Out For Delivery',
+    label: t('orders.onDelivery'),
     count: ordersStore.statusCounts.on_delivery || 0,
     icon: Bike,
     color: 'from-sky-500/20 to-sky-500/5',
@@ -40,7 +42,7 @@ const stages = computed(() => [
   },
   {
     key: 'delivered',
-    label: 'Delivered (Today)',
+    label: t('orders.delivered'),
     count: ordersStore.statusCounts.delivered || 0,
     icon: CheckCircle2,
     color: 'from-emerald-500/20 to-emerald-500/5',
@@ -60,14 +62,14 @@ function navigateToStage(status: string) {
   <div class="glass-card rounded-2xl p-5 border border-slate-800/80">
     <div class="flex items-center justify-between mb-4">
       <div>
-        <h3 class="text-sm font-bold text-white font-display uppercase tracking-wider">Live Order Pipeline</h3>
-        <p class="text-xs text-slate-400">Current active flow across the kitchen and couriers</p>
+        <h3 class="text-sm font-bold text-white font-display uppercase tracking-wider">{{ $t('dashboard.pipelineTitle') }}</h3>
+        <p class="text-xs text-slate-400">{{ $t('dashboard.pipelineSubtitle') }}</p>
       </div>
       <button
         @click="navigateToStage('all')"
         class="text-xs font-semibold text-orange-400 hover:text-orange-300 transition"
       >
-        View All Orders &rarr;
+        {{ $t('dashboard.viewAllOrders') }}
       </button>
     </div>
 

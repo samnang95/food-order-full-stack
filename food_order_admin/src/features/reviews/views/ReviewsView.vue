@@ -55,10 +55,10 @@ function handleSelectRating(star: number | 'all') {
       <div>
         <h2 class="text-2xl font-extrabold text-white font-display tracking-tight flex items-center gap-2.5">
           <MessageSquare class="w-7 h-7 text-orange-500" />
-          <span>Reviews & Reputation Hub</span>
+          <span>{{ $t('reviews.title') }}</span>
         </h2>
         <p class="text-xs text-slate-400 mt-1">
-          Monitor customer satisfaction, read verified diner feedback, and post official restaurant responses
+          {{ $t('reviews.subtitle') }}
         </p>
       </div>
     </div>

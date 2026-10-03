@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useOrdersStore } from '../../orders/stores/orders_store';
 import { useMenuStore } from '../../menu/stores/menu_store';
 import StatCard from '../components/StatCard.vue';
@@ -16,43 +17,44 @@ import {
   ArrowUpRight,
 } from 'lucide-vue-next';
 
+const { t } = useI18n();
 const ordersStore = useOrdersStore();
 const menuStore = useMenuStore();
 
 const metrics = computed(() => [
   {
-    title: 'Gross Revenue',
+    title: t('dashboard.grossRevenue'),
     value: `$${ordersStore.totalRevenue.toFixed(2)}`,
     change: 18.4,
     isPositive: true,
-    period: 'vs last week',
+    period: t('dashboard.vsLastWeek'),
     icon: DollarSign,
     colorClass: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
   },
   {
-    title: 'Active Orders',
+    title: t('dashboard.activeOrders'),
     value: ordersStore.activeOrdersCount,
     change: 8.2,
     isPositive: true,
-    period: 'in realtime',
+    period: t('dashboard.inRealtime'),
     icon: ShoppingBag,
     colorClass: 'bg-orange-500/10 border-orange-500/20 text-orange-400',
   },
   {
-    title: 'Average Prep Time',
+    title: t('dashboard.avgPrepTime'),
     value: '14 mins',
     change: 4.8,
     isPositive: true,
-    period: 'faster than target',
+    period: t('dashboard.fasterTarget'),
     icon: Timer,
     colorClass: 'bg-sky-500/10 border-sky-500/20 text-sky-400',
   },
   {
-    title: 'Menu Items Active',
+    title: t('dashboard.menuActive'),
     value: `${menuStore.availableCount} / ${menuStore.foods.length}`,
     change: 2.1,
     isPositive: true,
-    period: 'items available',
+    period: t('dashboard.itemsAvailable'),
     icon: Users,
     colorClass: 'bg-amber-500/10 border-amber-500/20 text-amber-400',
   },
@@ -66,13 +68,13 @@ const metrics = computed(() => [
         <div>
           <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/20 text-orange-400 text-xs font-bold border border-orange-500/30 mb-2">
             <Sparkles class="w-3.5 h-3.5" />
-            <span>Kitchen & Delivery Operations Center</span>
+            <span>{{ $t('dashboard.badgeCenter') }}</span>
           </div>
           <h2 class="text-2xl font-bold font-display text-white tracking-tight">
-            Welcome back, Chef & Operations Team 👋
+            {{ $t('dashboard.welcomeTitle') }}
           </h2>
           <p class="text-xs text-slate-300 mt-1 max-w-xl">
-            All kitchen stations are operational. You have <strong class="text-orange-400">{{ ordersStore.activeOrdersCount }} active orders</strong> being prepared and dispatched right now.
+            {{ $t('dashboard.welcomeSubtitle', { count: ordersStore.activeOrdersCount }) }}
           </p>
         </div>
 
@@ -81,7 +83,7 @@ const metrics = computed(() => [
             to="/orders"
             class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-bold shadow-lg shadow-orange-500/25 hover:brightness-110 transition flex items-center gap-2"
           >
-            <span>Live Order Station</span>
+            <span>{{ $t('dashboard.liveStationBtn') }}</span>
             <ArrowUpRight class="w-4 h-4" />
           </router-link>
         </div>

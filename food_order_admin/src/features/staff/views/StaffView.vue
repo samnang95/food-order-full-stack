@@ -95,13 +95,13 @@ async function handleModalSubmit(form: any) {
           </div>
           <div>
             <h1 class="text-xl sm:text-2xl font-black text-white font-display tracking-tight flex items-center gap-2">
-              Staff & Team Management
+              {{ $t('staff.title') }}
               <span class="text-xs px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 font-bold border border-orange-500/20 font-mono">
                 RBAC
               </span>
             </h1>
             <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
-              Control staff accounts, assign operational permissions, and monitor active shifts.
+              {{ $t('staff.subtitle') }}
             </p>
           </div>
         </div>
@@ -122,7 +122,7 @@ async function handleModalSubmit(form: any) {
           class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 hover:brightness-110 text-white text-xs font-bold shadow-lg shadow-orange-500/20 transition cursor-pointer active:scale-95"
         >
           <UserPlus class="w-4 h-4" />
-          <span>Add Team Member</span>
+          <span>{{ $t('staff.addMember') }}</span>
         </button>
       </div>
     </div>

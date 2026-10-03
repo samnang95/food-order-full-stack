@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useOrdersStore } from '../stores/orders_store';
 import type { OrderStatus } from '../../../domain/orders/entities/order_entity';
 import {
@@ -13,29 +15,30 @@ import {
   Filter,
 } from 'lucide-vue-next';
 
+const { t } = useI18n();
 const ordersStore = useOrdersStore();
 
-const filterTabs = [
-  { key: 'all', label: 'All Orders' },
-  { key: 'pending', label: 'Pending', icon: Clock },
-  { key: 'preparing', label: 'In Kitchen', icon: ChefHat },
-  { key: 'on_delivery', label: 'Courier En Route', icon: Bike },
-  { key: 'delivered', label: 'Delivered', icon: CheckCircle2 },
-  { key: 'cancelled', label: 'Cancelled', icon: XCircle },
-];
+const filterTabs = computed(() => [
+  { key: 'all', label: t('orders.allOrders') },
+  { key: 'pending', label: t('orders.pending'), icon: Clock },
+  { key: 'preparing', label: t('orders.preparing'), icon: ChefHat },
+  { key: 'on_delivery', label: t('orders.onDelivery'), icon: Bike },
+  { key: 'delivered', label: t('orders.delivered'), icon: CheckCircle2 },
+  { key: 'cancelled', label: t('orders.cancelled'), icon: XCircle },
+]);
 
 const getStatusBadge = (status: OrderStatus) => {
   switch (status) {
     case 'pending':
-      return { label: 'Pending Approval', bg: 'bg-orange-500/10 text-orange-400 border-orange-500/20' };
+      return { label: t('orders.pending'), bg: 'bg-orange-500/10 text-orange-400 border-orange-500/20' };
     case 'preparing':
-      return { label: 'Preparing', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/20' };
+      return { label: t('orders.preparing'), bg: 'bg-amber-500/10 text-amber-400 border-amber-500/20' };
     case 'on_delivery':
-      return { label: 'Out for Delivery', bg: 'bg-sky-500/10 text-sky-400 border-sky-500/20' };
+      return { label: t('orders.onDelivery'), bg: 'bg-sky-500/10 text-sky-400 border-sky-500/20' };
     case 'delivered':
-      return { label: 'Delivered', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' };
+      return { label: t('orders.delivered'), bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' };
     case 'cancelled':
-      return { label: 'Cancelled', bg: 'bg-rose-500/10 text-rose-400 border-rose-500/20' };
+      return { label: t('orders.cancelled'), bg: 'bg-rose-500/10 text-rose-400 border-rose-500/20' };
     default:
       return { label: status, bg: 'bg-slate-500/10 text-slate-400 border-slate-500/20' };
   }
@@ -44,11 +47,11 @@ const getStatusBadge = (status: OrderStatus) => {
 const getNextActionLabel = (status: OrderStatus) => {
   switch (status) {
     case 'pending':
-      return 'Accept & Cook';
+      return t('orders.acceptOrder');
     case 'preparing':
-      return 'Dispatch Courier';
+      return t('orders.dispatchOrder');
     case 'on_delivery':
-      return 'Confirm Delivered';
+      return t('orders.completeOrder');
     default:
       return '';
   }
@@ -59,8 +62,8 @@ const getNextActionLabel = (status: OrderStatus) => {
   <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h2 class="text-xl font-bold font-display text-white">Live Orders Management</h2>
-        <p class="text-xs text-slate-400">Track and dispatch kitchen orders across every stage</p>
+        <h2 class="text-xl font-bold font-display text-white">{{ $t('orders.title') }}</h2>
+        <p class="text-xs text-slate-400">{{ $t('orders.subtitle') }}</p>
       </div>
 
       <div class="relative w-full sm:w-72">
@@ -180,7 +183,7 @@ const getNextActionLabel = (status: OrderStatus) => {
       <div class="w-12 h-12 rounded-2xl bg-slate-800 text-slate-400 flex items-center justify-center mx-auto mb-3">
         <Filter class="w-5 h-5" />
       </div>
-      <h3 class="text-sm font-bold text-white mb-1">No orders found</h3>
+      <h3 class="text-sm font-bold text-white mb-1">{{ $t('orders.noOrders') }}</h3>
       <p class="text-xs text-slate-400 mb-4">No orders currently match the selected status or search filter.</p>
       <button
         @click="ordersStore.activeStatusFilter = 'all'; ordersStore.searchQuery = ''"

@@ -40,8 +40,8 @@ const getCategoryIcon = (iconName: string) => {
   <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h2 class="text-xl font-bold font-display text-white">Food Categories</h2>
-        <p class="text-xs text-slate-400">Organize dishes into customer menu sections</p>
+        <h2 class="text-xl font-bold font-display text-white">{{ $t('categories.title') }}</h2>
+        <p class="text-xs text-slate-400">{{ $t('categories.subtitle') }}</p>
       </div>
 
       <button

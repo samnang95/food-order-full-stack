@@ -19,9 +19,9 @@ const menuStore = useMenuStore();
   <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h2 class="text-xl font-bold font-display text-white">Menu & Food Catalog</h2>
+        <h2 class="text-xl font-bold font-display text-white">{{ $t('menu.title') }}</h2>
         <p class="text-xs text-slate-400">
-          Manage kitchen dishes, pricing, inventory stock availability and recipes
+          {{ $t('menu.subtitle') }}
         </p>
       </div>
 
@@ -31,7 +31,7 @@ const menuStore = useMenuStore();
           class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:brightness-110 text-white text-xs font-bold shadow-lg shadow-orange-500/20 flex items-center gap-1.5 transition active:scale-95"
         >
           <Plus class="w-4 h-4" />
-          <span>Add New Dish</span>
+          <span>{{ $t('menu.addNewDish') }}</span>
         </button>
       </div>
     </div>

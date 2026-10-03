@@ -13,6 +13,7 @@ export const DBKeys = Object.freeze({
   CACHED_REVIEWS: 'foodhub_cached_reviews',
   CACHED_STAFF: 'foodhub_cached_staff',
   NOTIFICATIONS: 'foodhub_notifications',
+  LOCALE: 'foodhub_locale',
 } as const);
 
 export type DBKey = typeof DBKeys[keyof typeof DBKeys];

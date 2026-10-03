@@ -9,8 +9,8 @@ const customersStore = useCustomersStore();
   <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h2 class="text-xl font-bold font-display text-white">Customer Directory</h2>
-        <p class="text-xs text-slate-400">View loyalty, order histories and contact profiles</p>
+        <h2 class="text-xl font-bold font-display text-white">{{ $t('customers.title') }}</h2>
+        <p class="text-xs text-slate-400">{{ $t('customers.subtitle') }}</p>
       </div>
 
       <div class="relative w-full sm:w-72">
@@ -18,7 +18,7 @@ const customersStore = useCustomersStore();
         <input
           v-model="customersStore.searchQuery"
           type="text"
-          placeholder="Search by customer name, email..."
+          :placeholder="$t('customers.searchPlaceholder')"
           class="w-full bg-slate-800/80 border border-slate-700/80 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-orange-500"
         />
       </div>

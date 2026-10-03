@@ -41,6 +41,7 @@ const pendingCount = computed(() => ordersStore.statusCounts.pending || 0);
 
 interface NavItem {
   name: string;
+  i18nKey: string;
   path: string;
   icon: Component;
   badge?: ComputedRef<number>;
@@ -48,16 +49,16 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Dashboard', path: AppRoutes.ROOT, icon: LayoutDashboard, roles: ['admin', 'manager'] },
-  { name: 'Orders', path: AppRoutes.ORDERS, icon: ShoppingBag, badge: pendingCount, roles: ['admin', 'manager', 'staff'] },
-  { name: 'Kitchen KDS', path: AppRoutes.KDS, icon: ChefHat, roles: ['admin', 'kitchen', 'staff'] },
-  { name: 'Menu Catalog', path: AppRoutes.MENU, icon: UtensilsCrossed, roles: ['admin', 'manager', 'kitchen', 'staff'] },
-  { name: 'Categories', path: AppRoutes.CATEGORIES, icon: Layers, roles: ['admin', 'manager'] },
-  { name: 'Customers', path: AppRoutes.CUSTOMERS, icon: Users, roles: ['admin', 'manager'] },
-  { name: 'Vouchers', path: AppRoutes.VOUCHERS, icon: Ticket, roles: ['admin', 'manager'] },
-  { name: 'Reviews', path: AppRoutes.REVIEWS, icon: Star, roles: ['admin', 'manager'] },
-  { name: 'Staff & Team', path: AppRoutes.STAFF, icon: UserCheck, roles: ['admin', 'manager'] },
-  { name: 'Settings', path: AppRoutes.SETTINGS, icon: Settings, roles: ['admin'] },
+  { name: 'Dashboard', i18nKey: 'common.dashboard', path: AppRoutes.ROOT, icon: LayoutDashboard, roles: ['admin', 'manager'] },
+  { name: 'Orders', i18nKey: 'common.orders', path: AppRoutes.ORDERS, icon: ShoppingBag, badge: pendingCount, roles: ['admin', 'manager', 'staff'] },
+  { name: 'Kitchen KDS', i18nKey: 'common.kitchenKds', path: AppRoutes.KDS, icon: ChefHat, roles: ['admin', 'kitchen', 'staff'] },
+  { name: 'Menu Catalog', i18nKey: 'common.menuCatalog', path: AppRoutes.MENU, icon: UtensilsCrossed, roles: ['admin', 'manager', 'kitchen', 'staff'] },
+  { name: 'Categories', i18nKey: 'common.categories', path: AppRoutes.CATEGORIES, icon: Layers, roles: ['admin', 'manager'] },
+  { name: 'Customers', i18nKey: 'common.customers', path: AppRoutes.CUSTOMERS, icon: Users, roles: ['admin', 'manager'] },
+  { name: 'Vouchers', i18nKey: 'common.vouchers', path: AppRoutes.VOUCHERS, icon: Ticket, roles: ['admin', 'manager'] },
+  { name: 'Reviews', i18nKey: 'common.reviews', path: AppRoutes.REVIEWS, icon: Star, roles: ['admin', 'manager'] },
+  { name: 'Staff & Team', i18nKey: 'common.staffTeam', path: AppRoutes.STAFF, icon: UserCheck, roles: ['admin', 'manager'] },
+  { name: 'Settings', i18nKey: 'common.settings', path: AppRoutes.SETTINGS, icon: Settings, roles: ['admin'] },
 ];
 
 const currentRole = computed<UserRole>(() => (authStore.userRole || 'admin') as UserRole);
@@ -122,7 +123,7 @@ const filteredNavItems = computed(() => {
             FoodHub<span class="text-orange-500">.</span>
           </span>
           <span class="text-[11px] font-medium tracking-wider text-orange-600/90 dark:text-orange-400/80 uppercase truncate">
-            Operations Hub
+            {{ $t('common.operationsHub') }}
           </span>
         </div>
       </router-link>
@@ -144,7 +145,7 @@ const filteredNavItems = computed(() => {
         v-if="!appStore.isSidebarCollapsed"
         class="px-3 pb-1 text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
       >
-        Management
+        {{ $t('common.management') }}
       </div>
 
       <router-link
@@ -174,7 +175,7 @@ const filteredNavItems = computed(() => {
           v-if="!appStore.isSidebarCollapsed"
           class="truncate min-w-0"
         >
-          {{ item.name }}
+          {{ $t(item.i18nKey) }}
         </span>
 
         <!-- Floating Tooltip (Collapsed on Hover) -->
@@ -182,7 +183,7 @@ const filteredNavItems = computed(() => {
           v-if="appStore.isSidebarCollapsed"
           class="absolute left-full ml-3.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white text-xs font-semibold whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none z-50 flex items-center gap-2"
         >
-          <span>{{ item.name }}</span>
+          <span>{{ $t(item.i18nKey) }}</span>
           <span
             v-if="item.badge && item.badge.value > 0"
             class="bg-orange-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold"
@@ -232,7 +233,7 @@ const filteredNavItems = computed(() => {
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
           </span>
-          <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Kitchen Live</span>
+          <span class="text-xs font-medium text-slate-700 dark:text-slate-300">{{ $t('common.kitchenLive') }}</span>
         </div>
         <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
           PORT 3000
@@ -249,7 +250,7 @@ const filteredNavItems = computed(() => {
           <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
         </span>
         <div class="absolute left-full ml-3 px-2 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none z-50">
-          Kitchen Live (PORT 3000)
+          {{ $t('common.kitchenLive') }} (PORT 3000)
         </div>
       </div>
 
@@ -286,7 +287,7 @@ const filteredNavItems = computed(() => {
           v-if="!appStore.isSidebarCollapsed"
           @click="handleLogout"
           class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 hover:bg-red-500/10 transition cursor-pointer opacity-70 group-hover:opacity-100"
-          title="Sign Out"
+          :title="$t('common.signOut')"
         >
           <LogOut class="w-4 h-4" />
         </button>

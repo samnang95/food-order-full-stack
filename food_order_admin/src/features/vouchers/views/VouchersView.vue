@@ -72,10 +72,10 @@ function handleValidateVoucher(payload: { code: string; subtotal: number }) {
       <div>
         <h2 class="text-2xl font-extrabold text-white font-display tracking-tight flex items-center gap-2.5">
           <Ticket class="w-7 h-7 text-orange-500" />
-          <span>Vouchers & Promotions</span>
+          <span>{{ $t('vouchers.title') }}</span>
         </h2>
         <p class="text-xs text-slate-400 mt-1">
-          Configure promotional discounts, promo codes, and loyalty vouchers for customer mobile orders
+          {{ $t('vouchers.subtitle') }}
         </p>
       </div>
 
@@ -85,7 +85,7 @@ function handleValidateVoucher(payload: { code: string; subtotal: number }) {
         class="px-4 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-300 text-white shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer"
       >
         <Plus class="w-4 h-4" />
-        <span>Create New Voucher</span>
+        <span>{{ $t('vouchers.createNew') }}</span>
       </button>
     </div>
 

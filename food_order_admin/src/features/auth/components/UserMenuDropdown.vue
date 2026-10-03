@@ -136,7 +136,7 @@ function handleSwitchRole(role: UserRole) {
           </span>
           <span class="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-            Online
+            {{ $t('common.online') }}
           </span>
         </div>
       </div>
@@ -146,9 +146,9 @@ function handleSwitchRole(role: UserRole) {
         <div class="flex items-center justify-between mb-1.5 px-1">
           <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
             <RefreshCw class="w-2.5 h-2.5 text-orange-500 dark:text-orange-400" />
-            Switch Active Role
+            {{ $t('common.switchRole') }}
           </span>
-          <span class="text-[9px] text-slate-400 dark:text-slate-500 font-mono">RBAC Preview</span>
+          <span class="text-[9px] text-slate-400 dark:text-slate-500 font-mono">{{ $t('roles.rbacPreview') }}</span>
         </div>
 
         <div class="grid grid-cols-2 gap-1.5">
@@ -165,7 +165,7 @@ function handleSwitchRole(role: UserRole) {
             ]"
           >
             <component :is="r.icon" class="w-3 h-3 shrink-0" />
-            <span class="truncate">{{ r.label }}</span>
+            <span class="truncate">{{ $t('roles.' + r.role) }}</span>
           </button>
         </div>
       </div>
@@ -178,7 +178,7 @@ function handleSwitchRole(role: UserRole) {
           class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/70 transition cursor-pointer text-left"
         >
           <Settings class="w-4 h-4 text-slate-500 dark:text-slate-400" />
-          <span>System Settings</span>
+          <span>{{ $t('common.settings') }}</span>
         </button>
 
         <button
@@ -186,7 +186,7 @@ function handleSwitchRole(role: UserRole) {
           class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer text-left font-medium"
         >
           <LogOut class="w-4 h-4 text-red-500 dark:text-red-400" />
-          <span>Sign Out</span>
+          <span>{{ $t('common.signOut') }}</span>
         </button>
       </div>
     </div>
