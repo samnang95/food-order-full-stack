@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useSettingsStore } from '../stores/settings_store';
+import { useThemeStore, ACCENT_OPTIONS } from '../../../core/theme/theme_store';
 import { AppConfig } from '../../../core/config/app_config';
 import {
   Server,
@@ -8,16 +9,151 @@ import {
   Store,
   Save,
   CheckCircle2,
+  Palette,
+  Sun,
+  Moon,
+  Monitor,
+  Check,
 } from 'lucide-vue-next';
 
 const settingsStore = useSettingsStore();
+const themeStore = useThemeStore();
 </script>
 
 <template>
   <div class="space-y-6 max-w-4xl">
     <div>
       <h2 class="text-xl font-bold font-display text-white">System & Operations Settings</h2>
-      <p class="text-xs text-slate-400">Configure kitchen hardware, backend connection and store properties</p>
+      <p class="text-xs text-slate-400">Configure theme appearance, kitchen hardware, and store properties</p>
+    </div>
+
+    <!-- Appearance & Theme Customizer Card -->
+    <div class="glass-card rounded-2xl p-5 border border-slate-800/80 space-y-5">
+      <div class="flex items-center gap-2.5 pb-3 border-b border-slate-800/80">
+        <div class="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+          <Palette class="w-4 h-4" />
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-white">Theme & Visual Appearance</h3>
+          <p class="text-xs text-slate-400">Customize display theme modes and brand accent palettes</p>
+        </div>
+      </div>
+
+      <!-- Mode Cards: Dark / Light / System -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-2">Display Theme Mode</label>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- Dark -->
+          <button
+            type="button"
+            @click="themeStore.setMode('dark')"
+            :class="[
+              'p-3.5 rounded-xl border text-left transition cursor-pointer flex items-center justify-between',
+              themeStore.mode === 'dark'
+                ? 'bg-slate-800/90 border-orange-500/50 ring-2 ring-orange-500/20 shadow-md'
+                : 'bg-slate-950/40 border-slate-800/80 hover:bg-slate-800/40'
+            ]"
+          >
+            <div class="flex items-center gap-3">
+              <div class="p-2 rounded-lg bg-sky-500/10 text-sky-400">
+                <Moon class="w-4 h-4" />
+              </div>
+              <div>
+                <span class="text-xs font-bold text-white block">Dark Mode</span>
+                <span class="text-[10px] text-slate-400 block">Midnight slate</span>
+              </div>
+            </div>
+            <div
+              v-if="themeStore.mode === 'dark'"
+              class="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center text-white"
+            >
+              <Check class="w-3 h-3 stroke-[3]" />
+            </div>
+          </button>
+
+          <!-- Light -->
+          <button
+            type="button"
+            @click="themeStore.setMode('light')"
+            :class="[
+              'p-3.5 rounded-xl border text-left transition cursor-pointer flex items-center justify-between',
+              themeStore.mode === 'light'
+                ? 'bg-slate-800/90 border-orange-500/50 ring-2 ring-orange-500/20 shadow-md'
+                : 'bg-slate-950/40 border-slate-800/80 hover:bg-slate-800/40'
+            ]"
+          >
+            <div class="flex items-center gap-3">
+              <div class="p-2 rounded-lg bg-amber-500/10 text-amber-400">
+                <Sun class="w-4 h-4" />
+              </div>
+              <div>
+                <span class="text-xs font-bold text-white block">Light Mode</span>
+                <span class="text-[10px] text-slate-400 block">Daylight clean</span>
+              </div>
+            </div>
+            <div
+              v-if="themeStore.mode === 'light'"
+              class="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center text-white"
+            >
+              <Check class="w-3 h-3 stroke-[3]" />
+            </div>
+          </button>
+
+          <!-- System -->
+          <button
+            type="button"
+            @click="themeStore.setMode('system')"
+            :class="[
+              'p-3.5 rounded-xl border text-left transition cursor-pointer flex items-center justify-between',
+              themeStore.mode === 'system'
+                ? 'bg-slate-800/90 border-orange-500/50 ring-2 ring-orange-500/20 shadow-md'
+                : 'bg-slate-950/40 border-slate-800/80 hover:bg-slate-800/40'
+            ]"
+          >
+            <div class="flex items-center gap-3">
+              <div class="p-2 rounded-lg bg-purple-500/10 text-purple-400">
+                <Monitor class="w-4 h-4" />
+              </div>
+              <div>
+                <span class="text-xs font-bold text-white block">System Auto</span>
+                <span class="text-[10px] text-slate-400 block">Follows OS</span>
+              </div>
+            </div>
+            <div
+              v-if="themeStore.mode === 'system'"
+              class="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center text-white"
+            >
+              <Check class="w-3 h-3 stroke-[3]" />
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Accent Palettes -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-2">Brand Accent Palette</label>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          <button
+            v-for="acc in ACCENT_OPTIONS"
+            :key="acc.id"
+            type="button"
+            @click="themeStore.setAccent(acc.id)"
+            :class="[
+              'p-3 rounded-xl border text-left transition cursor-pointer flex flex-col items-center gap-2 group',
+              themeStore.accent === acc.id
+                ? 'bg-slate-800/90 border-white/40 ring-2 ring-white/20'
+                : 'bg-slate-950/40 border-slate-800/80 hover:bg-slate-800/40'
+            ]"
+          >
+            <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shadow-lg relative bg-gradient-to-tr', acc.gradientClass]">
+              <Check v-if="themeStore.accent === acc.id" class="w-4 h-4 text-white stroke-[3]" />
+            </div>
+            <span class="text-[11px] font-semibold text-slate-300 truncate text-center block">
+              {{ acc.label }}
+            </span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- API & Backend Integration -->

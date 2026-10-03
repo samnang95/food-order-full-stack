@@ -12,14 +12,22 @@ import {
   Info,
   Clock,
   Menu,
+  Sun,
+  Moon,
+  Monitor,
+  Palette,
+  Check,
 } from 'lucide-vue-next';
 import { UserMenuDropdown } from '../../auth';
+import { useThemeStore, ACCENT_OPTIONS } from '../../../core/theme/theme_store';
 
 const route = useRoute();
 const appStore = useAppStore();
 const menuStore = useMenuStore();
+const themeStore = useThemeStore();
 const showNotifications = ref(false);
 const showStatusDropdown = ref(false);
+const showThemeMenu = ref(false);
 
 const getPageTitle = () => {
   return (route.meta.title as string) || 'Dashboard';
@@ -114,9 +122,95 @@ const statusOptions = [
         <span>New Dish</span>
       </button>
 
+      <!-- Theme & Accent Customizer -->
       <div class="relative">
         <button
-          @click="showNotifications = !showNotifications; appStore.markNotificationsAsRead()"
+          @click="showThemeMenu = !showThemeMenu; showNotifications = false"
+          class="relative w-9 h-9 rounded-xl bg-slate-800/70 border border-slate-700/60 hover:bg-slate-700/70 text-slate-300 flex items-center justify-center transition cursor-pointer"
+          title="Theme & Appearance"
+        >
+          <Sun v-if="themeStore.mode === 'light'" class="w-4 h-4 text-amber-400" />
+          <Moon v-else-if="themeStore.mode === 'dark'" class="w-4 h-4 text-sky-400" />
+          <Monitor v-else class="w-4 h-4 text-slate-300" />
+        </button>
+
+        <div
+          v-if="showThemeMenu"
+          class="absolute right-0 mt-2 w-64 rounded-2xl bg-slate-900/95 border border-slate-800 shadow-2xl p-3 z-50 backdrop-blur-2xl animate-in fade-in duration-150"
+        >
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-2.5">
+            <span class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              <Palette class="w-3.5 h-3.5 text-orange-400" />
+              Theme & Appearance
+            </span>
+          </div>
+
+          <!-- Mode Selector (Dark, Light, System) -->
+          <div class="mb-3">
+            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Theme Mode</span>
+            <div class="grid grid-cols-3 gap-1 p-1 rounded-xl bg-slate-950/60 border border-slate-800">
+              <button
+                type="button"
+                @click="themeStore.setMode('dark')"
+                :class="[
+                  'py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 transition cursor-pointer',
+                  themeStore.mode === 'dark' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+                ]"
+              >
+                <Moon class="w-3 h-3 text-sky-400" />
+                <span>Dark</span>
+              </button>
+              <button
+                type="button"
+                @click="themeStore.setMode('light')"
+                :class="[
+                  'py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 transition cursor-pointer',
+                  themeStore.mode === 'light' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+                ]"
+              >
+                <Sun class="w-3 h-3 text-amber-400" />
+                <span>Light</span>
+              </button>
+              <button
+                type="button"
+                @click="themeStore.setMode('system')"
+                :class="[
+                  'py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 transition cursor-pointer',
+                  themeStore.mode === 'system' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+                ]"
+              >
+                <Monitor class="w-3 h-3 text-slate-300" />
+                <span>Auto</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Accent Color Swatches -->
+          <div>
+            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Brand Accent</span>
+            <div class="grid grid-cols-6 gap-1.5">
+              <button
+                v-for="acc in ACCENT_OPTIONS"
+                :key="acc.id"
+                type="button"
+                @click="themeStore.setAccent(acc.id)"
+                :title="acc.label"
+                :class="[
+                  'w-8 h-8 rounded-xl flex items-center justify-center transition cursor-pointer relative',
+                  `bg-gradient-to-tr ${acc.gradientClass}`,
+                  themeStore.accent === acc.id ? 'ring-2 ring-white scale-110 shadow-lg' : 'hover:scale-105 opacity-80 hover:opacity-100'
+                ]"
+              >
+                <Check v-if="themeStore.accent === acc.id" class="w-3.5 h-3.5 text-white stroke-[3]" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative">
+        <button
+          @click="showNotifications = !showNotifications; showThemeMenu = false; appStore.markNotificationsAsRead()"
           class="relative w-9 h-9 rounded-xl bg-slate-800/70 border border-slate-700/60 hover:bg-slate-700/70 text-slate-300 flex items-center justify-center transition"
           title="Notifications"
         >

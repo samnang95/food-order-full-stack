@@ -53,23 +53,77 @@
 
 /* Glassmorphism & premium UI helpers */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.75);
+  background: var(--bg-panel, rgba(15, 23, 42, 0.75));
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-panel, rgba(255, 255, 255, 0.08));
 }
 
 .glass-card {
-  background: rgba(30, 41, 59, 0.55);
+  background: var(--bg-card, rgba(30, 41, 59, 0.55));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--border-card, rgba(255, 255, 255, 0.07));
 }
 
 .glass-card:hover {
-  border-color: rgba(249, 115, 22, 0.3);
+  border-color: var(--accent-border-hover, rgba(249, 115, 22, 0.3));
 }
 
 .glow-orange {
   box-shadow: 0 0 25px -5px rgba(249, 115, 22, 0.25);
+}
+
+/* Light / Dark Mode Tokens */
+:root {
+  --bg-canvas: #f8fafc;
+  --bg-panel: rgba(255, 255, 255, 0.92);
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --border-card: rgba(226, 232, 240, 0.9);
+  --border-panel: rgba(226, 232, 240, 0.8);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --accent-primary: #f97316;
+  --accent-border-hover: rgba(249, 115, 22, 0.4);
+}
+
+html.dark {
+  --bg-canvas: #020617;
+  --bg-panel: rgba(15, 23, 42, 0.85);
+  --bg-card: rgba(15, 23, 42, 0.8);
+  --border-card: rgba(51, 65, 85, 0.6);
+  --border-panel: rgba(51, 65, 85, 0.5);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+}
+
+/* Accent Palettes */
+html[data-accent="orange"] {
+  --accent-primary: #f97316;
+  --accent-border-hover: rgba(249, 115, 22, 0.4);
+}
+
+html[data-accent="emerald"] {
+  --accent-primary: #10b981;
+  --accent-border-hover: rgba(16, 185, 129, 0.4);
+}
+
+html[data-accent="blue"] {
+  --accent-primary: #0ea5e9;
+  --accent-border-hover: rgba(14, 165, 233, 0.4);
+}
+
+html[data-accent="purple"] {
+  --accent-primary: #8b5cf6;
+  --accent-border-hover: rgba(139, 92, 246, 0.4);
+}
+
+html[data-accent="rose"] {
+  --accent-primary: #f43f5e;
+  --accent-border-hover: rgba(244, 63, 94, 0.4);
+}
+
+html[data-accent="amber"] {
+  --accent-primary: #f59e0b;
+  --accent-border-hover: rgba(245, 158, 11, 0.4);
 }
