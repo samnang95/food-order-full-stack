@@ -88,6 +88,10 @@ app.use('/account', accountRoutes);
 // Customer Support, Help Center & Issue Reporting Routes
 app.use('/support', supportRoutes);
 
+// Payment & Bakong KHQR Routes
+const paymentRoutes = require('./routes/paymentRoutes');
+app.use('/payments', paymentRoutes);
+
 // Connect to MongoDB
 connectDB();
 

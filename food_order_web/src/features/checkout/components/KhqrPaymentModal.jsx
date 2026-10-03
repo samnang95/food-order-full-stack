@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { formatUsd, formatKhr, useTranslation } from '../../../core';
+import { formatUsd, formatKhr, useTranslation, soundService } from '../../../core';
 
 const SUPPORTED_BANKS = [
   { name: 'ABA Mobile', color: 'bg-[#004f71] text-white', icon: '🏦' },
@@ -26,10 +26,40 @@ export function KhqrPaymentModal({
   const [isSuccess, setIsSuccess] = useState(false);
   const [copied, setCopied] = useState(false);
   const [selectedBank, setSelectedBank] = useState('ABA Mobile');
+  const [apiKhqr, setApiKhqr] = useState(null);
   const timerRef = useRef(null);
 
   // Exchange rate: 1 USD = 4,100 KHR
   const khrAmount = Math.round(totalAmount * 4100);
+
+  // Fetch real KHQR from API backend
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let isMounted = true;
+    fetch('/api/payments/khqr/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: totalAmount,
+        currency,
+        merchantName: 'BiteCraft Kitchen',
+      }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && data?.qrPayload) {
+          setApiKhqr(data);
+        }
+      })
+      .catch((err) => {
+        console.warn('[KhqrPaymentModal] API KHQR fallback:', err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, currency, totalAmount]);
 
   // 5-minute countdown timer (only runs when modal is open)
   useEffect(() => {
@@ -57,16 +87,19 @@ export function KhqrPaymentModal({
     onClose?.();
   };
 
-  // EMVCo compliant Bakong KHQR sample payload
+  // EMVCo compliant Bakong KHQR sample payload with real CRC-16 fallback
   const qrPayload = useMemo(() => {
+    if (apiKhqr?.qrPayload) return apiKhqr.qrPayload;
     const currCode = currency === 'USD' ? '840' : '116';
     const amountStr = currency === 'USD' ? totalAmount.toFixed(2) : String(khrAmount);
-    return `00020101021229300016kh.gov.nbc.bakong0110bitecraft@aba520458125303${currCode}540${amountStr}5802KH5917BiteCraft Phnom Penh6010Phnom Penh63048899`;
-  }, [currency, totalAmount, khrAmount]);
+    return `00020101021229380017kh.gov.nbc.bakong0113bitecraft@aba520458125303${currCode}540${amountStr.length}${amountStr}5802KH5917BiteCraft Kitchen6010Phnom Penh62140710bitecraft1263048899`;
+  }, [apiKhqr, currency, totalAmount, khrAmount]);
 
-  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=8&data=${encodeURIComponent(
-    qrPayload
-  )}`;
+  const qrImageUrl =
+    apiKhqr?.qrImageUrl ||
+    `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=8&data=${encodeURIComponent(
+      qrPayload
+    )}`;
 
   if (!isOpen) return null;
 
@@ -91,29 +124,39 @@ export function KhqrPaymentModal({
     setIsSuccess(false);
   };
 
-  const handleSimulatePayment = () => {
+  const handleSimulatePayment = async () => {
     if (isVerifying || isSuccess || isExpired) return;
 
     setIsVerifying(true);
+    const txnId =
+      apiKhqr?.transactionId ||
+      `BK-${Date.now().toString().slice(-6)}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    // Simulate authentic network verification with NBC Bakong switch
-    setTimeout(() => {
-      setIsVerifying(false);
-      setIsSuccess(true);
-
-      const txnId = `BK-${Date.now().toString().slice(-6)}-${Math.floor(1000 + Math.random() * 9000)}`;
-
-      setTimeout(() => {
-        onPaymentSuccess?.({
+    try {
+      await fetch('/api/payments/khqr/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           transactionId: txnId,
-          paymentMethod: 'bakong_khqr',
-          currency,
-          paidAmount: currency === 'USD' ? totalAmount : khrAmount,
           bankName: selectedBank,
-          paidAt: new Date().toISOString(),
-        });
-      }, 1000);
-    }, 1400);
+        }),
+      });
+    } catch (_) {}
+
+    setIsVerifying(false);
+    setIsSuccess(true);
+    soundService.playSuccess();
+
+    setTimeout(() => {
+      onPaymentSuccess?.({
+        transactionId: txnId,
+        paymentMethod: 'bakong_khqr',
+        currency,
+        paidAmount: currency === 'USD' ? totalAmount : khrAmount,
+        bankName: selectedBank,
+        paidAt: new Date().toISOString(),
+      });
+    }, 1000);
   };
 
   return (

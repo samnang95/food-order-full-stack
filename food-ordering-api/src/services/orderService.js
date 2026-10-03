@@ -79,6 +79,8 @@ const orderService = {
       deliveryLocation,
       paymentMethod: orderData.paymentMethod || 'cash',
       paymentStatus: orderData.paymentStatus || 'pending',
+      paymentRef: orderData.paymentRef || orderData.transactionId || null,
+      tipAmount: Number(orderData.tipAmount) || 0,
       deliverySchedule: orderData.deliverySchedule || { mode: 'asap' },
       deliveryNotes: orderData.deliveryNotes || '',
     };

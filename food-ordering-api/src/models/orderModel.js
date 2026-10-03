@@ -65,6 +65,14 @@ const orderSchema = new mongoose.Schema({
     enum: ['pending', 'completed', 'failed'],
     default: 'pending'
   },
+  paymentRef: {
+    type: String,
+    default: null,
+  },
+  tipAmount: {
+    type: Number,
+    default: 0,
+  },
   voucherCode: {
     type: String,
     default: null,
