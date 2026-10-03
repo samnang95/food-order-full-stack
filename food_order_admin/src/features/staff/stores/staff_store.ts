@@ -18,7 +18,6 @@ export const useStaffStore = defineStore('staff', () => {
   const createStaffUseCase = new CreateStaffUseCase(repository);
   const updateStaffRoleUseCase = new UpdateStaffRoleUseCase(repository);
   const deleteStaffUseCase = new DeleteStaffUseCase(repository);
-
   const state = ref<StaffState>({ ...initialStaffState });
 
   // Getters

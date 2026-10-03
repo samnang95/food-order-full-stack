@@ -18,9 +18,9 @@ router.post('/fcm-token', userController.updateFcmToken);
 // User Management Routes
 // ==============================
 // Get all users in the system
-router.get('/', authorizeRoles('user'), userController.getAllUsers);
+router.get('/', authorizeRoles('admin', 'manager', 'user'), userController.getAllUsers);
 
 // Update a user's role
-router.put('/:id/role', authorizeRoles('user'), userController.updateUserRole);
+router.put('/:id/role', authorizeRoles('admin', 'user'), userController.updateUserRole);
 
 module.exports = router;
