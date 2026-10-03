@@ -77,7 +77,7 @@
 /* Light / Dark Mode Tokens */
 :root {
   --bg-canvas: #f8fafc;
-  --bg-panel: rgba(255, 255, 255, 0.92);
+  --bg-panel: rgba(255, 255, 255, 0.95);
   --bg-card: rgba(255, 255, 255, 0.95);
   --border-card: rgba(226, 232, 240, 0.9);
   --border-panel: rgba(226, 232, 240, 0.8);
@@ -97,33 +97,489 @@ html.dark {
   --text-muted: #94a3b8;
 }
 
-/* Accent Palettes */
-html[data-accent="orange"] {
-  --accent-primary: #f97316;
-  --accent-border-hover: rgba(249, 115, 22, 0.4);
+/* ==========================================================================
+   Global Light Theme Transformation Layer
+   Applies clean modern surfaces, crisp typography and soft borders across
+   all tables, cards, headers, sidebars, modals and inputs when html.light is active
+   ========================================================================== */
+
+html.light {
+  color-scheme: light;
+  background-color: #f8fafc;
+  color: #0f172a;
 }
 
+/* Background overrides in Light Mode */
+html.light .bg-slate-950 {
+  background-color: #f8fafc !important;
+}
+
+html.light .bg-slate-950\/40,
+html.light .bg-slate-950\/60,
+html.light .bg-slate-950\/70,
+html.light .bg-slate-950\/80 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-slate-900,
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/70,
+html.light .bg-slate-900\/80,
+html.light .bg-slate-900\/85,
+html.light .bg-slate-900\/90,
+html.light .bg-slate-900\/95 {
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+}
+
+html.light .bg-slate-900\/40,
+html.light .bg-slate-900\/50 {
+  background-color: rgba(241, 245, 249, 0.8) !important;
+}
+
+html.light .bg-slate-800,
+html.light .bg-slate-800\/40,
+html.light .bg-slate-800\/50,
+html.light .bg-slate-800\/60,
+html.light .bg-slate-800\/70,
+html.light .bg-slate-800\/80,
+html.light .bg-slate-800\/90 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .glass-card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.03) !important;
+}
+
+html.light .glass-panel {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .hover\:bg-slate-800:hover,
+html.light .hover\:bg-slate-800\/40:hover,
+html.light .hover\:bg-slate-800\/50:hover,
+html.light .hover\:bg-slate-800\/60:hover,
+html.light .hover\:bg-slate-800\/70:hover,
+html.light .hover\:bg-slate-800\/80:hover,
+html.light .hover\:bg-slate-700:hover,
+html.light .hover\:bg-slate-700\/70:hover,
+html.light .hover\:bg-slate-700\/80:hover {
+  background-color: #e2e8f0 !important;
+}
+
+/* Border & Divider overrides in Light Mode */
+html.light .border-slate-800,
+html.light .border-slate-800\/40,
+html.light .border-slate-800\/50,
+html.light .border-slate-800\/60,
+html.light .border-slate-800\/80,
+html.light .border-slate-700,
+html.light .border-slate-700\/40,
+html.light .border-slate-700\/50,
+html.light .border-slate-700\/60,
+html.light .border-slate-700\/80 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .divide-slate-800,
+html.light .divide-slate-800\/40,
+html.light .divide-slate-800\/50,
+html.light .divide-slate-800\/60,
+html.light .divide-slate-700,
+html.light .divide-slate-700\/40,
+html.light .divide-slate-700\/60 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Typography in Light Mode */
+html.light .text-white {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-100,
+html.light .text-slate-200,
+html.light .text-slate-300 {
+  color: #1e293b !important;
+}
+
+html.light .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+html.light .text-slate-700 {
+  color: #cbd5e1 !important;
+}
+
+/* Saturated high-contrast badge text for Light Mode */
+html.light .text-emerald-400 {
+  color: #059669 !important;
+}
+html.light .text-amber-400 {
+  color: #d97706 !important;
+}
+html.light .text-sky-400 {
+  color: #0284c7 !important;
+}
+html.light .text-rose-400,
+html.light .text-red-400 {
+  color: #e11d48 !important;
+}
+html.light .text-purple-400 {
+  color: #7c3aed !important;
+}
+
+/* Badge backgrounds with higher clarity in Light Mode */
+html.light .bg-emerald-500\/10,
+html.light .bg-emerald-500\/15 {
+  background-color: rgba(16, 185, 129, 0.12) !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+html.light .bg-amber-500\/10,
+html.light .bg-amber-500\/15 {
+  background-color: rgba(245, 158, 11, 0.12) !important;
+  border-color: rgba(245, 158, 11, 0.25) !important;
+}
+html.light .bg-sky-500\/10,
+html.light .bg-sky-500\/15 {
+  background-color: rgba(14, 165, 233, 0.12) !important;
+  border-color: rgba(14, 165, 233, 0.25) !important;
+}
+html.light .bg-rose-500\/10,
+html.light .bg-rose-500\/15,
+html.light .bg-red-500\/10,
+html.light .bg-red-500\/15 {
+  background-color: rgba(244, 63, 94, 0.12) !important;
+  border-color: rgba(244, 63, 94, 0.25) !important;
+}
+html.light .bg-purple-500\/10,
+html.light .bg-purple-500\/15 {
+  background-color: rgba(139, 92, 246, 0.12) !important;
+  border-color: rgba(139, 92, 246, 0.25) !important;
+}
+
+/* Keep white text on active CTA buttons, saturated badges, and gradients */
+html.light button.bg-orange-500,
+html.light .bg-orange-500,
+html.light [class*="bg-orange-500"],
+html.light [class*="from-orange-"],
+html.light [class*="from-emerald-"],
+html.light [class*="from-sky-"],
+html.light [class*="from-purple-"],
+html.light [class*="from-rose-"],
+html.light [class*="from-amber-"],
+html.light .bg-emerald-500,
+html.light .bg-emerald-600,
+html.light .bg-rose-500,
+html.light .bg-rose-600,
+html.light .bg-red-500,
+html.light .bg-red-600,
+html.light .bg-amber-500,
+html.light .bg-sky-500,
+html.light .bg-sky-600,
+html.light .bg-purple-500,
+html.light .bg-purple-600,
+html.light button[type="submit"] span,
+html.light [class*="from-"] *,
+html.light [class*="bg-orange-500"] *,
+html.light [class*="bg-emerald-500"] *,
+html.light [class*="bg-emerald-600"] * {
+  color: #ffffff !important;
+}
+
+/* Form inputs in Light Mode */
+html.light input:not([type="checkbox"]):not([type="radio"]),
+html.light select,
+html.light textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* ==========================================================================
+   Dynamic Brand Accent Palette Transformation Layer
+   Adapts flame elements, active indicators, rings and badges across the UI
+   ========================================================================== */
+
+/* Emerald Fresh */
 html[data-accent="emerald"] {
   --accent-primary: #10b981;
   --accent-border-hover: rgba(16, 185, 129, 0.4);
 }
+html[data-accent="emerald"] .from-orange-600,
+html[data-accent="emerald"] .from-orange-500 {
+  --tw-gradient-from: #10b981 !important;
+  --tw-gradient-to: #14b8a6 !important;
+  --tw-gradient-stops: var(--tw-gradient-from), #10b981, var(--tw-gradient-to) !important;
+}
+html[data-accent="emerald"] .text-orange-500,
+html[data-accent="emerald"] .text-orange-400,
+html[data-accent="emerald"] .text-orange-300 {
+  color: #10b981 !important;
+}
+html.light[data-accent="emerald"] .text-orange-600,
+html.light[data-accent="emerald"] .text-orange-500,
+html.light[data-accent="emerald"] .text-orange-400 {
+  color: #059669 !important;
+}
+html[data-accent="emerald"] .bg-orange-500,
+html[data-accent="emerald"] .peer-checked\:bg-orange-500:checked + div,
+html[data-accent="emerald"] .peer:checked ~ .peer-checked\:bg-orange-500 {
+  background-color: #10b981 !important;
+}
+html[data-accent="emerald"] .bg-orange-500\/10,
+html[data-accent="emerald"] .bg-orange-500\/15,
+html[data-accent="emerald"] .bg-orange-500\/20,
+html[data-accent="emerald"] .bg-orange-500\/25 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+}
+html[data-accent="emerald"] .border-orange-500\/20,
+html[data-accent="emerald"] .border-orange-500\/25,
+html[data-accent="emerald"] .border-orange-500\/30,
+html[data-accent="emerald"] .border-orange-500\/40,
+html[data-accent="emerald"] .border-orange-500\/50 {
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+html[data-accent="emerald"] .focus\:border-orange-500:focus,
+html[data-accent="emerald"] .focus\:border-orange-500\/60:focus {
+  border-color: #10b981 !important;
+}
+html[data-accent="emerald"] [class*="ring-orange-"] {
+  --tw-ring-color: #10b981 !important;
+}
+html[data-accent="emerald"] [class*="shadow-orange-"] {
+  --tw-shadow-color: rgba(16, 185, 129, 0.25) !important;
+}
+html[data-accent="emerald"] .glow-orange {
+  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.3) !important;
+}
 
+/* Ocean Cyan / Blue */
 html[data-accent="blue"] {
   --accent-primary: #0ea5e9;
   --accent-border-hover: rgba(14, 165, 233, 0.4);
 }
+html[data-accent="blue"] .from-orange-600,
+html[data-accent="blue"] .from-orange-500 {
+  --tw-gradient-from: #0ea5e9 !important;
+  --tw-gradient-to: #3b82f6 !important;
+  --tw-gradient-stops: var(--tw-gradient-from), #0ea5e9, var(--tw-gradient-to) !important;
+}
+html[data-accent="blue"] .text-orange-500,
+html[data-accent="blue"] .text-orange-400,
+html[data-accent="blue"] .text-orange-300 {
+  color: #0ea5e9 !important;
+}
+html.light[data-accent="blue"] .text-orange-600,
+html.light[data-accent="blue"] .text-orange-500,
+html.light[data-accent="blue"] .text-orange-400 {
+  color: #0284c7 !important;
+}
+html[data-accent="blue"] .bg-orange-500,
+html[data-accent="blue"] .peer-checked\:bg-orange-500:checked + div,
+html[data-accent="blue"] .peer:checked ~ .peer-checked\:bg-orange-500 {
+  background-color: #0ea5e9 !important;
+}
+html[data-accent="blue"] .bg-orange-500\/10,
+html[data-accent="blue"] .bg-orange-500\/15,
+html[data-accent="blue"] .bg-orange-500\/20,
+html[data-accent="blue"] .bg-orange-500\/25 {
+  background-color: rgba(14, 165, 233, 0.15) !important;
+}
+html[data-accent="blue"] .border-orange-500\/20,
+html[data-accent="blue"] .border-orange-500\/25,
+html[data-accent="blue"] .border-orange-500\/30,
+html[data-accent="blue"] .border-orange-500\/40,
+html[data-accent="blue"] .border-orange-500\/50 {
+  border-color: rgba(14, 165, 233, 0.35) !important;
+}
+html[data-accent="blue"] .focus\:border-orange-500:focus,
+html[data-accent="blue"] .focus\:border-orange-500\/60:focus {
+  border-color: #0ea5e9 !important;
+}
+html[data-accent="blue"] [class*="ring-orange-"] {
+  --tw-ring-color: #0ea5e9 !important;
+}
+html[data-accent="blue"] [class*="shadow-orange-"] {
+  --tw-shadow-color: rgba(14, 165, 233, 0.25) !important;
+}
+html[data-accent="blue"] .glow-orange {
+  box-shadow: 0 0 25px -5px rgba(14, 165, 233, 0.3) !important;
+}
 
+/* Royal Violet / Purple */
 html[data-accent="purple"] {
   --accent-primary: #8b5cf6;
   --accent-border-hover: rgba(139, 92, 246, 0.4);
 }
+html[data-accent="purple"] .from-orange-600,
+html[data-accent="purple"] .from-orange-500 {
+  --tw-gradient-from: #8b5cf6 !important;
+  --tw-gradient-to: #ec4899 !important;
+  --tw-gradient-stops: var(--tw-gradient-from), #8b5cf6, var(--tw-gradient-to) !important;
+}
+html[data-accent="purple"] .text-orange-500,
+html[data-accent="purple"] .text-orange-400,
+html[data-accent="purple"] .text-orange-300 {
+  color: #8b5cf6 !important;
+}
+html.light[data-accent="purple"] .text-orange-600,
+html.light[data-accent="purple"] .text-orange-500,
+html.light[data-accent="purple"] .text-orange-400 {
+  color: #7c3aed !important;
+}
+html[data-accent="purple"] .bg-orange-500,
+html[data-accent="purple"] .peer-checked\:bg-orange-500:checked + div,
+html[data-accent="purple"] .peer:checked ~ .peer-checked\:bg-orange-500 {
+  background-color: #8b5cf6 !important;
+}
+html[data-accent="purple"] .bg-orange-500\/10,
+html[data-accent="purple"] .bg-orange-500\/15,
+html[data-accent="purple"] .bg-orange-500\/20,
+html[data-accent="purple"] .bg-orange-500\/25 {
+  background-color: rgba(139, 92, 246, 0.15) !important;
+}
+html[data-accent="purple"] .border-orange-500\/20,
+html[data-accent="purple"] .border-orange-500\/25,
+html[data-accent="purple"] .border-orange-500\/30,
+html[data-accent="purple"] .border-orange-500\/40,
+html[data-accent="purple"] .border-orange-500\/50 {
+  border-color: rgba(139, 92, 246, 0.35) !important;
+}
+html[data-accent="purple"] .focus\:border-orange-500:focus,
+html[data-accent="purple"] .focus\:border-orange-500\/60:focus {
+  border-color: #8b5cf6 !important;
+}
+html[data-accent="purple"] [class*="ring-orange-"] {
+  --tw-ring-color: #8b5cf6 !important;
+}
+html[data-accent="purple"] [class*="shadow-orange-"] {
+  --tw-shadow-color: rgba(139, 92, 246, 0.25) !important;
+}
+html[data-accent="purple"] .glow-orange {
+  box-shadow: 0 0 25px -5px rgba(139, 92, 246, 0.3) !important;
+}
 
+/* Crimson Spice / Rose */
 html[data-accent="rose"] {
   --accent-primary: #f43f5e;
   --accent-border-hover: rgba(244, 63, 94, 0.4);
 }
+html[data-accent="rose"] .from-orange-600,
+html[data-accent="rose"] .from-orange-500 {
+  --tw-gradient-from: #f43f5e !important;
+  --tw-gradient-to: #fb7185 !important;
+  --tw-gradient-stops: var(--tw-gradient-from), #f43f5e, var(--tw-gradient-to) !important;
+}
+html[data-accent="rose"] .text-orange-500,
+html[data-accent="rose"] .text-orange-400,
+html[data-accent="rose"] .text-orange-300 {
+  color: #f43f5e !important;
+}
+html.light[data-accent="rose"] .text-orange-600,
+html.light[data-accent="rose"] .text-orange-500,
+html.light[data-accent="rose"] .text-orange-400 {
+  color: #e11d48 !important;
+}
+html[data-accent="rose"] .bg-orange-500,
+html[data-accent="rose"] .peer-checked\:bg-orange-500:checked + div,
+html[data-accent="rose"] .peer:checked ~ .peer-checked\:bg-orange-500 {
+  background-color: #f43f5e !important;
+}
+html[data-accent="rose"] .bg-orange-500\/10,
+html[data-accent="rose"] .bg-orange-500\/15,
+html[data-accent="rose"] .bg-orange-500\/20,
+html[data-accent="rose"] .bg-orange-500\/25 {
+  background-color: rgba(244, 63, 94, 0.15) !important;
+}
+html[data-accent="rose"] .border-orange-500\/20,
+html[data-accent="rose"] .border-orange-500\/25,
+html[data-accent="rose"] .border-orange-500\/30,
+html[data-accent="rose"] .border-orange-500\/40,
+html[data-accent="rose"] .border-orange-500\/50 {
+  border-color: rgba(244, 63, 94, 0.35) !important;
+}
+html[data-accent="rose"] .focus\:border-orange-500:focus,
+html[data-accent="rose"] .focus\:border-orange-500\/60:focus {
+  border-color: #f43f5e !important;
+}
+html[data-accent="rose"] [class*="ring-orange-"] {
+  --tw-ring-color: #f43f5e !important;
+}
+html[data-accent="rose"] [class*="shadow-orange-"] {
+  --tw-shadow-color: rgba(244, 63, 94, 0.25) !important;
+}
+html[data-accent="rose"] .glow-orange {
+  box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.3) !important;
+}
 
+/* Golden Amber */
 html[data-accent="amber"] {
   --accent-primary: #f59e0b;
   --accent-border-hover: rgba(245, 158, 11, 0.4);
 }
+html[data-accent="amber"] .from-orange-600,
+html[data-accent="amber"] .from-orange-500 {
+  --tw-gradient-from: #f59e0b !important;
+  --tw-gradient-to: #eab308 !important;
+  --tw-gradient-stops: var(--tw-gradient-from), #f59e0b, var(--tw-gradient-to) !important;
+}
+html[data-accent="amber"] .text-orange-500,
+html[data-accent="amber"] .text-orange-400,
+html[data-accent="amber"] .text-orange-300 {
+  color: #f59e0b !important;
+}
+html.light[data-accent="amber"] .text-orange-600,
+html.light[data-accent="amber"] .text-orange-500,
+html.light[data-accent="amber"] .text-orange-400 {
+  color: #d97706 !important;
+}
+html[data-accent="amber"] .bg-orange-500,
+html[data-accent="amber"] .peer-checked\:bg-orange-500:checked + div,
+html[data-accent="amber"] .peer:checked ~ .peer-checked\:bg-orange-500 {
+  background-color: #f59e0b !important;
+}
+html[data-accent="amber"] .bg-orange-500\/10,
+html[data-accent="amber"] .bg-orange-500\/15,
+html[data-accent="amber"] .bg-orange-500\/20,
+html[data-accent="amber"] .bg-orange-500\/25 {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+}
+html[data-accent="amber"] .border-orange-500\/20,
+html[data-accent="amber"] .border-orange-500\/25,
+html[data-accent="amber"] .border-orange-500\/30,
+html[data-accent="amber"] .border-orange-500\/40,
+html[data-accent="amber"] .border-orange-500\/50 {
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+html[data-accent="amber"] .focus\:border-orange-500:focus,
+html[data-accent="amber"] .focus\:border-orange-500\/60:focus {
+  border-color: #f59e0b !important;
+}
+html[data-accent="amber"] [class*="ring-orange-"] {
+  --tw-ring-color: #f59e0b !important;
+}
+html[data-accent="amber"] [class*="shadow-orange-"] {
+  --tw-shadow-color: rgba(245, 158, 11, 0.25) !important;
+}
+html[data-accent="amber"] .glow-orange {
+  box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.3) !important;
+}
+

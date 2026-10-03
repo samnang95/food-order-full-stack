@@ -78,7 +78,7 @@ const filteredNavItems = computed(() => {
 
   <aside
     :class="[
-      'h-screen sticky top-0 flex flex-col border-r border-slate-800/80 bg-slate-900/95 backdrop-blur-xl select-none shrink-0 relative overflow-hidden transition-all duration-300',
+      'h-screen sticky top-0 flex flex-col border-r border-slate-200/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl select-none shrink-0 relative overflow-hidden transition-all duration-300',
       'fixed inset-y-0 left-0 z-50 lg:static',
       appStore.isMobileSidebarOpen ? 'translate-x-0 shadow-2xl shadow-black' : '-translate-x-full lg:translate-x-0',
       'w-72 lg:w-auto',
@@ -88,7 +88,7 @@ const filteredNavItems = computed(() => {
     <!-- Floating Edge Toggle Button (Desktop Only) -->
     <button
       @click="appStore.toggleSidebar"
-      class="hidden lg:flex absolute -right-3.5 top-5 z-40 w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white items-center justify-center border border-slate-700/80 shadow-lg shadow-black/50 hover:scale-110 active:scale-95 cursor-pointer"
+      class="hidden lg:flex absolute -right-3.5 top-5 z-40 w-7 h-7 rounded-full bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white items-center justify-center border border-slate-200 dark:border-slate-700/80 shadow-md hover:scale-110 active:scale-95 cursor-pointer transition-all"
       :title="appStore.isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
       aria-label="Toggle sidebar"
     >
@@ -99,7 +99,7 @@ const filteredNavItems = computed(() => {
     <!-- Brand Header -->
     <div
       :class="[
-        'h-16 flex items-center justify-between border-b border-slate-800/60 overflow-hidden shrink-0 px-4',
+        'h-16 flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/60 overflow-hidden shrink-0 px-4',
         appStore.isSidebarCollapsed ? 'lg:justify-center lg:px-0' : ''
       ]"
     >
@@ -118,10 +118,10 @@ const filteredNavItems = computed(() => {
           v-if="!appStore.isSidebarCollapsed"
           class="flex flex-col min-w-0"
         >
-          <span class="font-display font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent truncate">
+          <span class="font-display font-bold text-lg tracking-tight text-slate-900 dark:text-white truncate">
             FoodHub<span class="text-orange-500">.</span>
           </span>
-          <span class="text-[11px] font-medium tracking-wider text-orange-400/80 uppercase truncate">
+          <span class="text-[11px] font-medium tracking-wider text-orange-600/90 dark:text-orange-400/80 uppercase truncate">
             Operations Hub
           </span>
         </div>
@@ -131,7 +131,7 @@ const filteredNavItems = computed(() => {
       <button
         type="button"
         @click="appStore.closeMobileSidebar"
-        class="lg:hidden p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+        class="lg:hidden p-1.5 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
         aria-label="Close sidebar"
       >
         <X class="w-5 h-5" />
@@ -142,7 +142,7 @@ const filteredNavItems = computed(() => {
     <nav class="flex-1 px-2.5 py-4 space-y-1.5 overflow-hidden">
       <div
         v-if="!appStore.isSidebarCollapsed"
-        class="px-3 pb-1 text-[11px] font-semibold tracking-wider text-slate-400 uppercase"
+        class="px-3 pb-1 text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase"
       >
         Management
       </div>
@@ -153,19 +153,19 @@ const filteredNavItems = computed(() => {
         :to="item.path"
         @click="appStore.closeMobileSidebar"
         :class="[
-          'flex items-center rounded-xl text-sm font-medium group relative',
+          'flex items-center rounded-xl text-sm font-medium group relative transition-colors',
           appStore.isSidebarCollapsed ? 'lg:justify-center lg:py-3 lg:px-0 px-3 py-2.5 gap-3' : 'gap-3 px-3 py-2.5',
           route.path === item.path
-            ? 'bg-gradient-to-r from-orange-500/15 to-orange-500/5 text-orange-400 border border-orange-500/25 shadow-sm'
-            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+            ? 'bg-orange-500/15 text-orange-600 dark:text-orange-400 border border-orange-500/30 shadow-xs'
+            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
         ]"
       >
         <!-- Icon -->
         <component
           :is="item.icon"
           :class="[
-            'w-5 h-5 shrink-0',
-            route.path === item.path ? 'text-orange-400' : 'text-slate-400 group-hover:text-slate-300'
+            'w-5 h-5 shrink-0 transition-colors',
+            route.path === item.path ? 'text-orange-600 dark:text-orange-400' : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-300'
           ]"
         />
 
@@ -180,7 +180,7 @@ const filteredNavItems = computed(() => {
         <!-- Floating Tooltip (Collapsed on Hover) -->
         <div
           v-if="appStore.isSidebarCollapsed"
-          class="absolute left-full ml-3.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs font-semibold whitespace-nowrap shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none z-50 flex items-center gap-2"
+          class="absolute left-full ml-3.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white text-xs font-semibold whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none z-50 flex items-center gap-2"
         >
           <span>{{ item.name }}</span>
           <span
@@ -197,8 +197,8 @@ const filteredNavItems = computed(() => {
           :class="[
             'ml-auto text-xs px-2 py-0.5 rounded-full font-bold shrink-0',
             route.path === item.path
-              ? 'bg-orange-500 text-white shadow-sm'
-              : 'bg-orange-500/20 text-orange-300 border border-orange-500/30'
+              ? 'bg-orange-500 text-white shadow-xs'
+              : 'bg-orange-500/15 text-orange-600 dark:text-orange-300 border border-orange-500/25'
           ]"
         >
           {{ item.badge.value }}
@@ -221,20 +221,20 @@ const filteredNavItems = computed(() => {
     </nav>
 
     <!-- Operational Status Card & Profile -->
-    <div class="p-3 border-t border-slate-800/60 overflow-hidden shrink-0">
+    <div class="p-3 border-t border-slate-200/80 dark:border-slate-800/60 overflow-hidden shrink-0">
       <!-- Live Kitchen Indicator -->
       <div
         v-if="!appStore.isSidebarCollapsed"
-        class="p-3 rounded-xl bg-slate-800/40 border border-slate-700/30 flex items-center justify-between mb-3"
+        class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/30 flex items-center justify-between mb-3"
       >
         <div class="flex items-center gap-2">
           <span class="relative flex h-2.5 w-2.5">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
           </span>
-          <span class="text-xs font-medium text-slate-300">Kitchen Live</span>
+          <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Kitchen Live</span>
         </div>
-        <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
           PORT 3000
         </span>
       </div>
@@ -248,7 +248,7 @@ const filteredNavItems = computed(() => {
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
         </span>
-        <div class="absolute left-full ml-3 px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-emerald-400 font-semibold whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none z-50">
+        <div class="absolute left-full ml-3 px-2 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none z-50">
           Kitchen Live (PORT 3000)
         </div>
       </div>
@@ -256,7 +256,7 @@ const filteredNavItems = computed(() => {
       <!-- User Profile snippet & Quick Logout -->
       <div
         :class="[
-          'flex items-center justify-between rounded-xl hover:bg-slate-800/50 group',
+          'flex items-center justify-between rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 group transition-colors',
           appStore.isSidebarCollapsed ? 'justify-center p-1' : 'p-1.5'
         ]"
       >
@@ -267,11 +267,11 @@ const filteredNavItems = computed(() => {
               :alt="authStore.currentUser?.username || 'Admin'"
               :class="['w-9 h-9 rounded-xl object-cover ring-2 transition-colors', roleConfig.themeColor.ring]"
             />
-            <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900" />
+            <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900" />
           </div>
           <div v-if="!appStore.isSidebarCollapsed" class="flex flex-col min-w-0">
             <div class="flex items-center gap-1.5">
-              <span class="text-xs font-semibold text-slate-200 truncate">
+              <span class="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                 {{ authStore.currentUser?.username || 'Elena Vance' }}
               </span>
             </div>
@@ -285,7 +285,7 @@ const filteredNavItems = computed(() => {
         <button
           v-if="!appStore.isSidebarCollapsed"
           @click="handleLogout"
-          class="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition cursor-pointer opacity-70 group-hover:opacity-100"
+          class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 hover:bg-red-500/10 transition cursor-pointer opacity-70 group-hover:opacity-100"
           title="Sign Out"
         >
           <LogOut class="w-4 h-4" />

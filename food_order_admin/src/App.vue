@@ -12,12 +12,12 @@ const isAuthRoute = computed(() => route.path === AppRoutes.LOGIN);
 
 <template>
   <!-- Fullscreen Auth View (Login / Register) -->
-  <div v-if="isAuthRoute" class="h-screen w-screen overflow-hidden bg-slate-950 text-slate-100">
+  <div v-if="isAuthRoute" class="h-screen w-screen overflow-hidden bg-[var(--bg-canvas)] text-[var(--text-main)] transition-colors duration-200">
     <router-view />
   </div>
 
   <!-- Authenticated Admin Operations Shell -->
-  <div v-else class="h-screen bg-slate-950 text-slate-100 flex antialiased selection:bg-orange-500 selection:text-white overflow-hidden">
+  <div v-else class="h-screen bg-[var(--bg-canvas)] text-[var(--text-main)] flex antialiased selection:bg-[var(--accent-primary)] selection:text-white overflow-hidden transition-colors duration-200">
     <!-- Left Navigation Sidebar -->
     <AdminSidebar />
 
