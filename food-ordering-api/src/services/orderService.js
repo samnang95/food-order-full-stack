@@ -1,6 +1,7 @@
 const orderRepository = require('../repositories/orderRepository');
 const foodRepository = require('../repositories/foodRepository');
 const voucherService = require('./voucherService');
+const groupOrderService = require('./groupOrderService');
 const { startSimulation, stopSimulation } = require('../socket/driverSimulator');
 const { getIO } = require('../socket/socketManager');
 const firebaseService = require('./firebaseService');
@@ -43,11 +44,13 @@ const orderService = {
       const itemTotal = food.price * item.quantity;
       totalAmount += itemTotal;
 
-      // Push sanitized item
+      // Push sanitized item with member attribution if collaborative group order
       finalItems.push({
         food: food._id,
         quantity: item.quantity,
-        price: food.price // use real price
+        price: food.price, // use real price
+        addedBy: item.addedBy || null,
+        notes: item.notes || '',
       });
     }
 
@@ -83,9 +86,22 @@ const orderService = {
       tipAmount: Number(orderData.tipAmount) || 0,
       deliverySchedule: orderData.deliverySchedule || { mode: 'asap' },
       deliveryNotes: orderData.deliveryNotes || '',
+      isGroupOrder: Boolean(orderData.isGroupOrder || orderData.groupId || orderData.groupOrder),
+      groupOrder: orderData.groupOrder || (orderData.groupId ? { groupId: orderData.groupId } : null),
     };
 
     const createdOrder = await orderRepository.create(finalOrderData);
+
+    // If order was placed from a group order session, finalize the group order status
+    const groupId = orderData.groupId || orderData.groupOrder?.groupId;
+    if (groupId) {
+      try {
+        await groupOrderService.setGroupOrderStatus(groupId, 'ordered', createdOrder._id);
+      } catch (err) {
+        console.warn(`[OrderService] Failed to mark group order ${groupId} as ordered:`, err.message);
+      }
+    }
+
 
     try {
       const io = getIO();

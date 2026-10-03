@@ -14,7 +14,16 @@ const orderItemSchema = new mongoose.Schema({
   price: {
     type: Number,
     required: true
-  }
+  },
+  addedBy: {
+    id: { type: String, default: null },
+    name: { type: String, default: null },
+    color: { type: String, default: null },
+  },
+  notes: {
+    type: String,
+    default: '',
+  },
 });
 
 const locationSchema = new mongoose.Schema({
@@ -90,7 +99,19 @@ const orderSchema = new mongoose.Schema({
   deliveryNotes: {
     type: String,
     default: '',
-  }
+  },
+  isGroupOrder: {
+    type: Boolean,
+    default: false,
+    index: true,
+  },
+  groupOrder: {
+    groupId: { type: String, default: null },
+    code: { type: String, default: null },
+    title: { type: String, default: null },
+    members: { type: Array, default: [] },
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);
+

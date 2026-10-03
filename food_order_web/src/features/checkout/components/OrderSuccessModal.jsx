@@ -100,6 +100,17 @@ export function OrderSuccessModal({ order, onClose }) {
             </span>
           </div>
 
+          {Boolean(order.isGroupOrder || order.groupOrder) && (
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500 dark:text-slate-400">Order Type:</span>
+              <span className="font-bold text-orange-600 dark:text-orange-400 flex items-center space-x-1">
+                <span>👥</span>
+                <span>Group Order ({order.groupOrder?.code || order.groupOrder?.title || 'Shared'})</span>
+              </span>
+            </div>
+          )}
+
+
           <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between items-baseline">
             <span className="font-bold text-slate-700 dark:text-slate-300">{t('cart.total')}:</span>
             <div className="text-right">

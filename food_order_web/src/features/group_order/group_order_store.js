@@ -72,7 +72,7 @@ export function useGroupOrderStore() {
     groupOrderRef.current = state.groupOrder;
   }, [state.groupOrder]);
 
-  // Load existing session on mount
+  // Load existing session on mount or detect invite link in URL query params
   useEffect(() => {
     let isMounted = true;
     (async () => {
@@ -83,6 +83,12 @@ export function useGroupOrderStore() {
           const savedMember = container.groupOrderRepository.getCurrentMember();
           if (savedMember) {
             dispatch(GroupOrderIntent.setCurrentMember(savedMember));
+          }
+        } else if (typeof window !== 'undefined' && isMounted) {
+          const params = new URLSearchParams(window.location.search);
+          const inviteCode = params.get('group') || params.get('join');
+          if (inviteCode) {
+            dispatch(GroupOrderIntent.openGroupModal());
           }
         }
       } catch (e) {
@@ -122,19 +128,51 @@ export function useGroupOrderStore() {
         const updated = GroupOrderModel.fromJson({
           ...GroupOrderModel.toJson(current),
           isLocked,
+          status: isLocked ? 'locked' : 'active',
         });
         dispatch(GroupOrderIntent.setGroupOrderSuccess(updated));
       }
     };
 
+    const handleItemEvent = (payload) => {
+      const rawGroup = payload?.groupOrder || payload;
+      if (rawGroup) {
+        const entity = GroupOrderModel.fromJson(rawGroup);
+        if (entity) {
+          dispatch(GroupOrderIntent.setGroupOrderSuccess(entity));
+        }
+      }
+    };
+
+    const handleOrdered = (payload) => {
+      const rawGroup = payload?.groupOrder || payload;
+      if (rawGroup) {
+        const entity = GroupOrderModel.fromJson(rawGroup);
+        if (entity) {
+          dispatch(GroupOrderIntent.setGroupOrderSuccess(entity));
+        }
+      }
+    };
+
     socketService.on('group:updated', handleUpdated);
     socketService.on('group:locked', handleLocked);
+    socketService.on('group:item_added', handleItemEvent);
+    socketService.on('group:item_removed', handleItemEvent);
+    socketService.on('group:member_joined', handleItemEvent);
+    socketService.on('group:member_left', handleItemEvent);
+    socketService.on('group:ordered', handleOrdered);
 
     return () => {
       socketService.off('group:updated', handleUpdated);
       socketService.off('group:locked', handleLocked);
+      socketService.off('group:item_added', handleItemEvent);
+      socketService.off('group:item_removed', handleItemEvent);
+      socketService.off('group:member_joined', handleItemEvent);
+      socketService.off('group:member_left', handleItemEvent);
+      socketService.off('group:ordered', handleOrdered);
     };
   }, [state.groupOrder?.id, state.currentMember]);
+
 
   const openGroupModal = useCallback(() => {
     dispatch(GroupOrderIntent.openGroupModal());

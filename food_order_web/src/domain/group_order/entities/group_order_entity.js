@@ -9,6 +9,8 @@ export class GroupOrderEntity {
     hostId = '',
     hostName = 'Host',
     isLocked = false,
+    status = 'active',
+    finalOrderId = null,
     members = [],
     items = [],
     createdAt = new Date(),
@@ -20,7 +22,9 @@ export class GroupOrderEntity {
     this.title = title;
     this.hostId = hostId;
     this.hostName = hostName;
-    this.isLocked = Boolean(isLocked);
+    this.status = status;
+    this.isLocked = Boolean(isLocked) || status === 'locked';
+    this.finalOrderId = finalOrderId;
     this.members = members.map((m) =>
       m instanceof GroupMemberEntity ? m : new GroupMemberEntity(m)
     );
@@ -31,6 +35,11 @@ export class GroupOrderEntity {
     this.updatedAt = updatedAt instanceof Date ? updatedAt : new Date(updatedAt);
     this.spendingLimit = spendingLimit;
   }
+
+  get isOrdered() {
+    return this.status === 'ordered';
+  }
+
 
   get totalSubtotal() {
     return this.items.reduce((sum, it) => sum + it.totalPrice, 0);

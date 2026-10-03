@@ -16,6 +16,7 @@ import { DeliveryScheduleSelector, useSchedule } from '../schedule';
 import { DriverTipCard } from '../driver_tip';
 import { useCheckoutStore } from './checkout_store';
 import { CheckoutIntent } from './checkout_intent';
+import { useGroupOrder } from '../group_order';
 
 export function CheckoutView() {
   const { t } = useTranslation();
@@ -37,10 +38,47 @@ export function CheckoutView() {
     clearCart,
   } = useCart();
 
+  const {
+    isGroupOrderActive,
+    groupOrder,
+    isHost,
+    openSplitBillModal,
+  } = useGroupOrder();
+
+  const isGroupCheckout = Boolean(isGroupOrderActive && isHost && groupOrder?.items?.length > 0);
+
+  const groupCartItems = (groupOrder?.items || []).map((it) => ({
+    food: {
+      id: it.foodId,
+      name: it.foodName,
+      price: it.price,
+      imageUrl: it.foodImageUrl,
+    },
+    quantity: it.quantity,
+    notes: it.notes,
+    addedBy: {
+      id: it.memberId,
+      name: it.memberName,
+      color: it.memberColor,
+    },
+  }));
+
+  const effectiveItems = isGroupCheckout ? groupCartItems : items;
+  const effectiveSubtotal = isGroupCheckout ? (groupOrder?.totalSubtotal || 0) : subtotal;
+  const effectiveTotalAmount = isGroupCheckout
+    ? Math.max(0, effectiveSubtotal + deliveryFee + tipAmount - discountAmount)
+    : totalAmount;
+
   const { user, ensureCustomerSession } = useAuth();
 
   const { state, onIntent, validateForm, buildOrderPayload, executeOrderCreation } =
-    useCheckoutStore(user, { items, voucherCode, tipAmount });
+    useCheckoutStore(user, {
+      items: effectiveItems,
+      voucherCode,
+      tipAmount,
+      isGroupOrder: isGroupCheckout,
+      groupOrder: isGroupCheckout ? groupOrder : null,
+    });
 
   const {
     customerName,
@@ -82,7 +120,8 @@ export function CheckoutView() {
   };
 
   // If cart is empty and no order just placed, show empty state
-  if (items.length === 0 && !placedOrder) {
+  if (effectiveItems.length === 0 && !placedOrder) {
+
     return (
       <div className="max-w-md mx-auto py-16 text-center space-y-4 bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-xs">
         <div className="w-20 h-20 rounded-full bg-orange-100 dark:bg-orange-950/40 text-orange-500 flex items-center justify-center text-4xl mx-auto shadow-inner animate-pulse">
@@ -239,16 +278,19 @@ export function CheckoutView() {
 
           {/* Itemized Bill Breakdown & Place Order CTA */}
           <OrderSummaryCard
-            items={items}
-            subtotal={subtotal}
+            items={effectiveItems}
+            subtotal={effectiveSubtotal}
             deliveryFee={deliveryFee}
             discountAmount={discountAmount}
             tipAmount={tipAmount}
-            totalAmount={totalAmount}
+            totalAmount={effectiveTotalAmount}
             appliedVoucher={appliedVoucher}
             paymentMethod={paymentMethod}
             submitting={submitting}
             onPlaceOrder={handlePlaceOrder}
+            isGroupOrder={isGroupCheckout}
+            groupOrderInfo={groupOrder}
+            onOpenSplitBill={openSplitBillModal}
           />
         </div>
       </div>
@@ -257,13 +299,14 @@ export function CheckoutView() {
       <KhqrPaymentModal
         isOpen={showKhqrModal}
         onClose={() => onIntent(CheckoutIntent.setShowKhqrModal(false))}
-        totalAmount={totalAmount}
+        totalAmount={effectiveTotalAmount}
         onPaymentSuccess={handleKhqrSuccess}
         onCancelPayCash={() => {
           onIntent(CheckoutIntent.setShowKhqrModal(false));
           onIntent(CheckoutIntent.setPaymentMethod('cash'));
         }}
       />
+
 
       {/* Order Success Celebration Modal */}
       {placedOrder && (

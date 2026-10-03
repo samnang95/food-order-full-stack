@@ -99,6 +99,7 @@ export function useCheckoutStore(user, cartProps = {}) {
           food: i.food.id,
           quantity: i.quantity,
           notes: i.notes || '',
+          addedBy: i.addedBy || null,
         })),
         deliveryAddress: fullDeliveryAddress,
         deliveryLocation: {
@@ -113,6 +114,16 @@ export function useCheckoutStore(user, cartProps = {}) {
         tipAmount: cartProps.tipAmount || 0,
         deliverySchedule: extraPaymentInfo.deliverySchedule || null,
         deliveryNotes: extraPaymentInfo.deliveryNotes || state.deliveryNote || '',
+        isGroupOrder: Boolean(cartProps.isGroupOrder || cartProps.groupOrder),
+        groupId: cartProps.groupOrder?.id || undefined,
+        groupOrder: cartProps.groupOrder
+          ? {
+              groupId: cartProps.groupOrder.id,
+              code: cartProps.groupOrder.code,
+              title: cartProps.groupOrder.title,
+              members: cartProps.groupOrder.members,
+            }
+          : undefined,
       };
     },
     [
@@ -124,8 +135,11 @@ export function useCheckoutStore(user, cartProps = {}) {
       cartProps.items,
       cartProps.voucherCode,
       cartProps.tipAmount,
+      cartProps.isGroupOrder,
+      cartProps.groupOrder,
     ]
   );
+
 
   const executeOrderCreation = useCallback(
     async (orderPayload, ensureCustomerSession, clearCart) => {

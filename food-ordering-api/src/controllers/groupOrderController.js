@@ -2,15 +2,19 @@ const groupOrderService = require('../services/groupOrderService');
 
 const createGroupOrder = async (req, res) => {
   try {
-    const { title, spendingLimitPerPerson, deliveryAddress } = req.body;
+    const { title, spendingLimitPerPerson, deliveryAddress, code, groupId } = req.body;
     const hostId = req.user?.id || req.body.hostId || `host_${Date.now()}`;
     const hostName = req.user?.username || req.body.hostName || 'Host';
     const hostAvatar = req.user?.avatar || req.body.hostAvatar || '';
+    const hostColor = req.body.hostColor || '#f97316';
 
     const groupOrder = await groupOrderService.createGroupOrder({
+      groupId,
+      code,
       hostId,
       hostName,
       hostAvatar,
+      hostColor,
       title,
       spendingLimitPerPerson,
       deliveryAddress,
@@ -33,15 +37,17 @@ const getGroupOrder = async (req, res) => {
 
 const joinGroupOrder = async (req, res) => {
   try {
-    const { memberId, name, avatar } = req.body;
+    const { memberId, name, avatar, color } = req.body;
     const userId = req.user?.id || memberId;
     const userName = req.user?.username || name;
     const userAvatar = req.user?.avatar || avatar;
+    const userColor = color || '#f97316';
 
     const groupOrder = await groupOrderService.joinGroupOrder(req.params.groupId, {
       memberId: userId,
       name: userName,
       avatar: userAvatar,
+      color: userColor,
     });
 
     res.json({ success: true, groupOrder });
@@ -49,6 +55,7 @@ const joinGroupOrder = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
 
 const leaveGroupOrder = async (req, res) => {
   try {

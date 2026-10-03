@@ -4,6 +4,7 @@ const groupMemberSchema = new mongoose.Schema({
   id: { type: String, required: true },
   name: { type: String, required: true },
   avatar: { type: String, default: '' },
+  color: { type: String, default: '#f97316' },
   isHost: { type: Boolean, default: false },
   joinedAt: { type: Date, default: Date.now },
 }, { _id: false });
@@ -19,6 +20,7 @@ const groupItemSchema = new mongoose.Schema({
     id: { type: String, required: true },
     name: { type: String, required: true },
     avatar: { type: String, default: '' },
+    color: { type: String, default: '#f97316' },
   },
   notes: { type: String, default: '' },
 }, { _id: false });
@@ -28,6 +30,11 @@ const groupOrderSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    index: true,
+  },
+  code: {
+    type: String,
+    sparse: true,
     index: true,
   },
   title: {
@@ -55,6 +62,12 @@ const groupOrderSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  finalOrderId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Order',
+    default: null,
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('GroupOrder', groupOrderSchema);
+

@@ -26,7 +26,13 @@ export function CartDrawer() {
     removeVoucher,
   } = useCart();
 
-  const { isGroupOrderActive } = useGroupOrder();
+  const {
+    isGroupOrderActive,
+    groupOrder,
+    isHost,
+    isLocked,
+    openSplitBillModal,
+  } = useGroupOrder();
 
   const [inputCode, setInputCode] = useState('');
   const [voucherMsg, setVoucherMsg] = useState(null);
@@ -40,9 +46,18 @@ export function CartDrawer() {
     setVoucherMsg(res);
   };
 
+  const groupTotalItems = groupOrder?.totalItemsCount || 0;
+  const groupSubtotal = groupOrder?.totalSubtotal || 0;
+  const effectiveSubtotal = isGroupOrderActive ? groupSubtotal : subtotal;
+  const effectiveTotalCount = isGroupOrderActive ? groupTotalItems : totalCount;
+  const hasCartItems = isGroupOrderActive ? ((groupOrder?.items?.length || 0) > 0) : (items.length > 0);
+  const effectiveTotalAmount = isGroupOrderActive
+    ? Math.max(0, effectiveSubtotal + deliveryFee - discountAmount)
+    : totalAmount;
+
   const freeDeliveryThreshold = 25.0;
-  const progressToFreeDelivery = Math.min(100, (subtotal / freeDeliveryThreshold) * 100);
-  const remainingForFreeDelivery = Math.max(0, freeDeliveryThreshold - subtotal);
+  const progressToFreeDelivery = Math.min(100, (effectiveSubtotal / freeDeliveryThreshold) * 100);
+  const remainingForFreeDelivery = Math.max(0, freeDeliveryThreshold - effectiveSubtotal);
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden animate-in fade-in duration-200">
@@ -57,12 +72,12 @@ export function CartDrawer() {
           {/* Drawer Header */}
           <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <span className="text-xl">🛍️</span>
+              <span className="text-xl">{isGroupOrderActive ? '👥' : '🛍️'}</span>
               <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                {t('cart.cartTitle')}
+                {isGroupOrderActive ? (groupOrder?.title || t('groupOrder.groupCart', 'Group Cart')) : t('cart.cartTitle')}
               </h2>
               <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400">
-                {totalCount} {t('common.items')}
+                {effectiveTotalCount} {t('common.items')}
               </span>
             </div>
             <button
@@ -77,7 +92,7 @@ export function CartDrawer() {
           </div>
 
           {/* Free Delivery Bar */}
-          {items.length > 0 && (
+          {hasCartItems && (
             <div className="px-4 sm:px-5 py-2 sm:py-2.5 bg-orange-50/60 dark:bg-orange-950/20 border-b border-orange-100 dark:border-orange-950/40">
               <div className="flex justify-between items-center text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 <span>
@@ -204,64 +219,66 @@ export function CartDrawer() {
           </div>
 
           {/* Footer Checkout Summary */}
-          {items.length > 0 && (
+          {hasCartItems && (
             <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/60 space-y-3 sm:space-y-4">
               {/* Delivery Timing Quick Selector */}
               <DeliveryScheduleSelector compact={true} />
 
-              {/* Voucher Input */}
-              <div>
-                {voucherCode ? (
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs">
-                    <div className="flex items-center space-x-2 text-emerald-700 dark:text-emerald-300 font-bold">
-                      <span>🏷️</span>
-                      <span>{voucherCode} applied</span>
-                    </div>
-                    <button
-                      onClick={removeVoucher}
-                      className="text-xs text-rose-500 font-semibold hover:underline"
-                    >
-                      {t('cart.remove')}
-                    </button>
-                  </div>
-                ) : (
-                  <form onSubmit={handleApplyVoucher} className="space-y-1.5">
-                    <div className="flex space-x-2">
-                      <input
-                        type="text"
-                        placeholder={t('cart.promoPlaceholder')}
-                        value={inputCode}
-                        onChange={(e) => setInputCode(e.target.value)}
-                        className="flex-1 px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white uppercase focus:outline-hidden focus:border-orange-500"
-                      />
+              {/* Voucher Input (Individual mode only) */}
+              {!isGroupOrderActive && (
+                <div>
+                  {voucherCode ? (
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs">
+                      <div className="flex items-center space-x-2 text-emerald-700 dark:text-emerald-300 font-bold">
+                        <span>🏷️</span>
+                        <span>{voucherCode} applied</span>
+                      </div>
                       <button
-                        type="submit"
-                        className="px-3.5 py-2 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 text-white font-bold text-xs transition-colors"
+                        onClick={removeVoucher}
+                        className="text-xs text-rose-500 font-semibold hover:underline"
                       >
-                        {t('cart.apply')}
+                        {t('cart.remove')}
                       </button>
                     </div>
-                    {voucherMsg && (
-                      <p
-                        className={`text-[11px] font-medium ${
-                          voucherMsg.success
-                            ? 'text-emerald-600 dark:text-emerald-400'
-                            : 'text-rose-500'
-                        }`}
-                      >
-                        {voucherMsg.message}
-                      </p>
-                    )}
-                  </form>
-                )}
-              </div>
+                  ) : (
+                    <form onSubmit={handleApplyVoucher} className="space-y-1.5">
+                      <div className="flex space-x-2">
+                        <input
+                          type="text"
+                          placeholder={t('cart.promoPlaceholder')}
+                          value={inputCode}
+                          onChange={(e) => setInputCode(e.target.value)}
+                          className="flex-1 px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white uppercase focus:outline-hidden focus:border-orange-500"
+                        />
+                        <button
+                          type="submit"
+                          className="px-3.5 py-2 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 text-white font-bold text-xs transition-colors"
+                        >
+                          {t('cart.apply')}
+                        </button>
+                      </div>
+                      {voucherMsg && (
+                        <p
+                          className={`text-[11px] font-medium ${
+                            voucherMsg.success
+                              ? 'text-emerald-600 dark:text-emerald-400'
+                              : 'text-rose-500'
+                          }`}
+                        >
+                          {voucherMsg.message}
+                        </p>
+                      )}
+                    </form>
+                  )}
+                </div>
+              )}
 
               {/* Price Breakdown */}
               <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
                 <div className="flex justify-between">
-                  <span>{t('cart.subtotal')}</span>
+                  <span>{isGroupOrderActive ? t('groupOrder.groupSubtotal', 'Group Subtotal') : t('cart.subtotal')}</span>
                   <span className="font-semibold text-slate-900 dark:text-white">
-                    {formatUsd(subtotal)}
+                    {formatUsd(effectiveSubtotal)}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -282,30 +299,72 @@ export function CartDrawer() {
                 )}
                 <div className="border-t border-slate-200 dark:border-slate-800 pt-2 flex justify-between items-baseline">
                   <div>
-                    <span className="text-sm font-black text-slate-900 dark:text-white">{t('cart.total')}</span>
+                    <span className="text-sm font-black text-slate-900 dark:text-white">
+                      {isGroupOrderActive ? t('groupOrder.groupTotal', 'Group Total') : t('cart.total')}
+                    </span>
                     <span className="block text-[11px] text-slate-400 font-medium">
-                      {formatKhr(totalAmount)}
+                      {formatKhr(effectiveTotalAmount)}
                     </span>
                   </div>
                   <span className="text-lg font-black text-orange-600 dark:text-orange-400">
-                    {formatUsd(totalAmount)}
+                    {formatUsd(effectiveTotalAmount)}
                   </span>
                 </div>
               </div>
 
-              {/* Checkout Button */}
-              <button
-                onClick={() => {
-                  closeCart();
-                  navigate(AppRoutes.CHECKOUT);
-                }}
-                className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-sm shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:opacity-95 active:scale-98 transition-all flex items-center justify-center space-x-2"
-              >
-                <span>{t('cart.proceedToCheckout')}</span>
-                <span>→</span>
-              </button>
+              {/* Checkout / Host Control Actions */}
+              {isGroupOrderActive ? (
+                isHost ? (
+                  <button
+                    onClick={() => {
+                      closeCart();
+                      navigate(AppRoutes.CHECKOUT);
+                    }}
+                    className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-sm shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:opacity-95 active:scale-98 transition-all flex items-center justify-center space-x-2"
+                  >
+                    <span>👑 {t('groupOrder.hostCheckout', 'Host Checkout Group Order')}</span>
+                    <span>({formatUsd(effectiveTotalAmount)}) →</span>
+                  </button>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs text-amber-900 dark:text-amber-200">
+                      <div className="font-extrabold flex items-center space-x-1.5">
+                        <span>👑</span>
+                        <span>{t('groupOrder.waitingHost', 'Waiting for Host')} ({groupOrder?.hostName || 'Host'})</span>
+                      </div>
+                      <p className="text-[11px] text-amber-700 dark:text-amber-400 mt-0.5 leading-relaxed">
+                        {t('groupOrder.waitingHostMsg', 'Only the group host can finalize and place the group order. Check your share below.')}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        closeCart();
+                        openSplitBillModal();
+                      }}
+                      className="w-full py-3 px-4 rounded-2xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs shadow-md active:scale-98 transition-all flex items-center justify-center space-x-2"
+                    >
+                      <span>🧾</span>
+                      <span>{t('groupOrder.viewSplitBill', 'View Split Bill & My Share')}</span>
+                    </button>
+                  </div>
+                )
+              ) : (
+                <button
+                  onClick={() => {
+                    closeCart();
+                    navigate(AppRoutes.CHECKOUT);
+                  }}
+                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-sm shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:opacity-95 active:scale-98 transition-all flex items-center justify-center space-x-2"
+                >
+                  <span>{t('cart.proceedToCheckout')}</span>
+                  <span>→</span>
+                </button>
+              )}
             </div>
           )}
+
         </div>
       </div>
     </div>

@@ -69,7 +69,7 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
     const randomCode = `BC-${Math.floor(1000 + Math.random() * 9000)}`;
     const groupId = `grp_${Date.now()}`;
 
-    const newGroup = new GroupOrderEntity({
+    let newGroup = new GroupOrderEntity({
       id: groupId,
       code: randomCode,
       title: title || 'Group Feast',
@@ -85,15 +85,24 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
     this.localDataSource.saveGroupOrder(newGroup);
     this.localDataSource.saveCurrentMember(host);
 
-    // Call backend API in parallel
+    // Call backend API in parallel and update if successful
     try {
-      await this.remoteDataSource.createGroupOrder({
+      const remote = await this.remoteDataSource.createGroupOrder({
         groupId,
+        code: randomCode,
         title: newGroup.title,
         hostId: host.id,
         hostName: host.name,
         hostAvatar: host.avatar,
+        hostColor: host.color,
       });
+      if (remote) {
+        const parsed = GroupOrderModel.fromJson(remote);
+        if (parsed) {
+          newGroup = parsed;
+          this.localDataSource.saveGroupOrder(newGroup);
+        }
+      }
     } catch (e) {
       console.debug('Backend group creation note:', e.message);
     }
@@ -110,9 +119,24 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
 
   async joinGroupOrder({ code, member }) {
     const formattedCode = (code || '').trim().toUpperCase();
-    let currentGroup = this.localDataSource.getActiveGroupOrder();
+    let currentGroup = null;
 
-    if (!currentGroup || currentGroup.code !== formattedCode) {
+    // 1. First attempt to fetch the live group from the backend by code or ID
+    try {
+      const remote = await this.remoteDataSource.getGroupOrder(formattedCode);
+      if (remote) {
+        currentGroup = GroupOrderModel.fromJson(remote);
+      }
+    } catch (err) {
+      console.debug('Could not fetch remote group by code, trying local fallback:', err.message);
+    }
+
+    // 2. Fall back to local storage if API is unreachable
+    if (!currentGroup) {
+      currentGroup = this.localDataSource.getActiveGroupOrder();
+    }
+
+    if (!currentGroup || (currentGroup.code !== formattedCode && currentGroup.id !== formattedCode)) {
       const generatedId = `grp_${formattedCode.replace(/[^A-Z0-9]/gi, '')}`;
       currentGroup = new GroupOrderEntity({
         id: generatedId,
@@ -162,7 +186,7 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
       updatedMembers.push(joinedMember);
     }
 
-    const updatedGroup = new GroupOrderEntity({
+    let updatedGroup = new GroupOrderEntity({
       ...currentGroup,
       members: updatedMembers,
       updatedAt: new Date(),
@@ -173,11 +197,19 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
 
     // Call backend API
     try {
-      await this.remoteDataSource.joinGroupOrder(updatedGroup.id, {
+      const remote = await this.remoteDataSource.joinGroupOrder(updatedGroup.id, {
         memberId: joinedMember.id,
         name: joinedMember.name,
         avatar: joinedMember.avatar,
+        color: joinedMember.color,
       });
+      if (remote) {
+        const parsed = GroupOrderModel.fromJson(remote);
+        if (parsed) {
+          updatedGroup = parsed;
+          this.localDataSource.saveGroupOrder(updatedGroup);
+        }
+      }
     } catch (e) {
       console.debug('Backend group join note:', e.message);
     }
@@ -219,7 +251,7 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
       updatedItems.push(newItem);
     }
 
-    const updatedGroup = new GroupOrderEntity({
+    let updatedGroup = new GroupOrderEntity({
       ...currentGroup,
       items: updatedItems,
       updatedAt: new Date(),
@@ -229,19 +261,27 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
 
     // Call backend API
     try {
-      await this.remoteDataSource.addItem(groupId, {
+      const remote = await this.remoteDataSource.addItem(groupId, {
         itemId: newItem.id,
         foodId: newItem.foodId,
         name: newItem.foodName,
         price: newItem.price,
         quantity: newItem.quantity,
-        image: newItem.image,
+        image: newItem.foodImageUrl,
         addedBy: {
           id: newItem.memberId,
           name: newItem.memberName,
+          color: newItem.memberColor,
         },
         notes: newItem.notes,
       });
+      if (remote) {
+        const parsed = GroupOrderModel.fromJson(remote);
+        if (parsed) {
+          updatedGroup = parsed;
+          this.localDataSource.saveGroupOrder(updatedGroup);
+        }
+      }
     } catch (e) {
       console.debug('Backend add item note:', e.message);
     }
@@ -275,7 +315,7 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
       return true;
     });
 
-    const updatedGroup = new GroupOrderEntity({
+    let updatedGroup = new GroupOrderEntity({
       ...currentGroup,
       items: updatedItems,
       updatedAt: new Date(),
@@ -285,7 +325,14 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
 
     // Call backend API
     try {
-      await this.remoteDataSource.removeItem(groupId, itemId);
+      const remote = await this.remoteDataSource.removeItem(groupId, itemId);
+      if (remote) {
+        const parsed = GroupOrderModel.fromJson(remote);
+        if (parsed) {
+          updatedGroup = parsed;
+          this.localDataSource.saveGroupOrder(updatedGroup);
+        }
+      }
     } catch (e) {
       console.debug('Backend remove item note:', e.message);
     }
@@ -303,9 +350,10 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
     const currentGroup = this.localDataSource.getActiveGroupOrder();
     if (!currentGroup || currentGroup.id !== groupId) return null;
 
-    const updatedGroup = new GroupOrderEntity({
+    let updatedGroup = new GroupOrderEntity({
       ...currentGroup,
       isLocked: Boolean(isLocked),
+      status: isLocked ? 'locked' : 'active',
       updatedAt: new Date(),
     });
 
@@ -313,7 +361,14 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
 
     // Call backend API
     try {
-      await this.remoteDataSource.lockGroupOrder(groupId, Boolean(isLocked));
+      const remote = await this.remoteDataSource.lockGroupOrder(groupId, Boolean(isLocked));
+      if (remote) {
+        const parsed = GroupOrderModel.fromJson(remote);
+        if (parsed) {
+          updatedGroup = parsed;
+          this.localDataSource.saveGroupOrder(updatedGroup);
+        }
+      }
     } catch (e) {
       console.debug('Backend lock note:', e.message);
     }
@@ -344,3 +399,4 @@ export class GroupOrderRepositoryImpl extends GroupOrderRepository {
     this.localDataSource.clearGroupOrder();
   }
 }
+

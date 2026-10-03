@@ -12,6 +12,9 @@ export function OrderSummaryCard({
   paymentMethod = 'cash',
   submitting,
   onPlaceOrder,
+  isGroupOrder = false,
+  groupOrderInfo = null,
+  onOpenSplitBill = null,
 }) {
   const { t } = useTranslation();
 
@@ -19,25 +22,65 @@ export function OrderSummaryCard({
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-5 sticky top-24">
       <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
         <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight">
-          {t('checkout.orderSummary')}
+          {isGroupOrder ? t('groupOrder.groupOrderSummary', 'Group Order Summary') : t('checkout.orderSummary')}
         </h3>
         <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400">
           {items.length} {t('common.items')}
         </span>
       </div>
 
+      {/* Group Order Info Banner */}
+      {isGroupOrder && groupOrderInfo && (
+        <div className="p-3 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-between text-xs">
+          <div className="flex items-center space-x-2">
+            <span className="text-lg">👥</span>
+            <div>
+              <div className="font-extrabold text-slate-900 dark:text-white flex items-center space-x-1.5">
+                <span>{groupOrderInfo.title}</span>
+                <span className="font-mono text-[10px] bg-orange-500 text-white px-1.5 py-0.2 rounded-md">
+                  {groupOrderInfo.code}
+                </span>
+              </div>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                {groupOrderInfo.members?.length || 1} {t('groupOrder.participants', 'participants')}
+              </span>
+            </div>
+          </div>
+          {onOpenSplitBill && (
+            <button
+              type="button"
+              onClick={onOpenSplitBill}
+              className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-[11px] font-bold shadow-2xs hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+            >
+              🧾 {t('groupOrder.split', 'Split')}
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Itemized Food List */}
       <div className="max-h-60 overflow-y-auto space-y-2.5 pr-1 divide-y divide-slate-100 dark:divide-slate-800/60">
         {items.map((item) => (
-          <div key={item.food.id} className="pt-2.5 first:pt-0 flex items-start justify-between gap-3 text-xs">
+          <div key={item.food.id || item.food._id || Math.random()} className="pt-2.5 first:pt-0 flex items-start justify-between gap-3 text-xs">
             <div className="flex items-start space-x-2.5 min-w-0">
               <span className="w-5 h-5 rounded-md bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 font-bold flex items-center justify-center shrink-0 text-[11px] mt-0.5">
                 {item.quantity}×
               </span>
               <div className="min-w-0">
-                <p className="font-bold text-slate-900 dark:text-white truncate">
-                  {item.food.name}
-                </p>
+                <div className="flex items-center space-x-1.5">
+                  <p className="font-bold text-slate-900 dark:text-white truncate">
+                    {item.food.name}
+                  </p>
+                  {item.addedBy?.name && (
+                    <span
+                      className="text-[9px] font-extrabold text-white px-1.5 py-0.2 rounded-md shrink-0 shadow-2xs"
+                      style={{ backgroundColor: item.addedBy.color || '#f97316' }}
+                      title={`Ordered by ${item.addedBy.name}`}
+                    >
+                      👤 {item.addedBy.name}
+                    </span>
+                  )}
+                </div>
                 {item.notes && (
                   <p className="text-[10px] text-slate-400 italic truncate">
                     &ldquo;{item.notes}&rdquo;
@@ -51,6 +94,7 @@ export function OrderSummaryCard({
           </div>
         ))}
       </div>
+
 
       {/* Bill Breakdown */}
       <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-xs">

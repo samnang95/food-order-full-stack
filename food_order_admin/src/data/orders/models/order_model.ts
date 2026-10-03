@@ -8,6 +8,7 @@ export interface OrderItemModelData {
   quantity: number;
   image?: string;
   specialInstructions?: string;
+  addedBy?: { id?: string; name?: string; color?: string };
 }
 
 export interface OrderModelData {
@@ -28,6 +29,8 @@ export interface OrderModelData {
   createdAt: string;
   estimatedDeliveryMinutes: number;
   notes?: string;
+  isGroupOrder?: boolean;
+  groupOrder?: { groupId?: string; code?: string; title?: string; members?: any[] };
 }
 
 export class OrderModel {
@@ -50,8 +53,11 @@ export class OrderModel {
       createdAt: raw.createdAt,
       estimatedDeliveryMinutes: raw.estimatedDeliveryMinutes,
       notes: raw.notes,
+      isGroupOrder: raw.isGroupOrder,
+      groupOrder: raw.groupOrder,
     });
   }
+
 
   static fromEntity(entity: OrderEntity): OrderModelData {
     return {

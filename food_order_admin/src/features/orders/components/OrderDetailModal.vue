@@ -43,8 +43,15 @@ const statusSteps: { key: OrderStatus; label: string }[] = [
               <span class="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30">
                 {{ ordersStore.selectedOrder.status }}
               </span>
+              <span
+                v-if="ordersStore.selectedOrder.isGroupOrder || ordersStore.selectedOrder.groupOrder"
+                class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1"
+              >
+                👥 Group Order
+              </span>
             </div>
             <p class="text-xs text-slate-400">Placed {{ ordersStore.selectedOrder.createdAt }}</p>
+
           </div>
         </div>
 
@@ -142,8 +149,13 @@ const statusSteps: { key: OrderStatus; label: string }[] = [
                   <div v-if="item.specialInstructions" class="text-[10px] text-orange-400 font-medium">
                     Note: {{ item.specialInstructions }}
                   </div>
+                  <div v-if="item.addedBy?.name" class="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-orange-500/20 text-orange-300 border border-orange-500/30 mt-1">
+                    <span>👤</span>
+                    <span>Ordered by {{ item.addedBy.name }}</span>
+                  </div>
                 </div>
               </div>
+
               <div class="text-sm font-bold text-white">
                 ${{ (item.price * item.quantity).toFixed(2) }}
               </div>

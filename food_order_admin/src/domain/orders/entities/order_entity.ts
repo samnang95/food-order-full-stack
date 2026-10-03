@@ -8,6 +8,7 @@ export class OrderItemEntity {
   quantity: number;
   image?: string;
   specialInstructions?: string;
+  addedBy?: { id?: string; name?: string; color?: string };
 
   constructor(data: Partial<OrderItemEntity>) {
     this.id = data.id || '';
@@ -17,6 +18,7 @@ export class OrderItemEntity {
     this.quantity = Number(data.quantity) || 1;
     this.image = data.image;
     this.specialInstructions = data.specialInstructions;
+    this.addedBy = data.addedBy;
   }
 
   get total(): number {
@@ -42,6 +44,8 @@ export class OrderEntity {
   createdAt: string;
   estimatedDeliveryMinutes: number;
   notes?: string;
+  isGroupOrder?: boolean;
+  groupOrder?: { groupId?: string; code?: string; title?: string; members?: any[] };
 
   constructor(data: Partial<OrderEntity>) {
     this.id = data.id || '';
@@ -61,5 +65,8 @@ export class OrderEntity {
     this.createdAt = data.createdAt || 'Just now';
     this.estimatedDeliveryMinutes = Number(data.estimatedDeliveryMinutes) || 30;
     this.notes = data.notes;
+    this.isGroupOrder = Boolean(data.isGroupOrder || data.groupOrder);
+    this.groupOrder = data.groupOrder;
   }
 }
+

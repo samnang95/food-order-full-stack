@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from '../../../core';
 import { useGroupOrder } from '../use_group_order';
 
@@ -24,7 +24,19 @@ export function GroupOrderModal() {
   const [joinName, setJoinName] = useState('');
   const [copiedCode, setCopiedCode] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !groupOrder) {
+      const params = new URLSearchParams(window.location.search);
+      const urlCode = params.get('group') || params.get('join');
+      if (urlCode) {
+        setJoinCode(urlCode.toUpperCase());
+        setActiveTab('join');
+      }
+    }
+  }, [groupOrder, isGroupModalOpen]);
+
   if (!isGroupModalOpen) return null;
+
 
   const handleCreate = async (e) => {
     e.preventDefault();
