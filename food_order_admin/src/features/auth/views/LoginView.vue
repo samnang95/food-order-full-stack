@@ -4,6 +4,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/auth_store';
 import { checkApiHealth } from '../../../core/services/api_client';
 import { AppRoutes } from '../../../routes/app_routes';
+import type { UserRole } from '../../../domain/auth/entities/user';
 import {
   Flame,
   Lock,
@@ -18,6 +19,10 @@ import {
   CheckCircle2,
   Server,
   Zap,
+  Crown,
+  Briefcase,
+  ChefHat,
+  Store,
 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -37,14 +42,25 @@ onMounted(async () => {
   isApiOnline.value = await checkApiHealth();
 });
 
-// Quick demo admin credentials autofill
-function fillDemoCredentials(type: 'admin' | 'manager') {
-  if (type === 'admin') {
-    username.value = 'admin';
-    password.value = 'admin123';
-  } else {
-    username.value = 'elena.vance';
-    password.value = 'kitchen2026';
+// Quick demo credentials autofill for all 4 RBAC roles
+function fillDemoCredentials(role: UserRole) {
+  switch (role) {
+    case 'admin':
+      username.value = 'admin';
+      password.value = 'admin123';
+      break;
+    case 'manager':
+      username.value = 'manager';
+      password.value = 'manager123';
+      break;
+    case 'kitchen':
+      username.value = 'kitchen';
+      password.value = 'kitchen123';
+      break;
+    case 'staff':
+      username.value = 'staff';
+      password.value = 'staff123';
+      break;
   }
 }
 
@@ -59,7 +75,7 @@ async function handleSubmit() {
     });
 
     if (success) {
-      const redirectPath = (route.query.redirect as string) || AppRoutes.ROOT;
+      const redirectPath = (route.query.redirect as string) || authStore.roleConfig.defaultRoute || AppRoutes.ROOT;
       router.push(redirectPath);
     }
   } else {
@@ -70,7 +86,7 @@ async function handleSubmit() {
     });
 
     if (success) {
-      const redirectPath = (route.query.redirect as string) || AppRoutes.ROOT;
+      const redirectPath = (route.query.redirect as string) || authStore.roleConfig.defaultRoute || AppRoutes.ROOT;
       router.push(redirectPath);
     }
   }
@@ -250,39 +266,79 @@ async function handleSubmit() {
             </button>
           </form>
 
-          <!-- Quick Demo Credentials Box -->
+          <!-- Quick Demo Credentials Box (All 4 RBAC Roles) -->
           <div class="pt-4 border-t border-slate-800/80">
             <div class="flex items-center justify-between mb-2">
               <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                 <Sparkles class="w-3.5 h-3.5 text-amber-400" />
-                Instant Demo Access
+                Select Role to Test
               </span>
-              <span class="text-[10px] text-slate-500">1-click fill</span>
+              <span class="text-[10px] text-slate-500 font-mono">4 Roles Available</span>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
+              <!-- Super Admin -->
               <button
                 type="button"
                 @click="fillDemoCredentials('admin')"
-                class="py-2 px-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 text-left transition cursor-pointer group"
+                class="p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 hover:border-orange-500/40 text-left transition cursor-pointer group"
               >
                 <div class="text-xs font-semibold text-slate-200 group-hover:text-orange-400 flex items-center justify-between">
-                  <span>admin</span>
-                  <Zap class="w-3 h-3 text-orange-400" />
+                  <span class="flex items-center gap-1.5 truncate">
+                    <Crown class="w-3 h-3 text-orange-400 shrink-0" />
+                    Super Admin
+                  </span>
+                  <Zap class="w-2.5 h-2.5 text-orange-400 shrink-0" />
                 </div>
-                <div class="text-[10px] text-slate-400">Executive Director</div>
+                <div class="text-[10px] text-slate-400 truncate mt-0.5">Full System Access</div>
               </button>
 
+              <!-- Manager -->
               <button
                 type="button"
                 @click="fillDemoCredentials('manager')"
-                class="py-2 px-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 text-left transition cursor-pointer group"
+                class="p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 hover:border-sky-500/40 text-left transition cursor-pointer group"
               >
-                <div class="text-xs font-semibold text-slate-200 group-hover:text-orange-400 flex items-center justify-between">
-                  <span>elena.vance</span>
-                  <Zap class="w-3 h-3 text-orange-400" />
+                <div class="text-xs font-semibold text-slate-200 group-hover:text-sky-400 flex items-center justify-between">
+                  <span class="flex items-center gap-1.5 truncate">
+                    <Briefcase class="w-3 h-3 text-sky-400 shrink-0" />
+                    Manager
+                  </span>
+                  <Zap class="w-2.5 h-2.5 text-sky-400 shrink-0" />
                 </div>
-                <div class="text-[10px] text-slate-400">Kitchen Director</div>
+                <div class="text-[10px] text-slate-400 truncate mt-0.5">Menu, Vouchers, CRM</div>
+              </button>
+
+              <!-- Kitchen -->
+              <button
+                type="button"
+                @click="fillDemoCredentials('kitchen')"
+                class="p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/40 text-left transition cursor-pointer group"
+              >
+                <div class="text-xs font-semibold text-slate-200 group-hover:text-emerald-400 flex items-center justify-between">
+                  <span class="flex items-center gap-1.5 truncate">
+                    <ChefHat class="w-3 h-3 text-emerald-400 shrink-0" />
+                    Kitchen Chef
+                  </span>
+                  <Zap class="w-2.5 h-2.5 text-emerald-400 shrink-0" />
+                </div>
+                <div class="text-[10px] text-slate-400 truncate mt-0.5">KDS & Ticket Prep</div>
+              </button>
+
+              <!-- Staff -->
+              <button
+                type="button"
+                @click="fillDemoCredentials('staff')"
+                class="p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 hover:border-purple-500/40 text-left transition cursor-pointer group"
+              >
+                <div class="text-xs font-semibold text-slate-200 group-hover:text-purple-400 flex items-center justify-between">
+                  <span class="flex items-center gap-1.5 truncate">
+                    <Store class="w-3 h-3 text-purple-400 shrink-0" />
+                    Front Staff
+                  </span>
+                  <Zap class="w-2.5 h-2.5 text-purple-400 shrink-0" />
+                </div>
+                <div class="text-[10px] text-slate-400 truncate mt-0.5">Orders & Pickups</div>
               </button>
             </div>
           </div>

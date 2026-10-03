@@ -4,7 +4,7 @@ import type {
   RegisterParams,
 } from '../../../domain/auth/repositories/auth_repository';
 import type { AuthSession } from '../../../domain/auth/entities/auth_session';
-import type { User } from '../../../domain/auth/entities/user';
+import type { User, UserRole } from '../../../domain/auth/entities/user';
 import { AuthRemoteDataSource } from '../datasources/auth_remote_datasource';
 import { AuthLocalDataSource } from '../datasources/auth_local_datasource';
 import { UserModel } from '../models/user_model';
@@ -35,17 +35,40 @@ export class AuthRepositoryImpl implements AuthRepository {
       }
 
       // If network / connection error or offline demo mode:
-      console.warn('[AuthRepository] Remote login unreachable or failed, activating local admin session:', errorMsg);
+      console.warn('[AuthRepository] Remote login unreachable or failed, activating local demo session:', errorMsg);
 
-      // Create fallback admin session
+      const uname = (params.username || 'admin').toLowerCase();
+      let role: UserRole = 'admin';
+      let title = 'Executive Director (Super Admin)';
+      let dept = 'Executive Management';
+      let avatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80';
+
+      if (uname.includes('kitchen') || uname.includes('chef') || uname.includes('cook')) {
+        role = 'kitchen';
+        title = 'Executive Head Chef';
+        dept = 'Kitchen Operations';
+        avatar = 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=120&q=80';
+      } else if (uname.includes('staff') || uname.includes('cashier') || uname.includes('desk')) {
+        role = 'staff';
+        title = 'Front Cashier & Orders Lead';
+        dept = 'Front-of-House';
+        avatar = 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&q=80';
+      } else if (uname.includes('manager') || uname.includes('elena')) {
+        role = 'manager';
+        title = 'Store Operations Manager';
+        dept = 'Restaurant Operations';
+        avatar = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&q=80';
+      }
+
+      // Create fallback session
       const fallbackUser: User = {
-        id: 'usr_admin_01',
+        id: `usr_${role}_${Date.now()}`,
         username: params.username || 'admin',
         email: params.username.includes('@') ? params.username : `${params.username.toLowerCase()}@foodhub.com`,
-        role: 'admin',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-        title: 'Kitchen Director',
-        department: 'Culinary Operations',
+        role,
+        avatar,
+        title,
+        department: dept,
         createdAt: new Date().toISOString(),
         lastLoginAt: new Date().toISOString(),
       };
@@ -118,6 +141,10 @@ export class AuthRepositoryImpl implements AuthRepository {
     } catch {
       return localUser;
     }
+  }
+
+  saveSession(session: AuthSession): void {
+    this.localDataSource.saveSession(session);
   }
 
   getStoredSession(): AuthSession | null {

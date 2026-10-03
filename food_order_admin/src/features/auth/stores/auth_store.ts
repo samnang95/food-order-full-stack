@@ -11,6 +11,9 @@ import {
 } from '../../../domain/auth';
 import { AuthRepositoryImpl } from '../../../data/auth/repositories/auth_repository_impl';
 
+import type { UserRole } from '../../../domain/auth/entities/user';
+import { getRoleConfig } from '../../../core/auth/rbac';
+
 export const useAuthStore = defineStore('auth', () => {
   // Repository & Use Cases
   const authRepository = new AuthRepositoryImpl();
@@ -33,7 +36,8 @@ export const useAuthStore = defineStore('auth', () => {
   // Getters
   const isAuthenticated = computed(() => state.value.isAuthenticated && Boolean(state.value.token));
   const currentUser = computed(() => state.value.user);
-  const userRole = computed(() => state.value.user?.role || 'admin');
+  const userRole = computed<UserRole>(() => (state.value.user?.role || 'admin') as UserRole);
+  const roleConfig = computed(() => getRoleConfig(userRole.value));
   const isLoading = computed(() => state.value.isLoading);
   const error = computed(() => state.value.error);
   const activeTab = computed(() => state.value.activeTab);
@@ -150,11 +154,59 @@ export const useAuthStore = defineStore('auth', () => {
 
   const clearError = () => dispatch({ type: 'CLEAR_ERROR' });
 
+  const switchRole = (newRole: UserRole): string => {
+    const config = getRoleConfig(newRole);
+    const existing = state.value.user;
+
+    const roleAvatars: Record<UserRole, string> = {
+      admin: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
+      manager: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&q=80',
+      kitchen: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=120&q=80',
+      staff: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&q=80',
+      user: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
+    };
+
+    const roleUsernames: Record<UserRole, string> = {
+      admin: 'admin',
+      manager: 'elena.vance',
+      kitchen: 'chef.mario',
+      staff: 'cashier.sarah',
+      user: 'diner.alex',
+    };
+
+    const updatedUser = {
+      id: existing?.id || `usr_${newRole}_${Date.now()}`,
+      username: roleUsernames[newRole] || `${newRole}.user`,
+      email: `${newRole}@foodhub.com`,
+      role: newRole,
+      title: config.title,
+      department: config.badge,
+      avatar: roleAvatars[newRole] || existing?.avatar,
+      createdAt: existing?.createdAt || new Date().toISOString(),
+      lastLoginAt: new Date().toISOString(),
+    };
+
+    const updatedToken = state.value.token || `token_${newRole}_${Date.now()}`;
+
+    state.value.user = updatedUser;
+    state.value.token = updatedToken;
+    state.value.isAuthenticated = true;
+
+    authRepository.saveSession({
+      token: updatedToken,
+      user: updatedUser,
+      expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return config.defaultRoute;
+  };
+
   return {
     state,
     isAuthenticated,
     currentUser,
     userRole,
+    roleConfig,
     isLoading,
     error,
     activeTab,
@@ -164,5 +216,6 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     setTab,
     clearError,
+    switchRole,
   };
 });

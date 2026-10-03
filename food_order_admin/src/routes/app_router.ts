@@ -85,18 +85,24 @@ export const appRouter = createRouter({
   routes,
 });
 
-// Navigation Guards: Protect private routes & redirect authenticated users from login
+import type { User } from '../domain/auth/entities/user';
+import { isRouteAllowedForRole, getRoleConfig } from '../core/auth/rbac';
+
+// Navigation Guards: Protect private routes & enforce Role-Based Access Control
 appRouter.beforeEach((to, _from, next) => {
   const token = LocalDB.getString(DBKeys.AUTH_TOKEN);
   const isAuthenticated = Boolean(token && token.length > 5);
+  const user = LocalDB.getJson<User>(DBKeys.USER_PROFILE);
+  const userRole = user?.role || 'admin';
+  const roleConfig = getRoleConfig(userRole);
 
   if (to.meta.title) {
     document.title = to.meta.title as string;
   }
 
-  // If user is logged in and navigates to login, redirect to root dashboard
+  // If user is already logged in and navigates to login, redirect to role's default home
   if (to.meta.guestOnly && isAuthenticated) {
-    return next({ path: AppRoutes.ROOT });
+    return next({ path: roleConfig.defaultRoute });
   }
 
   // If route requires auth and user is NOT logged in, redirect to login
@@ -105,6 +111,14 @@ appRouter.beforeEach((to, _from, next) => {
       path: AppRoutes.LOGIN,
       query: { redirect: to.fullPath !== AppRoutes.ROOT ? to.fullPath : undefined },
     });
+  }
+
+  // If route requires auth and user IS logged in, verify role permissions
+  if (to.meta.requiresAuth && isAuthenticated) {
+    if (!isRouteAllowedForRole(to.path, userRole)) {
+      console.warn(`[RBAC] Access denied for role "${userRole}" to "${to.path}". Redirecting to ${roleConfig.defaultRoute}`);
+      return next({ path: roleConfig.defaultRoute });
+    }
   }
 
   next();

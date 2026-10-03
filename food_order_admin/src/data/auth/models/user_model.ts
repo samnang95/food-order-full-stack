@@ -28,17 +28,49 @@ export class UserModel {
       manager: 'manager',
       kitchen: 'kitchen',
       staff: 'staff',
-      user: 'admin', // default to admin in admin dashboard if role is generic user
+      user: 'admin',
     };
+
+    const resolvedRole = roleMap[dto.role?.toLowerCase() || 'admin'] || 'admin';
+
+    const defaultRoleData: Record<UserRole, { title: string; dept: string; avatar: string }> = {
+      admin: {
+        title: 'Executive Director (Super Admin)',
+        dept: 'Executive Management',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
+      },
+      manager: {
+        title: 'Store Operations Manager',
+        dept: 'Restaurant Operations',
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&q=80',
+      },
+      kitchen: {
+        title: 'Executive Head Chef',
+        dept: 'Kitchen Operations',
+        avatar: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=120&q=80',
+      },
+      staff: {
+        title: 'Front Cashier & Orders Lead',
+        dept: 'Front-of-House',
+        avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&q=80',
+      },
+      user: {
+        title: 'Diner / Customer',
+        dept: 'Patron',
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
+      },
+    };
+
+    const meta = defaultRoleData[resolvedRole];
 
     return {
       id: dto._id || dto.id || `user_${Date.now()}`,
       username: dto.username,
       email: dto.email || `${dto.username.toLowerCase()}@foodhub.com`,
-      role: roleMap[dto.role || 'admin'] || 'admin',
-      avatar: dto.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-      title: dto.title || 'Kitchen Director & Operations',
-      department: dto.department || 'Executive Culinary Ops',
+      role: resolvedRole,
+      avatar: dto.avatar || meta.avatar,
+      title: dto.title || meta.title,
+      department: dto.department || meta.dept,
       createdAt: dto.createdAt || new Date().toISOString(),
       lastLoginAt: new Date().toISOString(),
     };

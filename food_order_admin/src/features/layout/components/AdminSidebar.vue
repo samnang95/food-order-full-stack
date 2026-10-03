@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, type Component, type ComputedRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useOrdersStore } from '../../orders/stores/orders_store';
 import { useAppStore } from '../stores/app_store';
@@ -22,11 +22,15 @@ import {
   X,
 } from 'lucide-vue-next';
 
+import type { UserRole } from '../../../domain/auth/entities/user';
+import { getRoleConfig } from '../../../core/auth/rbac';
+
 const route = useRoute();
 const router = useRouter();
 const ordersStore = useOrdersStore();
 const appStore = useAppStore();
 const authStore = useAuthStore();
+
 async function handleLogout() {
   await authStore.logout();
   router.push(AppRoutes.LOGIN);
@@ -34,17 +38,32 @@ async function handleLogout() {
 
 const pendingCount = computed(() => ordersStore.statusCounts.pending || 0);
 
-const navItems = [
-  { name: 'Dashboard', path: AppRoutes.ROOT, icon: LayoutDashboard },
-  { name: 'Orders', path: AppRoutes.ORDERS, icon: ShoppingBag, badge: pendingCount },
-  { name: 'Kitchen KDS', path: AppRoutes.KDS, icon: ChefHat },
-  { name: 'Menu Catalog', path: AppRoutes.MENU, icon: UtensilsCrossed },
-  { name: 'Categories', path: AppRoutes.CATEGORIES, icon: Layers },
-  { name: 'Customers', path: AppRoutes.CUSTOMERS, icon: Users },
-  { name: 'Vouchers', path: AppRoutes.VOUCHERS, icon: Ticket },
-  { name: 'Reviews', path: AppRoutes.REVIEWS, icon: Star },
-  { name: 'Settings', path: AppRoutes.SETTINGS, icon: Settings },
+interface NavItem {
+  name: string;
+  path: string;
+  icon: Component;
+  badge?: ComputedRef<number>;
+  roles: UserRole[];
+}
+
+const navItems: NavItem[] = [
+  { name: 'Dashboard', path: AppRoutes.ROOT, icon: LayoutDashboard, roles: ['admin', 'manager'] },
+  { name: 'Orders', path: AppRoutes.ORDERS, icon: ShoppingBag, badge: pendingCount, roles: ['admin', 'manager', 'staff'] },
+  { name: 'Kitchen KDS', path: AppRoutes.KDS, icon: ChefHat, roles: ['admin', 'kitchen', 'staff'] },
+  { name: 'Menu Catalog', path: AppRoutes.MENU, icon: UtensilsCrossed, roles: ['admin', 'manager', 'kitchen', 'staff'] },
+  { name: 'Categories', path: AppRoutes.CATEGORIES, icon: Layers, roles: ['admin', 'manager'] },
+  { name: 'Customers', path: AppRoutes.CUSTOMERS, icon: Users, roles: ['admin', 'manager'] },
+  { name: 'Vouchers', path: AppRoutes.VOUCHERS, icon: Ticket, roles: ['admin', 'manager'] },
+  { name: 'Reviews', path: AppRoutes.REVIEWS, icon: Star, roles: ['admin', 'manager'] },
+  { name: 'Settings', path: AppRoutes.SETTINGS, icon: Settings, roles: ['admin'] },
 ];
+
+const currentRole = computed<UserRole>(() => (authStore.userRole || 'admin') as UserRole);
+const roleConfig = computed(() => getRoleConfig(currentRole.value));
+
+const filteredNavItems = computed(() => {
+  return navItems.filter((item) => item.roles.includes(currentRole.value));
+});
 </script>
 <template>
   <!-- Mobile Backdrop Overlay -->
@@ -127,7 +146,7 @@ const navItems = [
       </div>
 
       <router-link
-        v-for="item in navItems"
+        v-for="item in filteredNavItems"
         :key="item.path"
         :to="item.path"
         @click="appStore.closeMobileSidebar"
@@ -244,16 +263,18 @@ const navItems = [
             <img
               :src="authStore.currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'"
               :alt="authStore.currentUser?.username || 'Admin'"
-              class="w-9 h-9 rounded-xl object-cover ring-2 ring-orange-500/30"
+              :class="['w-9 h-9 rounded-xl object-cover ring-2 transition-colors', roleConfig.themeColor.ring]"
             />
             <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900" />
           </div>
           <div v-if="!appStore.isSidebarCollapsed" class="flex flex-col min-w-0">
-            <span class="text-xs font-semibold text-slate-200 truncate">
-              {{ authStore.currentUser?.username || 'Elena Vance' }}
-            </span>
-            <span class="text-[11px] text-slate-400 truncate">
-              {{ authStore.currentUser?.title || 'Kitchen Director' }}
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs font-semibold text-slate-200 truncate">
+                {{ authStore.currentUser?.username || 'Elena Vance' }}
+              </span>
+            </div>
+            <span :class="['text-[9px] font-bold px-1.5 py-0.2 rounded-md inline-block uppercase tracking-wider w-fit mt-0.5 border', roleConfig.themeColor.bg, roleConfig.themeColor.text, roleConfig.themeColor.border]">
+              {{ roleConfig.badge }}
             </span>
           </div>
         </div>
