@@ -8,6 +8,7 @@ import { LiveEtaBanner } from './components/LiveEtaBanner';
 import { TrackingMapView } from './components/TrackingMapView';
 import { TrackingTimeline } from './components/TrackingTimeline';
 import { DriverInfoCard } from './components/DriverInfoCard';
+import { DriverCallModal } from './components/DriverCallModal';
 import { DriverChatButton, DriverChatDrawer, useDriverChatStore } from '../chat';
 import { DeliveryInstructionsCard } from '../chat/components/DeliveryInstructionsCard';
 
@@ -16,6 +17,7 @@ export function TrackingView() {
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [orderLoading, setOrderLoading] = useState(true);
+  const [isCallModalOpen, setIsCallModalOpen] = useState(false);
 
   const {
     tracking,
@@ -198,10 +200,34 @@ export function TrackingView() {
             />
           </div>
 
+          {/* Order Delivered Celebration Banner */}
+          {tracking?.status === 'delivered' && (
+            <div className="p-5 rounded-3xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-transparent border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm animate-in fade-in zoom-in-95 duration-300">
+              <div className="flex items-center gap-3.5">
+                <span className="text-3xl">🎉</span>
+                <div>
+                  <h4 className="text-sm font-black text-slate-900 dark:text-white">
+                    Order Delivered! Enjoy your meal
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Your courier {tracking.driverName} has safely dropped off your package.
+                  </p>
+                </div>
+              </div>
+              <Link
+                to={AppRoutes.ORDERS}
+                className="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/20 text-center transition shrink-0"
+              >
+                Rate & Review Order
+              </Link>
+            </div>
+          )}
+
           {/* Driver Info Card with Live Chat & Call Trigger */}
           <DriverInfoCard
             tracking={tracking}
             onChatDriver={openChat}
+            onCallDriver={() => setIsCallModalOpen(true)}
             unreadCount={chatUnreadCount}
           />
 
@@ -367,6 +393,13 @@ export function TrackingView() {
         deliveryInstruction={deliveryInstruction}
         onSendMessage={sendChatMessage}
         onSendPreset={sendChatPreset}
+      />
+
+      {/* Interactive In-App Driver Call Modal */}
+      <DriverCallModal
+        isOpen={isCallModalOpen}
+        onClose={() => setIsCallModalOpen(false)}
+        driver={chatDriver}
       />
     </div>
   );
