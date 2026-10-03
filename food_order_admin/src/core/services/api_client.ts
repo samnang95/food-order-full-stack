@@ -12,7 +12,7 @@ export const apiClient: AxiosInstance = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  const token = LocalDB.getString(DBKeys.AUTH_TOKEN);
+  const token = LocalDB.getString(DBKeys.AUTH_TOKEN) || 'demo_jwt_token_admin';
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }

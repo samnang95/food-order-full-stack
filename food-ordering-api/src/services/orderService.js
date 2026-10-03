@@ -87,6 +87,10 @@ const orderService = {
 
     try {
       const io = getIO();
+      // Broadcast real-time order to all stations (Admin, KDS, etc.)
+      io.emit('order:created', createdOrder);
+      io.emit('order_created', createdOrder);
+
       const notif = {
         id: `notif_${Date.now()}`,
         type: 'order',
@@ -129,8 +133,11 @@ const orderService = {
       throw new Error('Order not found');
     }
 
-    // Security check: users can only view their own order
-    if (order.user._id.toString() !== userId.toString()) {
+    const isStaff = ['admin', 'manager', 'kitchen', 'staff'].includes(userRole);
+    const orderUserId = order.user && (order.user._id ? order.user._id.toString() : order.user.toString());
+    const isOwner = orderUserId === (userId ? userId.toString() : '');
+
+    if (!isStaff && !isOwner) {
       throw new Error('Not authorized to view this order');
     }
 
@@ -144,7 +151,7 @@ const orderService = {
     }
 
     // Valid statuses
-    const validStatuses = ['pending', 'preparing', 'out_for_delivery', 'delivered', 'cancelled'];
+    const validStatuses = ['pending', 'confirmed', 'preparing', 'out_for_delivery', 'on_delivery', 'delivered', 'cancelled'];
     if (status && !validStatuses.includes(status)) {
       throw new Error('Invalid order status');
     }
@@ -154,15 +161,24 @@ const orderService = {
       throw new Error('Invalid payment status');
     }
 
-    // If transitioning to out_for_delivery, start driver simulation
-    if (status === 'out_for_delivery' && order.status !== 'out_for_delivery') {
+    const isDeliveryStatus = status === 'out_for_delivery' || status === 'on_delivery';
+    const wasDeliveryStatus = order.status === 'out_for_delivery' || order.status === 'on_delivery';
+
+    // If transitioning to delivery status, start driver simulation
+    if (isDeliveryStatus && !wasDeliveryStatus) {
       const deliveryLocation = order.deliveryLocation || 
         DEFAULT_DELIVERY_LOCATIONS[Math.floor(Math.random() * DEFAULT_DELIVERY_LOCATIONS.length)];
 
       try {
         startSimulation(orderId, deliveryLocation, async () => {
           // Auto-update order status to delivered when driver arrives
-          await orderRepository.updateStatus(orderId, 'delivered', 'completed');
+          const deliveredOrder = await orderRepository.updateStatus(orderId, 'delivered', 'completed');
+          try {
+            const io = getIO();
+            io.to(`order_${orderId}`).emit('order_status_changed', { orderId, status: 'delivered', paymentStatus: 'completed', order: deliveredOrder });
+            io.emit('order_status_changed', { orderId, status: 'delivered', paymentStatus: 'completed', order: deliveredOrder });
+            io.emit('order:status_updated', { orderId, status: 'delivered', paymentStatus: 'completed', order: deliveredOrder });
+          } catch (_) {}
         });
       } catch (err) {
         console.warn('⚠️ [orderService] Driver simulation error:', err.message);
@@ -176,6 +192,9 @@ const orderService = {
       } catch (_) {}
     }
 
+    // Update in database first so we have the full populated order
+    const updatedOrder = await orderRepository.updateStatus(orderId, status, paymentStatus);
+
     // Determine notification content for status transition
     let notifTitle = null;
     let notifBody = null;
@@ -184,7 +203,7 @@ const orderService = {
     if (status === 'preparing') {
       notifTitle = '🍳 Kitchen is Cooking!';
       notifBody = `Your order #${orderId.toString().slice(-6).toUpperCase()} is currently being freshly prepared.`;
-    } else if (status === 'out_for_delivery') {
+    } else if (isDeliveryStatus) {
       notifTitle = '🛵 Rider Dispatched!';
       notifBody = 'Rider Sok Dara has picked up your food and is on the way!';
     } else if (status === 'delivered') {
@@ -199,7 +218,11 @@ const orderService = {
     // 1. Emit status change & push notification via Socket.IO
     try {
       const io = getIO();
-      io.to(`order_${orderId}`).emit('order_status_changed', { orderId, status });
+      // Emit to specific order tracking room
+      io.to(`order_${orderId}`).emit('order_status_changed', { orderId, status, paymentStatus, order: updatedOrder });
+      // Broadcast globally for Admin & KDS dashboards
+      io.emit('order_status_changed', { orderId, status, paymentStatus, order: updatedOrder });
+      io.emit('order:status_updated', { orderId, status, paymentStatus, order: updatedOrder });
 
       if (notifTitle) {
         const notif = {
@@ -237,7 +260,7 @@ const orderService = {
       }
     }
 
-    return await orderRepository.updateStatus(orderId, status, paymentStatus);
+    return updatedOrder;
   },
 
   getUserOrderAnalytics: async (userId) => {

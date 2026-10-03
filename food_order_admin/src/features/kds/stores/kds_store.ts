@@ -3,17 +3,17 @@ import { ref, computed } from 'vue';
 import type { KdsState } from '../kds_state';
 import { initialKdsState } from '../kds_state';
 import type { KdsIntent } from '../kds_intent';
-import { OrderRepositoryImpl } from '../../../data/orders/repositories/order_repository_impl';
+import { orderRepository } from '../../../data';
 import { GetOrdersUseCase } from '../../../domain/orders/usecases/get_orders_usecase';
 import { UpdateOrderStatusUseCase } from '../../../domain/orders/usecases/update_order_status_usecase';
 import { playKitchenChime } from '../../../core/utils/audio_chime';
+import { adminSocketService } from '../../../core/services/socket_service';
 import { LocalDB } from '../../../core/db/local_db';
 import { DBKeys } from '../../../core/db/db_keys';
 
 export const useKdsStore = defineStore('kds', () => {
-  const orderRepo = new OrderRepositoryImpl();
-  const getOrdersUseCase = new GetOrdersUseCase(orderRepo);
-  const updateOrderStatusUseCase = new UpdateOrderStatusUseCase(orderRepo);
+  const getOrdersUseCase = new GetOrdersUseCase(orderRepository);
+  const updateOrderStatusUseCase = new UpdateOrderStatusUseCase(orderRepository);
 
   // State
   const state = ref<KdsState>({
@@ -132,6 +132,15 @@ export const useKdsStore = defineStore('kds', () => {
 
   // Initial load
   dispatch({ type: 'LOAD_ORDERS' });
+
+  // Real-time socket events for Kitchen Display System
+  adminSocketService.onOrderCreated(() => {
+    dispatch({ type: 'LOAD_ORDERS' });
+  });
+
+  adminSocketService.onOrderStatusChanged(() => {
+    dispatch({ type: 'LOAD_ORDERS' });
+  });
 
   return {
     state,

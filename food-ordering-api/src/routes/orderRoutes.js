@@ -18,7 +18,7 @@ router.get('/analytics', orderController.getOrderAnalytics);
 // View specific order details
 router.get('/:id', orderController.getOrderById);
 
-// Update order status
-router.put('/:id/status', authorizeRoles('user'), orderController.updateOrderStatus);
+// Update order status (Admin, Manager, Kitchen, Staff, Customer)
+router.put('/:id/status', authorizeRoles('admin', 'manager', 'kitchen', 'staff', 'user'), orderController.updateOrderStatus);
 
 module.exports = router;

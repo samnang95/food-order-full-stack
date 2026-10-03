@@ -13,6 +13,8 @@ import {
   computeActiveOrdersCount,
   type OrdersState,
 } from '../orders_state';
+import { adminSocketService } from '../../../core/services/socket_service';
+import { playKitchenChime } from '../../../core/utils/audio_chime';
 
 export const useOrdersStore = defineStore('orders', () => {
   const getOrdersUseCase = new GetOrdersUseCase(orderRepository);
@@ -118,6 +120,60 @@ export const useOrdersStore = defineStore('orders', () => {
 
   // Initial Fetch on store instantiation
   dispatch(OrdersIntents.fetchOrders());
+
+  // Real-time WebSocket Listeners
+  adminSocketService.onOrderCreated((newOrder) => {
+    console.log('⚡ [Admin OrdersStore] Real-time order created received:', newOrder);
+    playKitchenChime();
+    const entity = orderRepository.upsertOrder(newOrder);
+    const existingIndex = state.orders.findIndex((o) => o.id === entity.id);
+    if (existingIndex !== -1) {
+      state.orders[existingIndex] = entity;
+    } else {
+      state.orders.unshift(entity);
+    }
+    applyStateUpdates();
+  });
+
+  adminSocketService.onOrderStatusChanged((payload) => {
+    console.log('⚡ [Admin OrdersStore] Real-time order status updated received:', payload);
+    const orderId = (payload?.orderId || payload?.order?._id || payload?.order?.id || '').toString();
+    if (!orderId) return;
+
+    if (payload.order) {
+      const entity = orderRepository.upsertOrder(payload.order);
+      const existingIndex = state.orders.findIndex((o) => o.id === entity.id);
+      if (existingIndex !== -1) {
+        state.orders[existingIndex] = entity;
+      }
+      if (state.selectedOrder?.id === entity.id) {
+        state.selectedOrder = entity;
+      }
+    } else {
+      const rawStatus = (payload.status || '').toLowerCase();
+      let status: OrderStatus = 'pending';
+      if (rawStatus === 'out_for_delivery' || rawStatus === 'on_delivery') {
+        status = 'on_delivery';
+      } else if (['pending', 'confirmed', 'preparing', 'delivered', 'cancelled'].includes(rawStatus)) {
+        status = rawStatus as OrderStatus;
+      }
+      const existing = state.orders.find((o) => o.id === orderId);
+      if (existing) {
+        existing.status = status;
+        if (payload.paymentStatus === 'completed' || payload.paymentStatus === 'paid') {
+          existing.paymentStatus = 'paid';
+        }
+      }
+      if (state.selectedOrder && state.selectedOrder.id === orderId) {
+        state.selectedOrder.status = status;
+      }
+    }
+    applyStateUpdates();
+  });
+
+  adminSocketService.onPushNotification(() => {
+    dispatch(OrdersIntents.fetchOrders());
+  });
 
   // Direct accessors / bindings
   const orders = computed(() => state.orders);

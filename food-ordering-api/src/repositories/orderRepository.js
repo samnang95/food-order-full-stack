@@ -37,7 +37,9 @@ const orderRepository = {
       id,
       { $set: updateFields },
       { new: true, runValidators: true }
-    );
+    )
+      .populate('user', 'username email')
+      .populate('items.food', 'name imageUrl price');
   }
 };
 

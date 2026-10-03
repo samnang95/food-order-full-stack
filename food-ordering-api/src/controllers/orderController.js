@@ -11,6 +11,10 @@ const placeOrder = async (req, res) => {
 
 const getMyOrders = async (req, res) => {
   try {
+    if (['admin', 'manager', 'kitchen', 'staff'].includes(req.user.role)) {
+      const orders = await orderService.getAllOrders();
+      return res.json(orders);
+    }
     const orders = await orderService.getUserOrders(req.user.id);
     res.json(orders);
   } catch (error) {

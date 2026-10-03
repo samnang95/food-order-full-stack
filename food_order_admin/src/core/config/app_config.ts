@@ -3,6 +3,7 @@ export const AppConfig = Object.freeze({
   appVersion: '1.0.0',
   apiBaseUrl: '/api',
   apiTarget: 'http://localhost:3000',
+  socketUrl: 'http://localhost:3000',
   port: 5174,
   timeoutMs: 10000,
   defaultCurrency: 'USD',
