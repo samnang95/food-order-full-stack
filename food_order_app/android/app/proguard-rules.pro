@@ -21,6 +21,12 @@
 # Java Desugaring
 -dontwarn java.time.**
 
+# Play Core & Flutter Deferred Components
+-dontwarn com.google.android.play.core.**
+-dontwarn com.google.android.play.core.tasks.**
+-dontwarn com.google.android.play.core.splitinstall.**
+-dontwarn com.google.android.play.core.splitcompat.**
+
 # Keep Parcelables & Serialization
 -keepclassmembers class * implements android.os.Parcelable {
     static ** CREATOR;
