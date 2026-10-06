@@ -276,7 +276,7 @@ const i18nStore = useI18nStore();
               ]"
             />
             <span class="text-slate-700 dark:text-slate-300 font-medium">
-              {{ settingsStore.apiStatus === 'connected' ? 'Connected (200 OK)' : settingsStore.apiStatus === 'offline' ? 'Offline / API not running on port 3000' : 'Configured (/api -> localhost:3000)' }}
+              {{ settingsStore.apiStatus === 'connected' ? 'Connected (200 OK)' : settingsStore.apiStatus === 'offline' ? `Offline / API unreachable at ${AppConfig.apiTarget}` : `Configured (${AppConfig.apiBaseUrl} -> ${AppConfig.apiTarget}) [${AppConfig.flavor.toUpperCase()}]` }}
             </span>
           </div>
         </div>
