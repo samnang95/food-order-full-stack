@@ -112,8 +112,12 @@ const filteredNavItems = computed(() => {
           appStore.isSidebarCollapsed ? 'lg:justify-center' : ''
         ]"
       >
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/20 shrink-0">
-          <Flame class="w-6 h-6 text-white" />
+        <div class="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/20 shrink-0">
+          <img
+            src="/app_icon.png"
+            alt="BiteCraft"
+            class="w-full h-full object-cover"
+          />
         </div>
         <div
           v-if="!appStore.isSidebarCollapsed"

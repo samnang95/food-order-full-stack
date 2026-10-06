@@ -104,8 +104,12 @@ async function handleSubmit() {
     <div class="w-full max-w-md relative z-10">
       <!-- Brand Logo Header -->
       <div class="flex flex-col items-center text-center mb-8">
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-orange-600 via-orange-500 to-amber-400 flex items-center justify-center shadow-2xl shadow-orange-500/30 mb-4 ring-4 ring-orange-500/20">
-          <Flame class="w-9 h-9 text-white animate-pulse" />
+        <div class="w-16 h-16 rounded-2xl overflow-hidden bg-gradient-to-tr from-orange-600 via-orange-500 to-amber-400 flex items-center justify-center shadow-2xl shadow-orange-500/30 mb-4 ring-4 ring-orange-500/20">
+          <img
+            src="/app_icon.png"
+            alt="BiteCraft"
+            class="w-full h-full object-cover"
+          />
         </div>
         <h1 class="text-3xl font-extrabold tracking-tight font-display bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
           FoodHub<span class="text-orange-500">.</span> Admin
