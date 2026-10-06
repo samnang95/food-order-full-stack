@@ -85,21 +85,23 @@ const menuStore = useMenuStore();
           <img
             :src="item.image"
             :alt="item.name"
+            loading="lazy"
+            decoding="async"
             class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
           />
           <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
 
-          <span class="absolute top-2.5 left-2.5 text-[10px] font-semibold px-2 py-0.5 rounded-lg bg-slate-900/80 backdrop-blur-md text-slate-200 border border-white/10">
+          <span class="absolute top-2.5 left-2.5 text-[10px] font-semibold px-2 py-0.5 rounded-lg bg-slate-900/90 text-slate-200 border border-white/10">
             {{ item.category }}
           </span>
 
-          <div class="absolute top-2.5 right-2.5 flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-slate-900/80 backdrop-blur-md text-amber-400 border border-white/10">
+          <div class="absolute top-2.5 right-2.5 flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-slate-900/90 text-amber-400 border border-white/10">
             <Star class="w-3 h-3 fill-amber-400" />
             <span>{{ item.rating }}</span>
           </div>
 
           <div class="absolute bottom-2.5 left-2.5">
-            <span class="text-base font-bold font-display text-white bg-slate-900/90 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/10 text-orange-400">
+            <span class="text-base font-bold font-display text-white bg-slate-900/95 px-2.5 py-1 rounded-xl border border-white/10 text-orange-400">
               ${{ item.price.toFixed(2) }}
             </span>
           </div>

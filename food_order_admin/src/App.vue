@@ -25,7 +25,7 @@ const isAuthRoute = computed(() => route.path === AppRoutes.LOGIN);
     <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden w-full">
       <AdminHeader />
 
-      <main class="flex-1 p-3 sm:p-6 md:p-8 max-w-7xl w-full mx-auto overflow-y-auto">
+      <main class="flex-1 p-3 sm:p-6 md:p-8 max-w-7xl w-full mx-auto overflow-y-auto admin-scroll-shell">
         <router-view />
       </main>
     </div>

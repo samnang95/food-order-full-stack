@@ -110,6 +110,8 @@ export function CategoriesView() {
                 <img
                   src={heroImage}
                   alt={cat.name}
+                  loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-85 group-hover:scale-105 transition-all duration-500"
                   onError={(e) => {
                     e.currentTarget.src =
@@ -123,10 +125,10 @@ export function CategoriesView() {
                 {/* Content */}
                 <div className="relative z-10 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl shadow-xs border border-white/20">
+                    <span className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-xl shadow-xs border border-white/20">
                       {icon}
                     </span>
-                    <span className="px-2.5 py-1 rounded-xl bg-orange-500/90 text-white text-[10px] font-black uppercase tracking-wider backdrop-blur-md shadow-xs">
+                    <span className="px-2.5 py-1 rounded-xl bg-orange-500 text-white text-[10px] font-black uppercase tracking-wider shadow-xs">
                       {t('categories.dishesCount', { count })}
                     </span>
                   </div>

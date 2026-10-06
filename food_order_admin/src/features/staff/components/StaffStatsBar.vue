@@ -15,7 +15,7 @@ defineProps<{
 <template>
   <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
     <!-- Total Staff -->
-    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 backdrop-blur-xl relative overflow-hidden group hover:border-slate-700/80 transition">
+    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 relative overflow-hidden group hover:border-slate-700/80 transition">
       <div class="flex items-center justify-between">
         <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Team</span>
         <div class="p-2 rounded-xl bg-slate-800 text-slate-300">
@@ -29,7 +29,7 @@ defineProps<{
     </div>
 
     <!-- Active Now -->
-    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 backdrop-blur-xl relative overflow-hidden group hover:border-emerald-500/30 transition">
+    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 relative overflow-hidden group hover:border-emerald-500/30 transition">
       <div class="flex items-center justify-between">
         <span class="text-xs font-semibold uppercase tracking-wider text-emerald-400">On Duty</span>
         <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -43,7 +43,7 @@ defineProps<{
     </div>
 
     <!-- Kitchen Crew -->
-    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 backdrop-blur-xl relative overflow-hidden group hover:border-emerald-500/30 transition">
+    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 relative overflow-hidden group hover:border-emerald-500/30 transition">
       <div class="flex items-center justify-between">
         <span class="text-xs font-semibold uppercase tracking-wider text-emerald-400">Kitchen</span>
         <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -57,7 +57,7 @@ defineProps<{
     </div>
 
     <!-- Front Desk / Cashiers -->
-    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 backdrop-blur-xl relative overflow-hidden group hover:border-purple-500/30 transition">
+    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 relative overflow-hidden group hover:border-purple-500/30 transition">
       <div class="flex items-center justify-between">
         <span class="text-xs font-semibold uppercase tracking-wider text-purple-400">Cashiers</span>
         <div class="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
@@ -71,7 +71,7 @@ defineProps<{
     </div>
 
     <!-- Management -->
-    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 backdrop-blur-xl relative overflow-hidden group hover:border-orange-500/30 transition col-span-2 lg:col-span-1">
+    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 relative overflow-hidden group hover:border-orange-500/30 transition col-span-2 lg:col-span-1">
       <div class="flex items-center justify-between">
         <span class="text-xs font-semibold uppercase tracking-wider text-orange-400">Leadership</span>
         <div class="p-2 rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20">

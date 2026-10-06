@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppAssets, useTranslation } from '../../core';
 import { AppRoutes, getCategoryDetailRoute, getSearchRoute } from '../../routes/app_routes';
@@ -29,6 +29,10 @@ export function HomeView() {
     return Array.isArray(res) ? res : [];
   }, [filterFoods, filteredFoods]);
 
+  const handleSelectFood = useCallback((selected) => {
+    onIntent(HomeIntent.selectFood(selected));
+  }, [onIntent]);
+
   const scrollCategories = (direction) => {
     if (categoryScrollRef.current) {
       const scrollAmount = direction === 'left' ? -320 : 320;
@@ -50,14 +54,14 @@ export function HomeView() {
       {/* 1. Hero Section */}
       <section className="relative overflow-hidden rounded-2xl sm:rounded-[2.5rem] bg-gradient-to-br from-orange-500 via-amber-500 to-rose-500 text-white p-5 sm:p-12 lg:p-16 shadow-xl shadow-orange-500/20">
         {/* Ambient decorative elements */}
-        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-64 sm:w-80 h-64 sm:h-80 rounded-full bg-black/10 blur-2xl pointer-events-none" />
+        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-white/10 blur-3xl pointer-events-none transform-gpu" />
+        <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-64 sm:w-80 h-64 sm:h-80 rounded-full bg-black/10 blur-2xl pointer-events-none transform-gpu" />
 
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
           {/* Hero Left Content */}
           <div className="lg:col-span-7 space-y-4 sm:space-y-6 text-center lg:text-left">
             {/* Promo Tag */}
-            <div className="inline-flex items-center space-x-1.5 sm:space-x-2 bg-white/20 backdrop-blur-md px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-100 border border-white/25">
+            <div className="inline-flex items-center space-x-1.5 sm:space-x-2 bg-white/20 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-100 border border-white/25">
               <span>🏷️ Promo</span>
               <span className="w-1.5 h-1.5 rounded-full bg-amber-200" />
               <span>{t('home.promoBadge')}</span>
@@ -91,15 +95,15 @@ export function HomeView() {
 
             {/* Trust Badges */}
             <div className="pt-1 sm:pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-2 sm:gap-4 text-[11px] sm:text-xs font-bold text-orange-100">
-              <div className="flex items-center space-x-1.5 bg-white/10 backdrop-blur-md px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full">
+              <div className="flex items-center space-x-1.5 bg-white/15 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full">
                 <span>⚡</span>
                 <span>{t('home.avgDeliveryTime')}</span>
               </div>
-              <div className="flex items-center space-x-1.5 bg-white/10 backdrop-blur-md px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full">
+              <div className="flex items-center space-x-1.5 bg-white/15 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full">
                 <span>⭐</span>
                 <span>{t('home.ratingBadge')}</span>
               </div>
-              <div className="flex items-center space-x-1.5 bg-white/10 backdrop-blur-md px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full">
+              <div className="flex items-center space-x-1.5 bg-white/15 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full">
                 <span>🇰🇭</span>
                 <span>{t('home.paymentBadge')}</span>
               </div>
@@ -189,6 +193,8 @@ export function HomeView() {
                   <img
                     src={heroImg}
                     alt={cat.name}
+                    loading="lazy"
+                    decoding="async"
                     className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-75 group-hover:scale-105 transition-all duration-500"
                     onError={(e) => {
                       e.currentTarget.src =
@@ -332,7 +338,7 @@ export function HomeView() {
               <FoodCard
                 key={food.id}
                 food={food}
-                onSelect={(selected) => onIntent(HomeIntent.selectFood(selected))}
+                onSelect={handleSelectFood}
               />
             ))}
           </div>

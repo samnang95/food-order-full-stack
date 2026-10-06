@@ -131,7 +131,7 @@ async function handleModalSubmit(form: any) {
     <StaffStatsBar :stats="staffStore.stats" />
 
     <!-- Filters & Search Toolbar -->
-    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 backdrop-blur-xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
       <!-- Search Input -->
       <div class="relative flex-1 max-w-md">
         <Search class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -206,7 +206,7 @@ async function handleModalSubmit(form: any) {
     <!-- Empty State -->
     <div
       v-else-if="!staffStore.isLoading"
-      class="py-16 text-center rounded-3xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-xl flex flex-col items-center justify-center p-6"
+      class="py-16 text-center rounded-3xl bg-slate-900/40 border border-slate-800/80 flex flex-col items-center justify-center p-6"
     >
       <div class="w-14 h-14 rounded-2xl bg-slate-800/60 flex items-center justify-center text-slate-500 mb-3">
         <Users class="w-7 h-7" />

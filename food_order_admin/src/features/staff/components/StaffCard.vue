@@ -56,7 +56,7 @@ const shiftLabel = computed(() => {
 </script>
 
 <template>
-  <div class="rounded-2xl bg-slate-900/80 border border-slate-800/80 backdrop-blur-xl p-5 relative overflow-hidden group hover:border-slate-700 transition flex flex-col justify-between">
+  <div class="rounded-2xl bg-slate-900/80 border border-slate-800/80 p-5 relative overflow-hidden group hover:border-slate-700 transition flex flex-col justify-between">
     <!-- Ambient Accent Strip -->
     <div :class="['absolute top-0 left-0 right-0 h-1', roleConfig.themeColor.dot]" />
 
@@ -68,6 +68,8 @@ const shiftLabel = computed(() => {
             <img
               :src="staff.avatar"
               :alt="staff.username"
+              loading="lazy"
+              decoding="async"
               :class="['w-12 h-12 rounded-2xl object-cover ring-2 transition', roleConfig.themeColor.ring]"
             />
             <span

@@ -44,6 +44,8 @@ const topItems = computed(() => {
             <img
               :src="item.image"
               :alt="item.name"
+              loading="lazy"
+              decoding="async"
               class="w-full h-full object-cover group-hover:scale-110 transition duration-300"
             />
             <span class="absolute top-1 left-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-900/80 text-orange-400 font-mono">

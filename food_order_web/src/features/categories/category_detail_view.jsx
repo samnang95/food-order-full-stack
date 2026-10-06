@@ -128,6 +128,8 @@ export function CategoryDetailView() {
         <img
           src={heroImage}
           alt={categoryName}
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover opacity-60 scale-100 hover:scale-105 transition-transform duration-700"
           onError={(e) => {
             e.currentTarget.src =
@@ -142,7 +144,7 @@ export function CategoryDetailView() {
         <div className="relative z-10 p-5 sm:p-8 lg:p-10 w-full">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="space-y-2 sm:space-y-3 max-w-2xl">
-              <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-orange-300 text-xs sm:text-sm font-bold shadow-xs">
+              <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-2xl bg-white/10 border border-white/15 text-orange-300 text-xs sm:text-sm font-bold shadow-xs">
                 <span className="text-base sm:text-lg">{categoryIcon}</span>
                 <span>{categoryName}</span>
               </div>
@@ -159,15 +161,15 @@ export function CategoryDetailView() {
 
             {/* Badges / Highlights */}
             <div className="flex flex-wrap md:flex-col items-start md:items-end gap-2 text-xs font-bold shrink-0">
-              <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-orange-500/90 text-white shadow-md shadow-orange-500/20 backdrop-blur-md">
+              <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-orange-500 text-white shadow-md shadow-orange-500/20">
                 <span>🍽️</span>
                 <span>{t('categoryDetail.dishesAvailable', { count: foods.length })}</span>
               </div>
-              <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-white/15 backdrop-blur-md text-white border border-white/10">
+              <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-white/15 text-white border border-white/10">
                 <span>⭐</span>
                 <span>{t('categoryDetail.topRatedCuisine')}</span>
               </div>
-              <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-white/15 backdrop-blur-md text-white border border-white/10">
+              <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-white/15 text-white border border-white/10">
                 <span>⚡</span>
                 <span>{t('categoryDetail.avgPrepTime')}</span>
               </div>

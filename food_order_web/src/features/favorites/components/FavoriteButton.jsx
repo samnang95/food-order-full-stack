@@ -32,10 +32,10 @@ export function FavoriteButton({ food, size = 'sm', className = '' }) {
       onClick={handleClick}
       aria-label={fav ? t('favorites.removeFromFavorites') : t('favorites.addToFavorites')}
       title={fav ? t('favorites.removeFromFavorites') : t('favorites.addToFavorites')}
-      className={`rounded-full backdrop-blur-md flex items-center justify-center transition-all duration-300 active:scale-90 shadow-md ${sizeClasses} ${
+      className={`rounded-full flex items-center justify-center transition-[transform,colors] duration-200 active:scale-90 shadow-md ${sizeClasses} ${
         fav
           ? 'bg-rose-500 text-white shadow-rose-500/30'
-          : 'bg-white/80 dark:bg-slate-900/80 text-slate-400 hover:text-rose-500 hover:bg-white dark:hover:bg-slate-900 border border-slate-200/60 dark:border-slate-700/60'
+          : 'bg-white/95 dark:bg-slate-900/95 text-slate-400 hover:text-rose-500 hover:bg-white dark:hover:bg-slate-900 border border-slate-200/60 dark:border-slate-700/60'
       } ${animating ? 'scale-125' : 'scale-100'} ${className}`}
     >
       <svg

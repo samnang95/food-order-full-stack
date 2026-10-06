@@ -101,7 +101,7 @@ function handleTestSound(type: 'kitchen' | 'transition' | 'urgent') {
 <template>
   <div class="space-y-6">
     <!-- KDS Top Action Bar -->
-    <div class="p-4 md:p-5 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl backdrop-blur-xl space-y-4">
+    <div class="p-4 md:p-5 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-4">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <!-- Title & Station Branding -->
         <div class="flex items-center gap-3">

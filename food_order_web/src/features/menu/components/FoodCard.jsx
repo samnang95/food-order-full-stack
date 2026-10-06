@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import { useCart } from '../../cart/use_cart';
 import { formatUsd, formatKhr } from '../../../core';
@@ -6,7 +6,7 @@ import { FavoriteButton } from '../../favorites';
 import { useGroupOrder } from '../../group_order';
 import { MacroBreakdownBadge } from '../../dietary';
 
-export function FoodCard({ food, onSelect }) {
+function FoodCardComponent({ food, onSelect }) {
   const { addItem } = useCart();
   const { isGroupOrderActive, addItemToGroup } = useGroupOrder();
   const [isAdding, setIsAdding] = useState(false);
@@ -24,14 +24,16 @@ export function FoodCard({ food, onSelect }) {
   return (
     <div
       onClick={() => onSelect(food)}
-      className="group bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col h-full"
+      className="group bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1 transition-[transform,box-shadow,border-color] duration-200 cursor-pointer flex flex-col h-full"
     >
       {/* Thumbnail Container */}
       <div className="relative h-36 sm:h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
         <img
           src={food.imageUrl}
           alt={food.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+          decoding="async"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           onError={(e) => {
             e.currentTarget.src =
               'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400';
@@ -40,7 +42,7 @@ export function FoodCard({ food, onSelect }) {
 
         {/* Category Pill */}
         {food.categoryName && (
-          <span className="absolute top-2 left-2 sm:top-3 sm:left-3 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[9px] sm:text-[11px] font-bold uppercase tracking-wider bg-slate-900/75 backdrop-blur-md text-white shadow-xs">
+          <span className="absolute top-2 left-2 sm:top-3 sm:left-3 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[9px] sm:text-[11px] font-bold uppercase tracking-wider bg-slate-900/90 text-white shadow-xs">
             {food.categoryName}
           </span>
         )}
@@ -51,7 +53,7 @@ export function FoodCard({ food, onSelect }) {
         </div>
 
         {/* Prep Time / Rating */}
-        <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 flex items-center space-x-1 sm:space-x-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-[9px] sm:text-[11px] font-bold text-slate-800 dark:text-slate-200 shadow-xs">
+        <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 flex items-center space-x-1 sm:space-x-1.5 bg-white/95 dark:bg-slate-900/95 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-[9px] sm:text-[11px] font-bold text-slate-800 dark:text-slate-200 shadow-xs">
           <span>⭐ 4.8</span>
           <span className="text-slate-400">•</span>
           <span>⏱️ 20m</span>
@@ -102,11 +104,12 @@ export function FoodCard({ food, onSelect }) {
         </div>
       </div>
     </div>
-
   );
 }
 
-FoodCard.propTypes = {
+FoodCardComponent.propTypes = {
   food: PropTypes.object.isRequired,
   onSelect: PropTypes.func.isRequired,
 };
+
+export const FoodCard = memo(FoodCardComponent);
