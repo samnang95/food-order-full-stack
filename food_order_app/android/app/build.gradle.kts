@@ -61,6 +61,25 @@ android {
             )
         }
     }
+
+    applicationVariants.all {
+        outputs.all {
+            val output = this as? com.android.build.gradle.internal.api.ApkVariantOutputImpl
+            if (output != null) {
+                output.outputFileName = "food-order-app.apk"
+            }
+        }
+        assembleProvider.configure {
+            doLast {
+                val srcApk = File(layout.buildDirectory.asFile.get(), "outputs/apk/${flavorName}/${buildType.name}/food-order-app.apk")
+                val destFile = File(layout.buildDirectory.asFile.get(), "outputs/flutter-apk/food-order-app.apk")
+                if (srcApk.exists()) {
+                    destFile.parentFile.mkdirs()
+                    srcApk.copyTo(destFile, overwrite = true)
+                }
+            }
+        }
+    }
 }
 
 kotlin {
