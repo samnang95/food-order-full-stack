@@ -60,9 +60,9 @@ export function Navbar() {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
-        <div className="w-full max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 h-16 sm:h-18 flex items-center justify-between gap-2">
+        <div className="w-full max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 h-16 sm:h-20 flex items-center justify-between gap-1.5 sm:gap-2">
         {/* Brand Logo & Name */}
-        <Link to={AppRoutes.ROOT} className="flex items-center space-x-2.5 sm:space-x-3 group shrink-0 min-w-max">
+        <Link to={AppRoutes.ROOT} className="flex items-center space-x-2 sm:space-x-3 group shrink-0 min-w-0">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white text-lg sm:text-xl font-bold shadow-md shadow-orange-500/25 group-hover:scale-105 transition-transform shrink-0">
             <img
               src={AppAssets.images.appIcon}
@@ -73,18 +73,13 @@ export function Navbar() {
               }}
             />
           </div>
-          <div className="shrink-0">
-            <div className="flex items-center space-x-1.5 sm:space-x-2">
-              <span className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white whitespace-nowrap">
-                {t('common.appName')}
-              </span>
-              <span className="px-1.5 sm:px-2 py-0.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 rounded-md shrink-0">
-                {t('common.location')}
-              </span>
-            </div>
-            <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 hidden 2xl:block whitespace-nowrap">
-              {t('common.tagline')}
-            </p>
+          <div className="shrink-0 flex items-center space-x-1.5 sm:space-x-2">
+            <span className="text-base sm:text-xl font-black tracking-tight text-slate-900 dark:text-white whitespace-nowrap">
+              {t('common.appName')}
+            </span>
+            <span className="hidden sm:inline-flex px-1.5 sm:px-2 py-0.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 rounded-md shrink-0">
+              {t('common.location')}
+            </span>
           </div>
         </Link>
 
@@ -247,7 +242,7 @@ export function Navbar() {
           {/* Quick Search Button */}
           <Link
             to={AppRoutes.SEARCH}
-            className="p-2 rounded-xl bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 hover:border-orange-500/40 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 flex items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs active:scale-95 shrink-0"
+            className="hidden sm:flex p-2 rounded-xl bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 hover:border-orange-500/40 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs active:scale-95 shrink-0"
             aria-label="Search"
             title={t('navigation.search', 'Search')}
           >
@@ -274,10 +269,10 @@ export function Navbar() {
             <NotificationDropdown />
           </div>
 
-          {/* Cart Button */}
+          {/* Cart Button (hidden on mobile, served prominently by MobileBottomNav) */}
           <button
             onClick={openCart}
-            className="relative p-2 sm:px-2.5 py-1.5 2xl:px-3 rounded-xl bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/40 dark:hover:bg-orange-950/70 border border-orange-200 dark:border-orange-900/60 hover:border-orange-400 text-orange-600 dark:text-orange-400 flex items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-orange-500/15 active:scale-95 shrink-0"
+            className="hidden md:flex relative p-2 sm:px-2.5 py-1.5 2xl:px-3 rounded-xl bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/40 dark:hover:bg-orange-950/70 border border-orange-200 dark:border-orange-900/60 hover:border-orange-400 text-orange-600 dark:text-orange-400 items-center space-x-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-orange-500/15 active:scale-95 shrink-0"
             aria-label="Open Cart"
             title={t('navigation.cart', 'Cart')}
           >
@@ -294,10 +289,10 @@ export function Navbar() {
           {isAuthenticated ? (
             <Link
               to={AppRoutes.PROFILE}
-              className="flex items-center space-x-2 bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 px-2 sm:px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-orange-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs shrink-0"
+              className="flex items-center space-x-1.5 sm:space-x-2 bg-slate-100 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700/80 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-orange-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs shrink-0"
               title={user?.username || 'Profile'}
             >
-              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full overflow-hidden bg-orange-500 text-white font-black text-[10px] sm:text-xs flex items-center justify-center uppercase shrink-0">
+              <div className="w-6 h-6 rounded-full overflow-hidden bg-orange-500 text-white font-black text-[10px] sm:text-xs flex items-center justify-center uppercase shrink-0">
                 {user?.avatar ? (
                   <img
                     src={user.avatar}
@@ -324,11 +319,11 @@ export function Navbar() {
             </button>
           )}
 
-          {/* Language Toggle */}
-          <LanguageToggle />
-
-          {/* Theme Toggle */}
-          <ThemeToggle />
+          {/* Desktop Language & Theme Toggles */}
+          <div className="hidden sm:flex items-center space-x-1 shrink-0">
+            <LanguageToggle />
+            <ThemeToggle />
+          </div>
 
           {/* Settings Quick Link */}
           <Link
@@ -353,7 +348,7 @@ export function Navbar() {
           {/* Mobile Menu Toggle Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="lg:hidden p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0"
             aria-label="Toggle navigation menu"
           >
             <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -525,6 +520,17 @@ export function Navbar() {
             </div>
           </NavLink>
 
+          {/* Mobile Language & Theme Preferences */}
+          <div className="p-3 rounded-2xl bg-slate-100/80 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+              {t('common.language')} & Theme
+            </span>
+            <div className="flex items-center space-x-2">
+              <LanguageToggle />
+              <ThemeToggle />
+            </div>
+          </div>
+
           {isAuthenticated ? (
             <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2 px-2">
               <Link
@@ -582,7 +588,7 @@ export function Navbar() {
 
     </header>
       {/* Spacer preserving exact document flow height below fixed appbar */}
-      <div className="h-16 sm:h-18 shrink-0" aria-hidden="true" />
+      <div className="h-16 sm:h-20 shrink-0" aria-hidden="true" />
     </>
   );
 }

@@ -55,7 +55,7 @@ export function NotificationDropdown() {
   return (
     <div
       ref={dropdownRef}
-      className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
+      className="fixed inset-x-3 top-16 sm:absolute sm:inset-auto sm:right-0 sm:top-full sm:mt-2 sm:w-96 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
     >
       {/* Dropdown Header */}
       <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
