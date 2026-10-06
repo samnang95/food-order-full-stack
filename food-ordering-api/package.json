@@ -2,10 +2,24 @@
   "name": "food-ordering-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/app.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
+    "start:dev": "node src/app.js --flavor=dev",
+    "start:staging": "node src/app.js --flavor=staging",
+    "start:prod": "node src/app.js --flavor=prod",
+    "dev": "nodemon src/app.js --flavor=dev",
+    "dev:staging": "nodemon src/app.js --flavor=staging",
+    "dev:prod": "nodemon src/app.js --flavor=prod",
+    "seed:dev": "node src/seed.js --flavor=dev",
+    "seed:staging": "node src/seed.js --flavor=staging",
+    "seed:prod": "node src/seed.js --flavor=prod",
+    "seed:staff:dev": "node src/seed_staff.js --flavor=dev",
+    "seed:staff:staging": "node src/seed_staff.js --flavor=staging",
+    "seed:staff:prod": "node src/seed_staff.js --flavor=prod",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -24,7 +38,9 @@
     "mongoose": "^9.10.1",
     "multer": "^2.4.0",
     "multer-storage-cloudinary": "^4.0.0",
-    "nodemon": "^3.1.14",
     "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }

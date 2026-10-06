@@ -1,11 +1,13 @@
-require('dotenv').config();
+const { flavor, shortFlavor } = require('./config/env');
 const express = require('express');
 const http = require('http');
+const mongoose = require('mongoose');
 const connectDB = require('./db/database');
 const cors = require('cors');
 const { initSocket } = require('./socket/socketManager');
 const app = express();
 const port = process.env.PORT || 3000;
+const host = process.env.HOST || '0.0.0.0';
 
 // Create HTTP server and attach Socket.IO
 const server = http.createServer(app);
@@ -19,11 +21,31 @@ app.use(express.json());
 
 // Root & Health Check endpoints
 app.get('/', (req, res) => {
-  res.json({ status: 'ok', message: 'Food Ordering API is running' });
+  res.json({
+    status: 'ok',
+    message: 'Food Ordering API is running',
+    flavor: shortFlavor,
+    environment: flavor,
+  });
 });
 
+const DB_STATES = {
+  0: 'disconnected',
+  1: 'connected',
+  2: 'connecting',
+  3: 'disconnecting',
+};
+
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  const dbState = DB_STATES[mongoose.connection.readyState] || 'unknown';
+  res.json({
+    status: 'ok',
+    database: dbState,
+    flavor: shortFlavor,
+    environment: flavor,
+    port: Number(port),
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // Routes
@@ -92,10 +114,54 @@ app.use('/support', supportRoutes);
 const paymentRoutes = require('./routes/paymentRoutes');
 app.use('/payments', paymentRoutes);
 
+// 404 Route Handler for undefined endpoints
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Route not found',
+    path: req.originalUrl,
+    method: req.method,
+  });
+});
+
+// Centralized JSON Error Handler (prevents stack leak in production)
+app.use((err, req, res, next) => {
+  console.error('💥 [Server Error]:', err);
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({
+    error: err.message || 'Internal Server Error',
+    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
+  });
+});
+
 // Connect to MongoDB
 connectDB();
 
-// Start the HTTP server (Express + Socket.IO)
-server.listen(port, () => {
-  console.log(`Food Ordering API is running at http://localhost:${port}`);
+// Start the HTTP server (Express + Socket.IO) bound to 0.0.0.0
+server.listen(port, host, () => {
+  console.log(`Food Ordering API is running at http://${host}:${port}`);
 });
+
+// Graceful shutdown handling for container and cloud deployments
+const gracefulShutdown = (signal) => {
+  console.log(`\n🛑 [Shutdown] Received ${signal}. Closing HTTP and WebSocket connections...`);
+  server.close(async () => {
+    console.log('🔌 [Shutdown] HTTP/WebSocket server closed.');
+    try {
+      await mongoose.connection.close(false);
+      console.log('🍃 [Shutdown] MongoDB connection closed.');
+      process.exit(0);
+    } catch (err) {
+      console.error('❌ [Shutdown] Error closing MongoDB connection:', err);
+      process.exit(1);
+    }
+  });
+
+  // Force shutdown if connections do not close within 10s
+  setTimeout(() => {
+    console.error('⚠️ [Shutdown] Forced shutdown after 10s timeout.');
+    process.exit(1);
+  }, 10000).unref();
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));

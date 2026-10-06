@@ -12,29 +12,31 @@ const protect = async (req, res, next) => {
       // Extract token from "Bearer <token>"
       token = req.headers.authorization.split(' ')[1];
 
-      // Support development/demo fallback token seamlessly
-      if (token === 'token_phnom_penh_verified') {
-        let fallbackUser = await User.findOne({ username: 'samnang' });
-        if (!fallbackUser) {
-          fallbackUser = await User.findOne();
+      // Support development/demo fallback token only in non-production environments
+      if (process.env.NODE_ENV !== 'production') {
+        if (token === 'token_phnom_penh_verified') {
+          let fallbackUser = await User.findOne({ username: 'samnang' });
+          if (!fallbackUser) {
+            fallbackUser = await User.findOne();
+          }
+          if (fallbackUser) {
+            req.user = { id: fallbackUser._id, username: fallbackUser.username, role: fallbackUser.role };
+            return next();
+          }
         }
-        if (fallbackUser) {
-          req.user = { id: fallbackUser._id, username: fallbackUser.username, role: fallbackUser.role };
-          return next();
-        }
-      }
 
-      if (token && (token.startsWith('demo_jwt_token_') || token.startsWith('reg_token_') || token.startsWith('foodhub_admin_') || token === 'admin_token')) {
-        let adminUser = await User.findOne({ role: 'admin' });
-        if (!adminUser) {
-          adminUser = await User.findOne({ username: 'admin' });
-        }
-        if (!adminUser) {
-          adminUser = await User.findOne();
-        }
-        if (adminUser) {
-          req.user = { id: adminUser._id, username: adminUser.username, role: 'admin' };
-          return next();
+        if (token && (token.startsWith('demo_jwt_token_') || token.startsWith('reg_token_') || token.startsWith('foodhub_admin_') || token === 'admin_token')) {
+          let adminUser = await User.findOne({ role: 'admin' });
+          if (!adminUser) {
+            adminUser = await User.findOne({ username: 'admin' });
+          }
+          if (!adminUser) {
+            adminUser = await User.findOne();
+          }
+          if (adminUser) {
+            req.user = { id: adminUser._id, username: adminUser.username, role: 'admin' };
+            return next();
+          }
         }
       }
       
@@ -43,8 +45,8 @@ const protect = async (req, res, next) => {
       try {
         decoded = jwt.verify(token, JWT_SECRET);
       } catch (err) {
-        if (err.name === 'TokenExpiredError') {
-          // Gracefully honor authenticated user identity to prevent checkout friction
+        if (err.name === 'TokenExpiredError' && process.env.NODE_ENV !== 'production') {
+          // Gracefully honor authenticated user identity in development to prevent checkout friction
           const unverified = jwt.decode(token);
           if (unverified && unverified.id) {
             req.user = unverified;

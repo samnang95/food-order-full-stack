@@ -6,6 +6,9 @@ const userRepository = require('../repositories/userRepository');
 // Secret key for JWT
 const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_123';
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'my_refresh_secret_key_123';
+if (process.env.NODE_ENV === 'production' && (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET)) {
+  console.warn('⚠️ [SECURITY WARNING] JWT_SECRET or REFRESH_TOKEN_SECRET is using default fallback! Please configure strong random secrets in production environment.');
+}
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const authService = {
