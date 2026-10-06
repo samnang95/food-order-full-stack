@@ -63,8 +63,8 @@ const statusOptions = [
 </script>
 
 <template>
-  <header class="h-16 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20 transition-colors">
-    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+  <header class="h-16 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl px-3 sm:px-6 flex items-center justify-between sticky top-0 z-20 transition-colors">
+    <div class="flex items-center gap-2 sm:gap-4 min-w-0">
       <!-- Mobile Sidebar Hamburger Toggle -->
       <button
         type="button"
@@ -76,7 +76,7 @@ const statusOptions = [
       </button>
 
       <div class="min-w-0">
-        <h1 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white font-display tracking-tight truncate flex items-center gap-2">
+        <h1 class="text-sm sm:text-lg font-bold text-slate-900 dark:text-white font-display tracking-tight truncate flex items-center gap-2">
           {{ getPageTitle() }}
         </h1>
         <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
@@ -99,21 +99,22 @@ const statusOptions = [
       </kbd>
     </div>
 
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
       <!-- Restaurant Status Dropdown -->
       <div class="relative">
         <button
           @click="showStatusDropdown = !showStatusDropdown; showThemeMenu = false; showLangMenu = false; showNotifications = false"
-          class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-xs font-semibold hover:border-slate-300 dark:hover:border-slate-600 transition cursor-pointer"
+          class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-xs font-semibold hover:border-slate-300 dark:hover:border-slate-600 transition cursor-pointer shrink-0"
         >
           <span
             :class="[
-              'w-2 h-2 rounded-full',
+              'w-2 h-2 rounded-full shrink-0',
               appStore.restaurantStatus === 'open' ? 'bg-emerald-500 animate-pulse' :
               appStore.restaurantStatus === 'busy' ? 'bg-amber-500' : 'bg-rose-500'
             ]"
           />
-          <span class="text-slate-700 dark:text-slate-200">{{ t('common.' + appStore.restaurantStatus + 'Status') }}</span>
+          <span class="hidden sm:inline text-slate-700 dark:text-slate-200">{{ t('common.' + appStore.restaurantStatus + 'Status') }}</span>
+          <span class="sm:hidden text-slate-700 dark:text-slate-200 capitalize text-[11px]">{{ appStore.restaurantStatus }}</span>
         </button>
 
         <div

@@ -79,10 +79,11 @@ const filteredNavItems = computed(() => {
 
   <aside
     :class="[
-      'h-screen sticky top-0 flex flex-col border-r border-slate-200/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl select-none shrink-0 relative overflow-hidden transition-all duration-300',
-      'fixed inset-y-0 left-0 z-50 lg:static',
-      appStore.isMobileSidebarOpen ? 'translate-x-0 shadow-2xl shadow-black' : '-translate-x-full lg:translate-x-0',
-      'w-72 lg:w-auto',
+      'flex flex-col border-r border-slate-200/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl select-none shrink-0 overflow-hidden transition-all duration-300',
+      'fixed inset-y-0 left-0 z-50 h-screen w-72 lg:relative lg:inset-auto lg:z-auto lg:h-screen',
+      appStore.isMobileSidebarOpen
+        ? 'translate-x-0 shadow-2xl shadow-black pointer-events-auto'
+        : '-translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto',
       appStore.isSidebarCollapsed ? 'lg:w-20' : 'lg:w-64'
     ]"
   >
